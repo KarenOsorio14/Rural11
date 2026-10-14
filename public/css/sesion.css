@@ -71,7 +71,6 @@
   border-color: var(--mint);
 }
 
-.ps-tema__icono { font-size: 1.6rem; }
 .ps-tema__texto { display: grid; gap: 0.1rem; min-width: 0; }
 .ps-tema__nombre { font-weight: 700; }
 .ps-tema__cuenta { font-size: 0.85rem; color: var(--muted); }
@@ -91,6 +90,17 @@
 .ps-tema[aria-pressed="true"] .ps-tema__check {
   background: var(--mint);
   border-color: var(--mint);
+}
+
+/* Marca de selección dibujada con CSS (sin símbolos de texto) */
+.ps-tema[aria-pressed="true"] .ps-tema__check::after {
+  content: "";
+  width: 6px;
+  height: 12px;
+  margin-top: -2px;
+  border: solid #06332B;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
 }
 
 .ps-resumen { font-size: 0.9rem; color: var(--muted); text-align: center; }

@@ -76,12 +76,12 @@ function vistaTemas() {
     const marcado = estado.temas.includes(t.id);
     return `
       <button type="button" class="ps-tema" data-tema="${t.id}" aria-pressed="${marcado}">
-        <span class="ps-tema__icono" aria-hidden="true">${t.icon}</span>
+        <span class="topic-mono topic-mono--${t.id}" aria-hidden="true">${esc(t.category.charAt(0))}</span>
         <span class="ps-tema__texto">
           <span class="ps-tema__nombre">${esc(t.name)}</span>
           <span class="ps-tema__cuenta">${cuentaTema(t.id)} preguntas</span>
         </span>
-        <span class="ps-tema__check" aria-hidden="true">${marcado ? '✓' : ''}</span>
+        <span class="ps-tema__check" aria-hidden="true"></span>
       </button>`;
   }).join('');
 
@@ -152,7 +152,7 @@ function vistaPregunta() {
         <div class="ps-progreso__barra"><div class="ps-progreso__relleno" data-ancho="${porcentaje}"></div></div>
         <p class="ps-progreso__txt">Pregunta ${estado.actual + 1} de ${n}</p>
       </div>
-      <p class="ps-etiqueta">${tema.icon} ${esc(tema.category)}${p.tipo === 'vf' ? ' · Verdadero o falso' : ''}</p>
+      <p class="ps-etiqueta">${esc(tema.category)}${p.tipo === 'vf' ? ' · Verdadero o falso' : ''}</p>
       <h1 class="ps-pregunta">${esc(p.text)}</h1>
       <div class="ps-opciones">${opciones}</div>
       <p class="ps-aviso ps-aviso--error" role="alert" ${estado.errorRespuesta ? '' : 'hidden'}>Elige una respuesta para continuar.</p>
@@ -312,7 +312,7 @@ root.addEventListener('click', (e) => {
   }
 });
 
-// La flecha ← vuelve un paso; en el primer paso (o en el resultado) va al inicio.
+// La flecha de regreso vuelve un paso; en el primer paso (o en el resultado) va al inicio.
 volver.addEventListener('click', (e) => {
   if (estado.paso === 'cantidad') { e.preventDefault(); estado.paso = 'temas'; dibujar(); }
   if (estado.paso === 'preguntas' && estado.actual > 0) { e.preventDefault(); estado.actual--; dibujar(); }

@@ -11,7 +11,6 @@
 //   id          -> identificador corto usado en la URL (?topic=historia)
 //   name        -> nombre completo mostrado en la UI
 //   category    -> debe coincidir EXACTAMENTE con "category" de los cuestionarios de este tema
-//   icon        -> emoji usado como ícono visual
 //   description -> texto descriptivo corto
 //   badge       -> etiqueta pequeña mostrada en la tarjeta del tema
 //
@@ -22,7 +21,6 @@
 //   category        -> debe coincidir con "category" de un TOPIC
 //   difficulty      -> texto libre (Básico/Intermedio/Avanzado)
 //   durationMinutes -> minutos estimados para completarlo
-//   icon            -> emoji del cuestionario
 //   questions       -> arreglo de preguntas, cada una con:
 //       id            -> identificador corto de la pregunta
 //       text          -> enunciado de la pregunta
@@ -35,7 +33,6 @@ export const TOPICS = [
     id: 'historia',
     name: 'Historia de Colombia y Universal',
     category: 'Historia',
-    icon: '🏛️',
     description: 'Emancipación, culturas precolombinas, época republicana y acontecimientos del siglo XX.',
     badge: 'Procesos Históricos'
   },
@@ -43,7 +40,6 @@ export const TOPICS = [
     id: 'geografia',
     name: 'Geografía y Territorio Nacional',
     category: 'Geografía',
-    icon: '🌍',
     description: '6 regiones naturales, sistema andino de 3 cordilleras, páramos, biodiversidad y geopolítica.',
     badge: 'Espacio y Territorio'
   },
@@ -51,7 +47,6 @@ export const TOPICS = [
     id: 'constitucion',
     name: 'Constitución y Competencias Ciudadanas',
     category: 'Constitución y Ciudadanía',
-    icon: '⚖️',
     description: 'Estado Social de Derecho, derechos fundamentales, Acción de Tutela y mecanismos de participación.',
     badge: 'Democracia y Leyes'
   },
@@ -59,7 +54,6 @@ export const TOPICS = [
     id: 'sociedad',
     name: 'Sociedad, Cultura y Diversidad Étnica',
     category: 'Sociedad y Cultura',
-    icon: '🏺',
     description: 'Pluriculturalismo nacional, Declaración Universal de los DD.HH., sociología y pensamiento crítico.',
     badge: 'Cultura y Derechos'
   }
@@ -74,7 +68,6 @@ export const QUESTIONNAIRES = [
     category: 'Historia', // <- coincide con TOPICS[0].category
     difficulty: 'Intermedio',
     durationMinutes: 6,
-    icon: '🏛️',
     questions: [
       // Cada pregunta: 4 opciones (índices 0-3) y correctIndex apunta a la respuesta válida.
       {
@@ -134,7 +127,6 @@ export const QUESTIONNAIRES = [
     category: 'Geografía', // <- coincide con TOPICS[1].category
     difficulty: 'Básico / Intermedio',
     durationMinutes: 5,
-    icon: '🌍',
     questions: [
       {
         id: 'g1',
@@ -193,7 +185,6 @@ export const QUESTIONNAIRES = [
     category: 'Constitución y Ciudadanía', // <- coincide con TOPICS[2].category
     difficulty: 'Avanzado',
     durationMinutes: 7,
-    icon: '⚖️',
     questions: [
       {
         id: 'c1',
@@ -252,7 +243,6 @@ export const QUESTIONNAIRES = [
     category: 'Sociedad y Cultura', // <- coincide con TOPICS[3].category
     difficulty: 'Intermedio',
     durationMinutes: 5,
-    icon: '🏺',
     questions: [
       {
         id: 's1',

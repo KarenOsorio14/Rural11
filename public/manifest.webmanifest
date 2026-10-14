@@ -1,7 +1,7 @@
 {
-  "name": "Mi PWA",
-  "short_name": "Mi PWA",
-  "description": "Monolito modular con inicio de sesión y sesión persistente.",
+  "name": "Rural 11",
+  "short_name": "Rural 11",
+  "description": "Prepárate para el ICFES en Ciencias Sociales: ruta de aprendizaje y práctica libre.",
   "lang": "es",
   "start_url": "/",
   "scope": "/",

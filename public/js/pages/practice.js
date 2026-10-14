@@ -14,6 +14,10 @@ import {
 
 const practiceMain = document.getElementById('practice-main');
 const topbarTopicTitle = document.getElementById('topbar-topic-title');
+const ICON_BACK = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+const ICON_NEXT = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+// Flechas dibujadas con SVG (sin emojis ni símbolos de texto).
+
 const topicAvatar = document.getElementById('topic-avatar');
 const topicTitle = document.getElementById('topic-title');
 const topicDesc = document.getElementById('topic-desc');
@@ -64,7 +68,8 @@ async function renderTopicCatalog() {
     const topicHistory = allHistory.filter((h) => h.category === currentTopic.category);
 
     topbarTopicTitle.textContent = currentTopic.name;
-    topicAvatar.textContent = currentTopic.icon;
+    topicAvatar.textContent = currentTopic.category.charAt(0);
+    topicAvatar.classList.add(`topic-mono--${currentTopic.id}`);
     topicTitle.textContent = currentTopic.name;
     topicDesc.textContent = currentTopic.description;
     topicBadge.textContent = currentTopic.badge || currentTopic.category;
@@ -87,7 +92,7 @@ async function renderTopicCatalog() {
           return `
           <article class="q-card">
             <div class="q-card__top">
-              <span class="q-card__icon">${q.icon}</span>
+              <span class="topic-mono topic-mono--${currentTopic.id}">${currentTopic.category.charAt(0)}</span>
               <div class="q-card__badges">
                 <span class="q-card__badge">${q.difficulty}</span>
                 ${scoreBadge}
@@ -96,8 +101,8 @@ async function renderTopicCatalog() {
             <h3 class="q-card__title">${q.title}</h3>
             <p class="q-card__desc">${q.description}</p>
             <div class="q-card__meta">
-              <span>📝 ${q.questionsCount} preguntas</span>
-              <span>⏱️ ~${q.durationMinutes} min</span>
+              <span>${q.questionsCount} preguntas</span>
+              <span>~${q.durationMinutes} min</span>
             </div>
             <button class="btn btn--primary q-card__btn" data-action="start-quiz" data-id="${q.id}">
               ${q.bestScore !== null ? 'Reintentar práctica' : 'Comenzar práctica'}
@@ -175,7 +180,7 @@ function renderQuestion() {
     <div class="q-player">
       <div class="q-player__nav">
         <button class="btn btn--ghost btn--sm" id="q-player-cancel">
-          ← Salir al tema
+          ${ICON_BACK} Salir al tema
         </button>
         <span class="q-player__count">
           Pregunta ${currentQuestionIndex + 1} de ${total}
@@ -210,12 +215,12 @@ function renderQuestion() {
 
       <div class="q-player__controls">
         <button class="btn btn--ghost" id="q-btn-prev" ${isFirst ? 'disabled' : ''}>
-          ← Anterior
+          ${ICON_BACK} Anterior
         </button>
         ${
           isLast
-            ? `<button class="btn btn--primary" id="q-btn-submit">Finalizar y Calificar ✨</button>`
-            : `<button class="btn btn--primary" id="q-btn-next">Siguiente →</button>`
+            ? `<button class="btn btn--primary" id="q-btn-submit">Finalizar y calificar</button>`
+            : `<button class="btn btn--primary" id="q-btn-next">Siguiente ${ICON_NEXT}</button>`
         }
       </div>
     </div>
@@ -319,7 +324,7 @@ async function finishQuiz() {
             ${result.review
               .map((item, idx) => {
                 const isOk = item.isCorrect;
-                const statusIcon = isOk ? '✅ Correcta' : '❌ Incorrecta';
+                const statusIcon = isOk ? 'Correcta' : 'Incorrecta';
                 const itemClass = isOk ? 'q-review-item--correct' : 'q-review-item--incorrect';
                 const yourChoice = item.selectedIndex !== null ? item.options[item.selectedIndex] : 'Sin responder';
                 const correctChoice = item.options[item.correctIndex];
@@ -337,7 +342,7 @@ async function finishQuiz() {
                     ${!isOk ? `<div><strong>Respuesta correcta:</strong> <span class="text-ok text-strong">${correctChoice}</span></div>` : ''}
                   </div>
                   <div class="q-review-item__explanation">
-                    💡 <strong>Explicación:</strong> ${item.explanation}
+                    <strong>Explicación:</strong> ${item.explanation}
                   </div>
                 </div>
               `;
@@ -348,10 +353,10 @@ async function finishQuiz() {
 
         <div class="q-results__footer">
           <button class="btn btn--ghost" id="q-btn-return-catalog">
-            ← Volver a cuestionarios de este tema
+            ${ICON_BACK} Volver a cuestionarios de este tema
           </button>
           <button class="btn btn--primary" id="q-btn-retry">
-            🔄 Reintentar este cuestionario
+            Reintentar este cuestionario
           </button>
         </div>
       </div>
