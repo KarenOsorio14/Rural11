@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Iniciar sesión · Mi PWA</title>
+  <meta name="theme-color" content="#2447d6">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+  <button class="theme-toggle theme-toggle--floating" id="theme-toggle" type="button" aria-label="Cambiar tema">🌙</button>
+
+  <main class="auth">
+    <section class="auth__brand">
+      <p class="auth__name">Mi PWA</p>
+      <p class="auth__lead">Inicia sesión para continuar donde lo dejaste.</p>
+    </section>
+
+    <section class="auth__panel">
+      <form id="login-form" class="auth__form" novalidate autocomplete="off">
+        <h1 class="auth__title">Iniciar sesión</h1>
+
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+
+        <div class="field">
+          <label class="field__label" for="documentNumber">Número de identidad</label>
+          <div class="field__control">
+            <input class="field__input" id="documentNumber" name="documentNumber" type="text"
+                   inputmode="numeric" pattern="[0-9]*" placeholder="Ingresa tu documento de identidad"
+                   autocomplete="username" autocapitalize="none" spellcheck="false"
+                   aria-describedby="document-error" required>
+          </div>
+          <p class="field__error" id="document-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="password">Contraseña</label>
+          <div class="field__control">
+            <input class="field__input" id="password" name="password" type="password"
+                   autocomplete="new-password" aria-describedby="password-error" required>
+            <button class="field__toggle" id="toggle-password" type="button"
+                    aria-controls="password" aria-pressed="false">Mostrar</button>
+          </div>
+          <p class="field__error" id="password-error" hidden></p>
+        </div>
+        <p class="auth-switch">¿Olvidaste tu contraseña? <a href="/reset-password.html">Restablecer contraseña</a></p>
+
+        <label class="check">
+          <input type="checkbox" id="remember" name="remember">
+          <span>Recordar credenciales</span>
+        </label>
+
+        <button class="btn btn--primary" id="submit" type="submit">Iniciar sesión</button>
+
+        <p class="auth-switch">¿No tienes cuenta? <a href="/register.html">Crear cuenta</a></p>
+      </form>
+    </section>
+  </main>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script type="module" src="/js/pages/login.js"></script>
+</body>
+</html>

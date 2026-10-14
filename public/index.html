@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Inicio PWA</title>
+  <meta name="theme-color" content="#2447d6">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/questionnaires.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <span class="topbar__brand">Mi PWA</span>
+    <div class="topbar__actions">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">🌙</button>
+      <button class="btn btn--ghost" id="logout" type="button">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="home" id="home" hidden>
+    <!-- Tarjeta de Perfil de Usuario con Avatar -->
+    <section class="user-profile" id="user-profile-section">
+      <div class="user-profile__header">
+        <div class="user-avatar" id="user-avatar" aria-hidden="true">CS</div>
+        <div class="user-profile__details">
+          <h1 class="user-profile__name" id="profile-name">Cargando perfil...</h1>
+          <p class="user-profile__email" id="profile-email">correo@ejemplo.com</p>
+          <div class="user-profile__badges">
+            <span class="user-profile__tag">🏛️ Ciencias Sociales</span>
+            <span class="user-profile__tag" id="profile-level">Nivel: Explorador</span>
+          </div>
+        </div>
+      </div>
+      <div class="user-profile__stats">
+        <div class="user-stat">
+          <span class="user-stat__val" id="stat-completed">0</span>
+          <span class="user-stat__lbl">Cuestionarios resueltos</span>
+        </div>
+        <div class="user-stat">
+          <span class="user-stat__val" id="stat-passed">0</span>
+          <span class="user-stat__lbl">Aprobados</span>
+        </div>
+        <div class="user-stat">
+          <span class="user-stat__val" id="stat-avg">0%</span>
+          <span class="user-stat__lbl">Promedio general</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Temas de Ciencias Sociales para Practicar -->
+    <section class="q-module" id="topics-section">
+      <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.25rem;">Temas de Ciencias Sociales para Practicar</h2>
+        <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+          Selecciona un área de conocimiento para abrir el simulador y responder cuestionarios en una pestaña dedicada.
+        </p>
+      </div>
+
+      <div class="q-grid" id="topics-grid">
+        <!-- Generado dinámicamente con JS -->
+      </div>
+
+      <!-- Historial de Intentos Colapsable -->
+      <details class="q-history" id="q-history-container" style="display: none; margin-top: 1rem;">
+        <summary style="font-weight: 700; cursor: pointer; color: var(--text); padding: 0.5rem 0;">
+          📜 Ver Historial de Cuestionarios Realizados
+        </summary>
+        <div style="overflow-x: auto; margin-top: 0.75rem;">
+          <table class="q-history__table">
+            <thead>
+              <tr>
+                <th>Cuestionario</th>
+                <th>Calificación</th>
+                <th>Aciertos</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="q-history-tbody"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <!-- Detalles de Sesión Colapsables -->
+    <details class="session" style="margin-top: 1rem;">
+      <summary style="padding: 0.9rem 1.1rem; font-weight: 600; cursor: pointer; color: var(--muted);">
+        Información de sesión y dispositivo
+      </summary>
+      <div class="session__row">
+        <dt>Correo</dt>
+        <dd id="user-email"></dd>
+      </div>
+      <div class="session__row">
+        <dt>Tipo de sesión</dt>
+        <dd id="session-type"></dd>
+      </div>
+      <div class="session__row">
+        <dt>Vigente hasta</dt>
+        <dd id="session-expires"></dd>
+      </div>
+    </details>
+  </main>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script type="module" src="/js/pages/home.js"></script>
+</body>
+
+</html>
