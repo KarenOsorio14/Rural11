@@ -123,7 +123,7 @@ async function loadHomeData() {
         <article class="q-card">
           <div class="q-card__top">
             <span class="q-card__icon">${t.icon}</span>
-            <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <div class="q-card__badges">
               <span class="q-card__badge">${t.badge}</span>
               ${statsBadge}
             </div>
@@ -134,7 +134,7 @@ async function loadHomeData() {
             <span>📚 ${t.questionnairesCount} cuestionario(s)</span>
             <span>📝 ${t.totalQuestions} preguntas</span>
           </div>
-          <a href="/practice.html?topic=${t.id}" target="_blank" class="btn btn--primary q-card__btn" style="text-decoration: none;">
+          <a href="/practice.html?topic=${t.id}" target="_blank" class="btn btn--primary q-card__btn btn--link">
             Practicar este tema ↗
           </a>
         </article>
@@ -153,9 +153,7 @@ async function loadHomeData() {
           // Por cada intento del historial, construye una fila de tabla.
           const dateStr = dateFormat.format(new Date(att.createdAt));
           // Formatea la fecha de creación del intento a texto legible en español.
-          const badgeColor = att.passed ? 'var(--success)' : 'var(--danger)';
           // Color del texto de la insignia según si aprobó o no (variables CSS del tema).
-          const badgeBg = att.passed ? 'var(--success-soft)' : 'var(--danger-soft)';
           // Color de fondo suave, a juego con el color de texto.
           const statusText = att.passed ? 'Aprobado' : 'No aprobado';
           // Texto descriptivo del resultado.
@@ -164,24 +162,24 @@ async function loadHomeData() {
           <tr>
             <td>
               <strong>${att.questionnaireTitle || 'Cuestionario'}</strong>
-              <div style="font-size: 0.75rem; color: var(--muted);">${att.category || ''}</div>
+              <div class="cell-sub">${att.category || ''}</div>
             </td>
             <td>
-              <span style="display: inline-block; padding: 0.2rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.8rem; background: ${badgeBg}; color: ${badgeColor};">
+              <span class="pill ${att.passed ? 'pill--ok' : 'pill--bad'}">
                 ${att.percentage}% (${statusText})
               </span>
             </td>
             <td>${att.correctCount} / ${att.totalQuestions}</td>
-            <td style="color: var(--muted); font-size: 0.8rem;">${dateStr}</td>
+            <td class="cell-date">${dateStr}</td>
           </tr>
         `;
         })
         .join('');
       // Une todas las filas y las inyecta en el <tbody>.
-      historyContainer.style.display = 'block';
+      historyContainer.hidden = false;
       // Muestra el contenedor de la tabla (por si estaba oculto).
     } else {
-      historyContainer.style.display = 'none';
+      historyContainer.hidden = true;
       // Si no hay historial, oculta la tabla completa.
     }
   } catch (error) {

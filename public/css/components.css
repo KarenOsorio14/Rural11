@@ -309,3 +309,29 @@
 .modal__title { font-size: 1.4rem; }
 .modal__text { color: var(--muted); }
 .modal__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem; }
+
+/* ---------- Utilidades (reemplazan los estilos en línea, que la política de seguridad bloquea) ---------- */
+.mt-075 { margin-top: 0.75rem; }
+.mt-1 { margin-top: 1rem; }
+.mt-15 { margin-top: 1.5rem; }
+.table-scroll { overflow-x: auto; }
+.btn--link { text-decoration: none; }
+.btn--sm { min-height: 38px; padding: 0 0.75rem; font-size: 0.875rem; }
+.fieldset-reset { padding: 0; margin: 0; border: 0; }
+.text-ok { color: var(--success); }
+.text-bad { color: var(--danger); }
+.text-strong { font-weight: 700; }
+
+.section-title { margin-bottom: 0.25rem; font-size: 1.35rem; font-weight: 800; }
+.section-title--sm { margin-bottom: 1rem; font-size: 1.25rem; }
+.section-lead { margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--muted); }
+.summary-title { padding: 0.5rem 0; font-weight: 700; color: var(--text); cursor: pointer; }
+.summary-muted { padding: 0.9rem 1.1rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+
+/* Etiqueta de resultado en el historial */
+.pill { display: inline-block; padding: 0.2rem 0.6rem; font-size: 0.8rem; font-weight: 700; border-radius: 999px; }
+.pill--ok { color: var(--success); background: var(--success-soft); }
+.pill--bad { color: var(--danger); background: var(--danger-soft); }
+
+.cell-sub { font-size: 0.75rem; color: var(--muted); }
+.cell-date { font-size: 0.8rem; color: var(--muted); }
