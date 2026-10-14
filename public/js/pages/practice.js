@@ -48,9 +48,9 @@ function getSelectedTopic() {
 }
 
 function showView(view) {
-  catalogView.style.display = view === 'catalog' ? 'block' : 'none';
-  playerView.style.display = view === 'player' ? 'block' : 'none';
-  resultsView.style.display = view === 'results' ? 'block' : 'none';
+  catalogView.hidden = view !== 'catalog';
+  playerView.hidden = view !== 'player';
+  resultsView.hidden = view !== 'results';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -71,7 +71,7 @@ async function renderTopicCatalog() {
 
     if (list.length === 0) {
       cardsGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: var(--muted); background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius);">
+        <div class="q-empty">
           No hay cuestionarios disponibles en este tema por el momento.
         </div>
       `;
@@ -88,7 +88,7 @@ async function renderTopicCatalog() {
           <article class="q-card">
             <div class="q-card__top">
               <span class="q-card__icon">${q.icon}</span>
-              <div style="display: flex; gap: 0.4rem; align-items: center;">
+              <div class="q-card__badges">
                 <span class="q-card__badge">${q.difficulty}</span>
                 ${scoreBadge}
               </div>
@@ -118,8 +118,6 @@ async function renderTopicCatalog() {
       historyTbody.innerHTML = topicHistory
         .map((att) => {
           const dateStr = dateFormat.format(new Date(att.createdAt));
-          const badgeColor = att.passed ? 'var(--success)' : 'var(--danger)';
-          const badgeBg = att.passed ? 'var(--success-soft)' : 'var(--danger-soft)';
           const statusText = att.passed ? 'Aprobado' : 'No aprobado';
 
           return `
@@ -128,19 +126,19 @@ async function renderTopicCatalog() {
               <strong>${att.questionnaireTitle || 'Cuestionario'}</strong>
             </td>
             <td>
-              <span style="display: inline-block; padding: 0.2rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.8rem; background: ${badgeBg}; color: ${badgeColor};">
+              <span class="pill ${att.passed ? 'pill--ok' : 'pill--bad'}">
                 ${att.percentage}% (${statusText})
               </span>
             </td>
             <td>${att.correctCount} / ${att.totalQuestions}</td>
-            <td style="color: var(--muted); font-size: 0.8rem;">${dateStr}</td>
+            <td class="cell-date">${dateStr}</td>
           </tr>
         `;
         })
         .join('');
-      historyContainer.style.display = 'block';
+      historyContainer.hidden = false;
     } else {
-      historyContainer.style.display = 'none';
+      historyContainer.hidden = true;
     }
 
     showView('catalog');
@@ -176,26 +174,26 @@ function renderQuestion() {
   playerView.innerHTML = `
     <div class="q-player">
       <div class="q-player__nav">
-        <button class="btn btn--ghost" id="q-player-cancel" style="min-height: 36px; padding: 0 0.75rem; font-size: 0.85rem;">
+        <button class="btn btn--ghost btn--sm" id="q-player-cancel">
           ← Salir al tema
         </button>
-        <span style="font-size: 0.85rem; font-weight: 700; color: var(--muted);">
+        <span class="q-player__count">
           Pregunta ${currentQuestionIndex + 1} de ${total}
         </span>
       </div>
 
       <div class="q-player__progress-bar">
-        <div class="q-player__progress-fill" style="width: ${progressPercent}%;"></div>
+        <div class="q-player__progress-fill" data-width="${progressPercent}"></div>
       </div>
 
       <div>
-        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.05em;">
+        <span class="q-player__topic">
           ${currentQuiz.category}
         </span>
         <h2 class="q-player__question-text">${q.text}</h2>
       </div>
 
-      <fieldset class="q-options" style="border: none; padding: 0; margin: 0;">
+      <fieldset class="q-options fieldset-reset">
         <legend class="visually-hidden">Opciones de respuesta</legend>
         ${q.options
           .map((optText, optIndex) => {
@@ -222,6 +220,9 @@ function renderQuestion() {
       </div>
     </div>
   `;
+  // La política de seguridad no permite style="" en el HTML: el ancho se asigna desde JS.
+  const fill = playerView.querySelector('.q-player__progress-fill');
+  if (fill) fill.style.width = `${fill.dataset.width}%`;
 
   document.getElementById('q-player-cancel').addEventListener('click', () => {
     if (confirm('¿Deseas salir del cuestionario? Tu progreso en esta sesión no se guardará.')) {
@@ -293,8 +294,8 @@ async function finishQuiz() {
             <span class="q-score-badge__number">${result.percentage}%</span>
             <span class="q-score-badge__label">${result.passed ? 'Aprobado' : 'Reprobado'}</span>
           </div>
-          <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 0.5rem;">${statusText}</h2>
-          <p style="color: var(--muted); font-size: 0.95rem; max-width: 42ch;">${statusDesc}</p>
+          <h2 class="q-results__title">${statusText}</h2>
+          <p class="q-results__desc">${statusDesc}</p>
         </div>
 
         <div class="q-results__stats">
@@ -313,7 +314,7 @@ async function finishQuiz() {
         </div>
 
         <div>
-          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem;">Revisión de respuestas</h3>
+          <h3 class="q-results__subtitle">Revisión de respuestas</h3>
           <div class="q-review-list">
             ${result.review
               .map((item, idx) => {
@@ -327,13 +328,13 @@ async function finishQuiz() {
                 <div class="q-review-item ${itemClass}">
                   <div class="q-review-item__header">
                     <span>Pregunta ${idx + 1}: ${item.text}</span>
-                    <span style="font-size: 0.8rem; font-weight: 700; color: ${isOk ? 'var(--success)' : 'var(--danger)'};">
+                    <span class="review-state ${isOk ? 'text-ok' : 'text-bad'}">
                       ${statusIcon}
                     </span>
                   </div>
-                  <div style="font-size: 0.875rem; display: grid; gap: 0.25rem;">
-                    <div><strong>Tu respuesta:</strong> <span style="color: ${isOk ? 'var(--success)' : 'var(--danger)'};">${yourChoice}</span></div>
-                    ${!isOk ? `<div><strong>Respuesta correcta:</strong> <span style="color: var(--success); font-weight: 600;">${correctChoice}</span></div>` : ''}
+                  <div class="review-detail">
+                    <div><strong>Tu respuesta:</strong> <span class="${isOk ? 'text-ok' : 'text-bad'}">${yourChoice}</span></div>
+                    ${!isOk ? `<div><strong>Respuesta correcta:</strong> <span class="text-ok text-strong">${correctChoice}</span></div>` : ''}
                   </div>
                   <div class="q-review-item__explanation">
                     💡 <strong>Explicación:</strong> ${item.explanation}
@@ -345,7 +346,7 @@ async function finishQuiz() {
           </div>
         </div>
 
-        <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+        <div class="q-results__footer">
           <button class="btn btn--ghost" id="q-btn-return-catalog">
             ← Volver a cuestionarios de este tema
           </button>

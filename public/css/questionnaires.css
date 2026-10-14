@@ -378,3 +378,27 @@
 .q-history__table tr:last-child td {
   border-bottom: none;
 }
+
+/* ---------- Reemplazo de estilos en línea ---------- */
+.q-card__badges { display: flex; align-items: center; gap: 0.4rem; }
+
+.q-empty {
+  grid-column: 1 / -1;
+  padding: 2.5rem;
+  color: var(--muted);
+  text-align: center;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.q-player__count { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.q-player__topic { font-size: 0.75rem; font-weight: 700; color: var(--accent); letter-spacing: 0.05em; text-transform: uppercase; }
+
+.q-results__title { margin-top: 0.5rem; font-size: 1.5rem; font-weight: 800; }
+.q-results__desc { max-width: 42ch; font-size: 0.95rem; color: var(--muted); }
+.q-results__subtitle { margin-bottom: 0.75rem; font-size: 1.15rem; font-weight: 700; }
+.q-results__footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding-top: 1.25rem; border-top: 2px solid var(--border); }
+
+.review-state { font-size: 0.8rem; font-weight: 700; }
+.review-detail { display: grid; gap: 0.25rem; font-size: 0.875rem; }
