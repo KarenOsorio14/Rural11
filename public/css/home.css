@@ -94,8 +94,8 @@
 
 .user-profile__stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
 }
@@ -103,7 +103,7 @@
 .user-stat {
   display: flex;
   flex-direction: column;
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.7rem;
   background: var(--bg);
   border-radius: calc(var(--radius) - 2px);
   border: 1px solid var(--border);
@@ -226,3 +226,133 @@
 
 .topbar__left { display: flex; align-items: center; gap: 0.75rem; }
 .user-avatar--big { font-size: 2.2rem; }
+
+/* ---------- Inicio estilo app: Ruta / Práctica / Perfil ---------- */
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: min(100%, 32rem);
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+}
+
+.app__top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1.25rem 0.5rem;
+}
+
+.app__logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.app__chips {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.chip {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+.app__main {
+  /* espacio inferior para que la barra fija no tape el contenido */
+  padding: 0.5rem 1.25rem calc(6rem + env(safe-area-inset-bottom));
+}
+
+.panel {
+  display: grid;
+  gap: 1.1rem;
+  align-content: start;
+}
+
+.panel .btn { width: 100%; }
+
+.greeting__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.greeting__sub {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.route-card {
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: calc(var(--radius) + 6px);
+}
+
+.route-card__svg { display: block; width: 100%; height: auto; max-height: 52vh; }
+
+.rt-label {
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: var(--text);
+  /* contorno del color del fondo para que el texto se lea si cruza la ruta */
+  stroke: var(--surface);
+  stroke-width: 4px;
+  paint-order: stroke;
+  stroke-linejoin: round;
+}
+.rt-label--muted { fill: var(--muted); font-weight: 700; }
+.rt-label--now { fill: var(--accent); }
+.rt-link { cursor: pointer; }
+.rt-link:focus-visible .rt-node-done,
+.rt-link:focus-visible .rt-node-now { stroke: var(--text); stroke-width: 3; }
+
+.tabbar {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  width: min(100%, 32rem);
+  padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+  background: var(--bg);
+}
+
+.tabbar__btn {
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  padding: 0.45rem 0.25rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--surface);
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.tabbar__ico { font-size: 1.15rem; line-height: 1.2; }
+
+.tabbar__btn.is-active {
+  color: var(--accent);
+  background: var(--surface-hi);
+}
+
+.tabbar__btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+@media (min-width: 860px) {
+  .app { padding-top: 1rem; }
+  .route-card { padding: 1.25rem; }
+}

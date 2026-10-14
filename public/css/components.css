@@ -276,9 +276,12 @@
 }
 
 .auth-switch a {
-  font-weight: 600;
-  color: var(--accent);
+  font-weight: 700;
+  color: var(--mint);
 }
+
+/* Segundo enlace del login ("Crear cuenta"): rosa, como en el diseño. */
+.auth-switch ~ .auth-switch a { color: var(--pink); }
 
 /* El diseño Paleta A es solo modo noche: se oculta el selector de tema. */
 .theme-toggle {
@@ -335,3 +338,50 @@
 
 .cell-sub { font-size: 0.75rem; color: var(--muted); }
 .cell-date { font-size: 0.8rem; color: var(--muted); }
+
+/* ---------- Ruta (mapa de progreso): se usa en el login y en el inicio ---------- */
+.rt-base,
+.rt-done {
+  fill: none;
+  stroke-linecap: round;
+}
+.rt-base { stroke: var(--border); stroke-width: 7; }
+.rt-done { stroke: var(--mint); stroke-width: 3.5; stroke-dasharray: 0.1 9; }
+.rt-node-done { fill: var(--mint); }
+.rt-check {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.rt-halo { fill: var(--accent); opacity: 0.28; }
+.rt-node-now { fill: var(--accent); }
+.rt-dot { fill: var(--accent-contrast); }
+.rt-node-flag { fill: var(--pink); }
+.rt-flag {
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.rt-node-lock { fill: var(--surface); stroke: var(--border); stroke-width: 3; }
+.rt-lock { fill: var(--hint); }
+.rt-lock-arc { fill: none; stroke: var(--hint); stroke-width: 2.6; }
+
+.route-banner {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.75rem 1rem 0.9rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+.route-banner__svg { display: block; width: 100%; height: auto; }
+.route-banner__text {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--mint);
+}

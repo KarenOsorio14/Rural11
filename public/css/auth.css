@@ -7,32 +7,44 @@
 .auth__brand {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem 1.5rem;
+  justify-content: flex-start;
+  gap: 1rem;
+  width: min(100%, 26rem);
+  margin: 0 auto;
+  padding: max(1.25rem, env(safe-area-inset-top)) 1.5rem 0;
   color: var(--text);
-  background: var(--surface);
-  border-bottom: 2px solid var(--border);
+}
+
+.auth__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.auth__logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
 }
 
 .auth__name {
   font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--text);
   letter-spacing: -0.02em;
 }
 
 .auth__lead {
-  max-width: 24ch;
-  opacity: 0.9;
+  color: var(--muted);
+  margin-top: -0.5rem;
 }
 
 .auth__panel {
   display: grid;
   align-content: center;
   justify-items: center;
-  padding: 2rem 1.5rem max(2rem, env(safe-area-inset-bottom));
+  padding: 1.25rem 1.5rem max(2rem, env(safe-area-inset-bottom));
 }
 
 .auth__form {
@@ -53,15 +65,25 @@
   }
 
   .auth__brand {
+    justify-content: center;
+    width: 100%;
+    max-width: none;
+    margin: 0;
     padding: 3rem;
+    background: var(--surface);
+    border-right: 2px solid var(--border);
+  }
+
+  .auth__brand .route-banner {
+    background: var(--bg);
   }
 
   .auth__name {
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
     line-height: 1.05;
   }
 
-  .auth__lead {
-    font-size: 1.125rem;
+  .auth__panel {
+    align-content: center;
   }
 }

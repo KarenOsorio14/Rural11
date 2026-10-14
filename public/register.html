@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Crear cuenta · Mi PWA</title>
+  <title>Crear cuenta · Rural 11</title>
   <meta name="theme-color" content="#17153B">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
@@ -17,13 +17,30 @@
 
   <main class="auth">
     <section class="auth__brand">
-      <p class="auth__name">Mi PWA</p>
-      <p class="auth__lead">Crea tu cuenta para empezar.</p>
+      <div class="auth__logo">
+        <img class="auth__logo-img" src="/icons/favicon.svg" alt="" width="44" height="44">
+        <p class="auth__name">Rural 11</p>
+      </div>
+      <figure class="route-banner">
+        <svg class="route-banner__svg" viewBox="0 0 300 100" role="img" aria-label="Ruta con tres paradas hacia la meta">
+          <path class="rt-base" d="M32 74 C 90 74, 100 54, 150 52 S 230 28, 268 24"/>
+          <path class="rt-done" d="M32 74 C 90 74, 100 54, 150 52"/>
+          <circle class="rt-node-done" cx="32" cy="74" r="13"/>
+          <path class="rt-check" d="M26 74 l4.5 4.5 l8 -9"/>
+          <circle class="rt-halo" cx="150" cy="52" r="19"/>
+          <circle class="rt-node-now" cx="150" cy="52" r="14"/>
+          <circle class="rt-dot" cx="150" cy="52" r="4.5"/>
+          <circle class="rt-node-flag" cx="268" cy="24" r="13"/>
+          <path class="rt-flag" d="M263 19 v11 M263 19 h9 l-2.5 3.5 l2.5 3.5 h-9"/>
+        </svg>
+        <figcaption class="route-banner__text">Tu ruta al ICFES empieza aquí</figcaption>
+      </figure>
     </section>
 
     <section class="auth__panel">
       <form id="register-form" class="auth__form" novalidate>
         <h1 class="auth__title">Crear cuenta</h1>
+        <p class="auth__lead">Crea tu cuenta y empieza tu ruta al ICFES.</p>
 
         <div class="field">
           <label class="field__label" for="firstName">Nombres</label>
