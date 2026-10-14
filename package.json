@@ -1,0 +1,21 @@
+{
+  "name": "pwa-monolito-modular",
+  "version": "2.0.0",
+  "private": true,
+  "description": "PWA como monolito modular: registro, inicio de sesión y sesión persistente sobre IndexedDB.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "concurrently": "^10.0.5"
+  }
+}

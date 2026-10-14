@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Práctica de Ciencias Sociales · PWA</title>
+  <meta name="theme-color" content="#2447d6">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/questionnaires.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="/" class="btn btn--ghost" style="min-height: 38px; padding: 0 0.75rem; text-decoration: none; font-size: 0.875rem;">
+        ← Inicio
+      </a>
+      <span class="topbar__brand" id="topbar-topic-title">Ciencias Sociales</span>
+    </div>
+    <div class="topbar__actions">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">🌙</button>
+    </div>
+  </header>
+
+  <main class="home" id="practice-main" hidden>
+    <!-- Encabezado del Tema Seleccionado -->
+    <section class="user-profile" id="topic-header-card">
+      <div class="user-profile__header">
+        <div class="user-avatar" id="topic-avatar" style="font-size: 2.2rem;">🏛️</div>
+        <div class="user-profile__details">
+          <div class="user-profile__badges">
+            <span class="user-profile__tag" id="topic-badge">Tema de Práctica</span>
+          </div>
+          <h1 class="user-profile__name" id="topic-title">Cargando tema...</h1>
+          <p class="user-profile__email" id="topic-desc">Preguntas y ejercicios para afianzar tus conocimientos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Módulo de Cuestionarios del Tema -->
+    <section class="q-module" id="q-module">
+      <!-- 1. Vista Catálogo de este tema -->
+      <div id="q-catalog-view">
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem;">Cuestionarios de este tema</h2>
+        <div class="q-grid" id="q-cards-grid">
+          <!-- Cargados por JS -->
+        </div>
+
+        <!-- Historial específico de este tema -->
+        <div class="q-history" id="q-history-container" style="display: none; margin-top: 1.5rem;">
+          <h3 class="q-history__title">Tus Intentos en este tema</h3>
+          <div style="overflow-x: auto;">
+            <table class="q-history__table">
+              <thead>
+                <tr>
+                  <th>Cuestionario</th>
+                  <th>Calificación</th>
+                  <th>Aciertos</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="q-history-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Vista Cuestionario Activo (Player) -->
+      <div id="q-player-view" style="display: none;">
+        <!-- Renderizado por JS -->
+      </div>
+
+      <!-- 3. Vista de Resultados -->
+      <div id="q-results-view" style="display: none;">
+        <!-- Renderizado por JS -->
+      </div>
+    </section>
+  </main>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script type="module" src="/js/pages/practice.js"></script>
+</body>
+
+</html>
