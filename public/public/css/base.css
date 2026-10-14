@@ -1,0 +1,104 @@
+/* Tokens de diseño: Paleta A "Noche de mapa". Cambia aquí la identidad visual de todo el proyecto. */
+@font-face{font-family:"Baloo 2";font-weight:700;font-display:swap;src:url("/fonts/baloo-2-latin-700-normal.woff2") format("woff2");}
+@font-face{font-family:"Baloo 2";font-weight:800;font-display:swap;src:url("/fonts/baloo-2-latin-800-normal.woff2") format("woff2");}
+@font-face{font-family:"Manrope";font-weight:200 800;font-display:swap;src:url("/fonts/manrope-latin-wght-normal.woff2") format("woff2");}
+
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #17153B;
+  --surface: #1F1C52;
+  --surface-hi: #2A2670;
+  --field: #232063;
+  --text: #FFF8EC;
+  --muted: #B9B6F0;
+  --hint: #8F8BD6;
+  --border: #4440B0;
+
+  --accent: #FFC93C;
+  --accent-hover: #FFD764;
+  --accent-shadow: #C99400;
+  --accent-contrast: #2B1B00;
+  --accent-soft: #2A2670;
+
+  --mint: #2EE6C5;
+  --pink: #FF5D8F;
+  --disabled: #34307A;
+
+  --danger: #FF7A59;
+  --danger-shadow: #B3492A;
+  --danger-soft: #3A1F3F;
+  --success: #2EE6C5;
+  --success-soft: #12403F;
+  --warning: #FFC93C;
+  --warning-soft: #3A3320;
+  --info: #B9B6F0;
+  --info-soft: #2A2670;
+
+  --radius: 16px;
+  --font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Baloo 2", "Manrope", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
