@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Inicio PWA</title>
-  <meta name="theme-color" content="#2447d6">
+  <meta name="theme-color" content="#17153B">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -53,6 +53,16 @@
         </div>
       </div>
     </section>
+
+    <!-- Práctica libre: elegir temas y cantidad de preguntas -->
+    <a class="free-cta" href="/sesion.html">
+      <span class="free-cta__icon" aria-hidden="true">🎯</span>
+      <span class="free-cta__text">
+        <span class="free-cta__title">Práctica libre</span>
+        <span class="free-cta__desc">Elige tus temas y cuántas preguntas quieres</span>
+      </span>
+      <span class="free-cta__go" aria-hidden="true">→</span>
+    </a>
 
     <!-- Temas de Ciencias Sociales para Practicar -->
     <section class="q-module" id="topics-section">
@@ -107,6 +117,18 @@
       </div>
     </details>
   </main>
+
+  <!-- Confirmación de cierre de sesión (HU-05) -->
+  <div class="modal" id="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-title" hidden>
+    <div class="modal__box">
+      <h2 class="modal__title" id="logout-title">¿Cerrar sesión?</h2>
+      <p class="modal__text">Tendrás que iniciar sesión otra vez para volver a entrar.</p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="logout-cancel" type="button">Cancelar</button>
+        <button class="btn btn--primary" id="logout-confirm" type="button">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toasts" class="toasts" aria-live="polite"></div>
 
