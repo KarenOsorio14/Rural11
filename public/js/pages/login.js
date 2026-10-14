@@ -195,13 +195,7 @@ function handleLoginError(error) {
   passwordInput.value = '';
   // Limpia la contraseña ingresada por seguridad/usabilidad.
 
-  if (!rememberInput.checked) {
-    // Si el usuario NO marcó "recordarme"...
-    documentInput.value = '';
-    // También limpia el campo de documento (para que reintente desde cero).
-  }
-  // Si SÍ marcó "recordarme", se deja el documento tal como está, para no obligarlo a
-  // reescribirlo en cada intento.
+  // HU_03: solo se limpia la contraseña; el número de identidad se conserva para reintentar.
 
   showFormError('Credenciales incorrectas.');
   // Muestra el mensaje de error general.
@@ -241,6 +235,7 @@ function handleLoginError(error) {
   }
 
   if (error instanceof AppError && error.code === 'ACCOUNT_LOCKED') {
+    passwordInput.value = ''; // HU_03: también se limpia la contraseña cuando el intento activa el bloqueo.
     // Si el error es porque la cuenta está bloqueada (justo se acaba de activar el bloqueo)...
     showFormError(error.message);
     notify({ type: 'error', title: 'Acceso bloqueado', message: error.message });
@@ -309,9 +304,9 @@ form.addEventListener('submit', async (event) => {
     location.replace('/');
     // Redirige a la página principal.
   } catch (error) {
-    handleLoginError(error);
-    // Si login() lanza un error, se delega su manejo a la función especializada de arriba.
     setLoading(submitButton, false, 'Iniciar sesión', 'Iniciando sesión…');
+    // Se maneja el error después de reactivar el botón, para que un bloqueo temporal lo vuelva a desactivar.
+    handleLoginError(error);
     // Devuelve el botón a su estado normal (habilitado, texto original) para permitir reintentar.
   }
 });

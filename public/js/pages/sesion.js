@@ -260,7 +260,11 @@ async function finalizar() {
   dibujar();
 }
 
+let ultimaActividad = 0;
+
 root.addEventListener('click', (e) => {
+  // HU-04: la actividad renueva el token (máximo una vez por minuto).
+  if (Date.now() - ultimaActividad > 60 * 1000) { ultimaActividad = Date.now(); getSession().catch(() => {}); }
   const tema = e.target.closest('[data-tema]');
   if (tema) return alternarTema(tema.dataset.tema);
 

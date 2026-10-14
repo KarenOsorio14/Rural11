@@ -52,6 +52,14 @@ export async function current() {
     // Se informa que la sesión expiró (distinto de "none", para poder mostrar un mensaje
     // específico al usuario, como "tu sesión expiró").
   }
+  // HU-04: renovación por actividad. Cada vez que se consulta una sesión vigente se corre su
+  // vencimiento hacia adelante (sin escribir en la base más de una vez por minuto).
+  const renewed = Date.now() + (record.remember ? DURATION.remembered : DURATION.temporary);
+  if (renewed - record.expiresAt > 60 * 1000) {
+    record.expiresAt = renewed;
+    await dbPut('session', record);
+  }
+
   return { status: 'active', record };
   // Si sigue vigente, se devuelve el registro completo junto con el estado "active".
 }
