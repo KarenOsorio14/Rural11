@@ -1,0 +1,201 @@
+/* Práctica libre — Paleta A "Noche de mapa". Sin estilos en línea: la política de seguridad no los permite. */
+.ps-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.75rem;
+  background: var(--bg);
+  border-bottom: 2px solid var(--border);
+}
+
+.ps-top__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.25rem;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--surface);
+  border-radius: 50%;
+}
+
+.ps-top__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.ps {
+  display: grid;
+  width: min(100%, 36rem);
+  margin: 0 auto;
+  padding: 1.25rem 1rem max(2rem, env(safe-area-inset-bottom));
+}
+
+.ps-paso {
+  display: grid;
+  gap: 1rem;
+}
+
+.ps-h1 { font-size: 1.6rem; line-height: 1.15; text-wrap: balance; }
+.ps-h2 { margin-top: 0.5rem; font-size: 1.2rem; }
+.ps-sub { color: var(--muted); }
+
+/* ----- Temas ----- */
+.ps-lista { display: grid; gap: 0.75rem; }
+
+.ps-tema {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.12s, background-color 0.12s;
+}
+
+.ps-tema[aria-pressed="true"] {
+  background: var(--surface-hi);
+  border-color: var(--mint);
+}
+
+.ps-tema__icono { font-size: 1.6rem; }
+.ps-tema__texto { display: grid; gap: 0.1rem; min-width: 0; }
+.ps-tema__nombre { font-weight: 700; }
+.ps-tema__cuenta { font-size: 0.85rem; color: var(--muted); }
+
+.ps-tema__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-weight: 800;
+  color: #06332B;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+}
+
+.ps-tema[aria-pressed="true"] .ps-tema__check {
+  background: var(--mint);
+  border-color: var(--mint);
+}
+
+.ps-resumen { font-size: 0.9rem; color: var(--muted); text-align: center; }
+
+/* ----- Cantidad ----- */
+.ps-cantidades { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+
+.ps-cant {
+  display: grid;
+  gap: 0.1rem;
+  justify-items: center;
+  padding: 1rem 0.5rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.ps-cant[aria-pressed="true"] { background: var(--surface-hi); border-color: var(--accent); }
+.ps-cant__n { font-family: var(--font-display); font-size: 2rem; font-weight: 800; line-height: 1; }
+.ps-cant__lbl { font-size: 0.85rem; color: var(--muted); }
+
+/* ----- Avisos ----- */
+.ps-aviso { padding: 0.7rem 0.9rem; font-size: 0.925rem; border-radius: var(--radius); }
+.ps-aviso--error { color: var(--danger); background: var(--danger-soft); }
+.ps-aviso--info { color: var(--text); background: var(--surface-hi); border: 2px solid var(--border); }
+
+/* ----- Pregunta ----- */
+.ps-progreso { display: grid; gap: 0.4rem; }
+.ps-progreso__barra { height: 10px; background: var(--surface); border-radius: 999px; overflow: hidden; }
+.ps-progreso__relleno { height: 100%; background: var(--mint); border-radius: 999px; transition: width 0.2s; }
+.ps-progreso__txt { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.ps-etiqueta { font-size: 0.85rem; color: var(--muted); }
+.ps-pregunta { font-size: 1.3rem; line-height: 1.3; text-wrap: balance; }
+
+.ps-opciones { display: grid; gap: 0.7rem; }
+
+.ps-op {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  min-height: 56px;
+  padding: 0.7rem 0.9rem;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.12s, background-color 0.12s;
+}
+
+.ps-op[aria-pressed="true"] { background: var(--surface-hi); border-color: var(--accent); box-shadow: 0 3px 0 var(--accent-shadow); }
+
+.ps-op__letra {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  background: var(--field);
+  border-radius: 50%;
+}
+
+.ps-op[aria-pressed="true"] .ps-op__letra { color: var(--accent-contrast); background: var(--accent); }
+.ps-op--vf { justify-content: center; min-height: 64px; font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; }
+
+/* ----- Botones ----- */
+.ps-acciones,
+.ps-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.ps-cta { text-decoration: none; }
+.ps-sec { min-height: 52px; }
+.ps-paso > .ps-cta { width: 100%; }
+.btn:disabled.ps-sec { cursor: not-allowed; opacity: 0.4; }
+
+/* ----- Resultado ----- */
+.ps-final {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.ps-final--ok { border-color: var(--mint); }
+.ps-final__pct { font-family: var(--font-display); font-size: 3.5rem; font-weight: 800; line-height: 1; color: var(--accent); }
+.ps-final--ok .ps-final__pct { color: var(--mint); }
+.ps-final__msg { font-size: 1.4rem; }
+
+.ps-revision { display: grid; gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
+.ps-rev { display: grid; gap: 0.3rem; padding: 0.9rem 1rem; background: var(--surface); border-left: 5px solid var(--border); border-radius: var(--radius); }
+.ps-rev--ok { border-left-color: var(--mint); }
+.ps-rev--mal { border-left-color: var(--danger); }
+.ps-rev__estado { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.ps-rev__texto { font-weight: 700; }
+.ps-rev__resp { font-size: 0.9rem; color: var(--muted); }
+.ps-rev__resp strong { color: var(--text); }
+.ps-rev__exp { font-size: 0.9rem; color: var(--muted); }

@@ -265,20 +265,38 @@ async function init() {
   }
 }
 
-logoutButton.addEventListener('click', async () => {
-  // Maneja el clic en el botón de cerrar sesión.
-  logoutButton.disabled = true;
-  // Deshabilita el botón mientras se procesa, para evitar doble clic.
+const logoutModal = document.getElementById('logout-modal');
+const logoutCancel = document.getElementById('logout-cancel');
+const logoutConfirm = document.getElementById('logout-confirm');
+
+// HU-05: primero se pide confirmación; solo si acepta se cierra la sesión.
+logoutButton.addEventListener('click', () => {
+  logoutModal.hidden = false;
+  logoutCancel.focus();
+});
+
+logoutCancel.addEventListener('click', () => {
+  logoutModal.hidden = true;
+  logoutButton.focus();
+});
+
+logoutModal.addEventListener('click', (event) => {
+  if (event.target === logoutModal) logoutModal.hidden = true;
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') logoutModal.hidden = true;
+});
+
+logoutConfirm.addEventListener('click', async () => {
+  logoutConfirm.disabled = true;
   try {
     await logout();
-    // Cierra la sesión (borra el registro en IndexedDB).
     flash({ type: 'info', title: 'Sesión cerrada', message: 'Cerraste sesión correctamente.' });
-    // Prepara un mensaje flash para mostrarlo en la siguiente página (login).
     location.replace('/login.html');
-    // Redirige al login.
   } catch (error) {
-    logoutButton.disabled = false;
-    // Si algo falla, se vuelve a habilitar el botón para reintentar.
+    logoutConfirm.disabled = false;
+    logoutModal.hidden = true;
     notify({ type: 'error', title: 'No se pudo cerrar la sesión', message: friendlyMessage(error) });
   }
 });
