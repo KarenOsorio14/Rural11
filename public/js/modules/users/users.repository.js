@@ -1,4 +1,4 @@
-import { dbGet, dbAdd, dbGetByIndex, dbGetAll } from '../../core/db.js';
+import { dbGet, dbAdd, dbPut, dbGetByIndex, dbGetAll } from '../../core/db.js';
 // Importa las funciones genéricas de acceso a IndexedDB desde el core.
 // (Nota: el orden de importación en el archivo original es dbAdd, dbGet, dbGetByIndex, dbGetAll;
 // aquí se mantiene el mismo conjunto, solo se documenta que son 4 utilidades genéricas de BD.)
@@ -7,6 +7,7 @@ import { dbGet, dbAdd, dbGetByIndex, dbGetAll } from '../../core/db.js';
 export const usersRepository = {
   // Objeto que agrupa todas las operaciones de bajo nivel sobre el almacén "users".
   add: (user) => dbAdd('users', user),
+  update: (user) => dbPut('users', user), // reemplaza el registro (usado al restablecer la contraseña)
   // Inserta un nuevo usuario en el almacén 'users' (falla si ya existe la misma clave/id
   // o si se viola un índice único, como email o documentNumber duplicado).
   findById: (id) => dbGet('users', id),

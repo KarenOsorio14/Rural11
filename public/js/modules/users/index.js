@@ -7,6 +7,7 @@ export const users = {
   // (patrón de "fachada" o "barrel"): en vez de importar directamente el repositorio,
   // otros archivos importan { users } desde aquí.
   create: usersRepository.add,
+  update: usersRepository.update,
   // Alias: users.create(...) en realidad ejecuta usersRepository.add(...).
   findById: usersRepository.findById,
   // Alias directo a la búsqueda por id.
