@@ -19,7 +19,8 @@ const form = document.getElementById('register-form');
 const fields = {
   // Objeto que agrupa todos los campos del formulario por nombre lógico,
   // para poder iterarlos genéricamente más abajo (Object.values, Object.entries).
-  name: document.getElementById('name'),
+  firstName: document.getElementById('firstName'),
+  lastName: document.getElementById('lastName'),
   documentNumber: document.getElementById('documentNumber'),
   email: document.getElementById('email'),
   password: document.getElementById('password'),
@@ -91,7 +92,8 @@ form.addEventListener('submit', async (event) => {
 let hasEmptyFields = false;
 
 const requiredFields = [
-  ['name', 'name'],
+  ['firstName', 'firstName'],
+  ['lastName', 'lastName'],
   ['documentNumber', 'documentNumber'],
   ['email', 'email'],
   ['password', 'password'],
@@ -142,7 +144,8 @@ if (values.password !== values.confirm) {
     await register({
       documentNumber: values.documentNumber,
       email: values.email,
-      name: values.name,
+      firstName: values.firstName,
+      lastName: values.lastName,
       password: values.password,
     });
     // Llama al servicio de registro con los datos del formulario (nótese que "confirm"

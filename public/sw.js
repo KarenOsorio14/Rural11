@@ -8,6 +8,8 @@ const SHELL = [
   '/',
   '/login.html',
   '/register.html',
+  '/reset-password.html',
+  '/js/pages/reset-password.js',
   '/manifest.webmanifest',
   '/css/base.css',
   '/css/components.css',

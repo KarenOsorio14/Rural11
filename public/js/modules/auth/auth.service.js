@@ -124,122 +124,114 @@ export function setRememberedIdentity(documentNumber, remember) {
   } catch {}
 }
 
-export async function register({ documentNumber, email, name, password }) {
-  // Registra un nuevo usuario. Recibe un objeto desestructurado con documentNumber, name y password.
-  const cleanDoc = normalizeDoc(documentNumber);
-  // Normaliza el número de documento (quita espacios).
-  const cleanName = String(name || '').trim();
-  // Normaliza el nombre (fuerza a string y quita espacios).
-  const cleanEmail = String(email || '').trim().toLowerCase();
-  // Normaliza el email (fuerza a string y quita espacios).
-  const cleanPassword =String(password || '').trim();
-  // Normaliza la contraseña (fuerza a string y quita espacios).
-  // -------------------------------------------------------------
-  //Validaciones de campos obligatorios
-  // -------------------------------------------------------------
-  
-  if (!cleanDoc) {
-    // Si tras limpiar el documento queda vacío...
-    throw new AppError('VALIDATION', 'Campo obligatorio.', 'documentNumber');
-    // Lanza un error de validación indicando el campo afectado.
+const NAME_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
+
+/** Reglas de contraseña compartidas por el registro y el restablecimiento. */
+function assertPasswordRules(password, field = 'password') {
+  const value = String(password || '');
+  if (!value.trim()) {
+    throw new AppError('VALIDATION', 'Campo obligatorio.', field);
   }
-  if (!cleanName) {
-    throw new AppError('VALIDATION', 'Campo obligatorio.', 'name');
-    // Lanza un error de validación indicando el campo afectado.
+  if (value.length < PASSWORD_MIN_LENGTH) {
+    throw new AppError('VALIDATION', `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`, field);
+  }
+  if (!/[A-Z]/.test(value)) {
+    throw new AppError('VALIDATION', 'La contraseña debe contener al menos una letra mayúscula.', field);
+  }
+  if (!/[a-z]/.test(value)) {
+    throw new AppError('VALIDATION', 'La contraseña debe contener al menos una letra minúscula.', field);
+  }
+  if (!/[0-9]/.test(value)) {
+    throw new AppError('VALIDATION', 'La contraseña debe contener al menos un número.', field);
+  }
+  if (!/[^A-Za-z0-9]/.test(value)) {
+    throw new AppError('VALIDATION', 'La contraseña debe contener al menos un carácter especial.', field);
+  }
+}
+
+/** Valida un nombre o apellido: obligatorio y solo letras. */
+function assertPersonName(value, field) {
+  const clean = String(value || '').trim();
+  if (!clean) throw new AppError('VALIDATION', 'Campo obligatorio.', field);
+  if (!NAME_PATTERN.test(clean)) {
+    throw new AppError('VALIDATION', 'Solo se permiten letras.', field);
+  }
+  return clean.replace(/\s+/g, ' ');
+}
+
+export async function register({ documentNumber, email, firstName, lastName, password }) {
+  // HU_00: nombres y apellidos van en campos separados; "name" se guarda unido para mostrarlo en la app.
+  const cleanDoc = normalizeDoc(documentNumber);
+  const cleanEmail = String(email || '').trim().toLowerCase();
+
+  const cleanFirst = assertPersonName(firstName, 'firstName');
+  const cleanLast = assertPersonName(lastName, 'lastName');
+
+  if (!cleanDoc) {
+    throw new AppError('VALIDATION', 'Campo obligatorio.', 'documentNumber');
+  }
+  if (!NUMERIC_PATTERN.test(cleanDoc)) {
+    throw new AppError('VALIDATION', 'El número de identidad solo debe contener números.', 'documentNumber');
   }
   if (!cleanEmail) {
     throw new AppError('VALIDATION', 'Campo obligatorio.', 'email');
-    // Lanza un error de validación indicando el campo afectado.
   }
-  if (!cleanPassword) {
-    throw new AppError('VALIDATION', 'Campo obligatorio.', 'password');
-    // Lanza un error de validación indicando el campo afectado.
-  }
-  // -------------------------------------------------------------
-  // Validación del número de identificación
-  // -------------------------------------------------------------
-
-  if (!NUMERIC_PATTERN.test(cleanDoc)) {
-    // Si el documento contiene algo que no sea dígitos...
-    throw new AppError('VALIDATION', 'El número de identidad solo debe contener números.', 'documentNumber');
-  }
-
-  // -------------------------------------------------------------
-  // Validación del nombre
-  // -------------------------------------------------------------
-  const NAME_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
-
-  if(!NAME_PATTERN.test(cleanName)){
-    throw new AppError('VALIDATION', 'El nombre solo debe contener letras.', 'name');
-  }
-
-  // -------------------------------------------------------------
-  // Validación del correo electrónico
-  // -------------------------------------------------------------
   if (!EMAIL_PATTERN.test(cleanEmail)) {
     throw new AppError('VALIDATION', 'Correo electrónico inválido.', 'email');
   }
-
-  // -------------------------------------------------------------
-  // Validación de la contraseña
-  // -------------------------------------------------------------
-  if (String(password || '').length < PASSWORD_MIN_LENGTH) {
-    // Si la contraseña no alcanza el mínimo de caracteres exigido...
-    throw new AppError('VALIDATION', `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`, 'password');
-  }
-
-  // -------------------------------------------------------------
-  // Validación de complejidad de la contraseña
-  // -------------------------------------------------------------
-  if (!/[A-Z]/.test(cleanPassword)) {
-    throw new AppError('VALIDATION', 'La contraseña debe contener al menos una letra mayúscula.', 'password');
-  }
-  if (!/[a-z]/.test(cleanPassword)) {
-    throw new AppError('VALIDATION', 'La contraseña debe contener al menos una letra minúscula.', 'password');
-  }
-  if (!/[0-9]/.test(cleanPassword)) {
-    throw new AppError('VALIDATION', 'La contraseña debe contener al menos un número.', 'password');
-  }
-  if (!/[^A-Za-z0-9]/.test(cleanPassword)) {
-    throw new AppError('VALIDATION', 'La contraseña debe contener al menos un carácter especial.', 'password');
-  }
+  assertPasswordRules(password, 'password');
 
   const record = {
-    // Construye el objeto que se guardará en IndexedDB.
     id: crypto.randomUUID(),
-    // Genera un identificador único universal (UUID) usando la Web Crypto API.
     email: cleanEmail,
-    // Email ya normalizado.
     documentNumber: cleanDoc,
-    // Documento ya normalizado.
-    name: cleanName,
-    // Nombre ya normalizado.
+    firstName: cleanFirst,
+    lastName: cleanLast,
+    name: `${cleanFirst} ${cleanLast}`,
     password: await hashPassword(password),
-    // Espera (await) a que se calcule el hash seguro de la contraseña (nunca se guarda en texto plano).
     createdAt: new Date().toISOString(),
-    // Fecha de creación en formato ISO (texto estándar y ordenable).
   };
 
   try {
     await users.create(record);
-    // Intenta insertar el registro en la base de datos de usuarios.
   } catch (error) {
-    // Si falla la inserción...
     if (error && error.name === 'ConstraintError') {
-      // IndexedDB lanza 'ConstraintError' cuando se viola una restricción de unicidad (índice único).
       throw new AppError('EMAIL_TAKEN', 'Ya existe una cuenta con este número de identidad o correo.', 'documentNumber');
-      // Se traduce a un error de dominio más entendible para la UI.
     }
     throw error;
-    // Cualquier otro error se vuelve a lanzar tal cual (no se sabe cómo manejarlo aquí).
   }
   return users.toPublic(record);
-  // Devuelve una versión "pública" del registro (sin datos sensibles como la contraseña).
 }
 
-// -------------------------------------------------------------
-// Inicio de Sesión con Número de Identidad (HU_01)
-// -------------------------------------------------------------
+/**
+ * Restablece la contraseña comprobando que el documento y el correo pertenezcan a la misma cuenta.
+ * (Prototipo sin servidor de correo: cuando exista la API, aquí se enviará un enlace por correo.)
+ */
+export async function resetPassword({ documentNumber, email, newPassword }) {
+  const cleanDoc = normalizeDoc(documentNumber);
+  const cleanEmail = normalizeEmail(email);
+
+  if (!cleanDoc) throw new AppError('VALIDATION', 'Campo obligatorio.', 'documentNumber');
+  if (!NUMERIC_PATTERN.test(cleanDoc)) {
+    throw new AppError('VALIDATION', 'El número de identidad solo debe contener números.', 'documentNumber');
+  }
+  if (!cleanEmail) throw new AppError('VALIDATION', 'Campo obligatorio.', 'email');
+  if (!EMAIL_PATTERN.test(cleanEmail)) {
+    throw new AppError('VALIDATION', 'Correo electrónico inválido.', 'email');
+  }
+  assertPasswordRules(newPassword, 'newPassword');
+
+  const user = await users.findByDocument(cleanDoc);
+  // Mensaje genérico: no se revela si el documento existe o si fue el correo el que no coincide.
+  if (!user || normalizeEmail(user.email) !== cleanEmail) {
+    throw new AppError('NO_MATCH', 'Los datos no coinciden con ninguna cuenta.');
+  }
+
+  await users.update({ ...user, password: await hashPassword(newPassword) });
+  resetFailedAttempts(); // si estaba bloqueado por intentos fallidos, queda libre
+  await sessions.end(); // se cierra cualquier sesión abierta con la contraseña anterior
+}
+
 export async function login({ documentNumber, password, remember }) {
   // Intenta iniciar sesión con documento + contraseña, y si "remember" es true, recuerda el documento.
   // 1. Verificar si la cuenta está bloqueada temporalmente

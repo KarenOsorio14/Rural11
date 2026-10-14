@@ -26,16 +26,25 @@
         <h1 class="auth__title">Crear cuenta</h1>
 
         <div class="field">
-          <label class="field__label" for="name">Nombre</label>
+          <label class="field__label" for="firstName">Nombres</label>
           <div class="field__control">
-            <input class="field__input" id="name" name="name" type="text"
-                   autocomplete="name" aria-describedby="name-error" required>
+            <input class="field__input" id="firstName" name="firstName" type="text"
+                   autocomplete="given-name" aria-describedby="firstName-error" required>
           </div>
-          <p class="field__error" id="name-error" hidden></p>
+          <p class="field__error" id="firstName-error" hidden></p>
         </div>
 
         <div class="field">
-          <label class="field__label" for="email">Correo electronico</label>
+          <label class="field__label" for="lastName">Apellidos</label>
+          <div class="field__control">
+            <input class="field__input" id="lastName" name="lastName" type="text"
+                   autocomplete="family-name" aria-describedby="lastName-error" required>
+          </div>
+          <p class="field__error" id="lastName-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="email">Correo electrónico</label>
           <div class="field__control">
             <input class="field__input" id="email" name="email" type="email"
                    autocomplete="username" inputmode="email" autocapitalize="none"
@@ -45,7 +54,7 @@
         </div>
 
         <div class="field">
-          <label class="field__label" for="documentNumber">Numero de documento</label>
+          <label class="field__label" for="documentNumber">Número de documento</label>
           <div class="field__control">
             <input class="field__input" id="documentNumber" name="documentNumber" type="text"
                    autocomplete="username" inputmode="numeric" autocapitalize="none"
