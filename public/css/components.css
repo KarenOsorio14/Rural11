@@ -385,3 +385,36 @@
   font-weight: 800;
   color: var(--mint);
 }
+
+/* ---------- Iconos de trazo (SVG en línea, sin emojis) ---------- */
+.ico {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Insignia de tema: letra inicial sobre el color del tema ---------- */
+.topic-mono {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-radius: 12px;
+}
+.topic-mono--lg { width: 68px; height: 68px; font-size: 2rem; border-radius: 50%; }
+.topic-mono--historia { background: var(--accent); color: var(--accent-contrast); }
+.topic-mono--geografia { background: var(--mint); color: #06332B; }
+.topic-mono--constitucion { background: var(--pink); color: #3A0016; }
+.topic-mono--sociedad { background: var(--danger); color: #3B1000; }

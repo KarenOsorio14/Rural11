@@ -23,7 +23,7 @@ export function toggleTheme() {
 function updateToggleButtons(theme) {
   const buttons = document.querySelectorAll('.theme-toggle');
   buttons.forEach((btn) => {
-    btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    btn.textContent = theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
     btn.setAttribute('aria-label', theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
     btn.title = theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
   });

@@ -20,39 +20,69 @@
     <header class="app__top">
       <img class="app__logo" src="/icons/favicon.svg" alt="Rural 11" width="40" height="40">
       <div class="app__chips">
-        <span class="chip" id="chip-streak">🔥 0 días</span>
-        <span class="chip" id="chip-points">⭐ 0</span>
+        <span class="chip" id="chip-streak">Racha 0 días</span>
+        <span class="chip" id="chip-points">Puntos 0</span>
       </div>
-      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">🌙</button>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">Tema</button>
     </header>
 
     <main class="app__main">
       <!-- RUTA: mapa de progreso -->
-      <section class="panel" id="panel-ruta" data-panel="ruta" aria-labelledby="greeting">
-        <div class="greeting">
-          <h1 class="greeting__title" id="greeting">¡Hola!</h1>
-          <p class="greeting__sub">Ciencias Sociales · <span id="profile-level-short">Nivel 1</span></p>
+      <section class="panel panel--ruta" id="panel-ruta" data-panel="ruta" aria-labelledby="greeting">
+        <div class="ruta-head">
+          <div class="greeting">
+            <h1 class="greeting__title" id="greeting">¡Hola!</h1>
+            <p class="greeting__sub">Ciencias Sociales · <span id="profile-level-short">Nivel 1</span></p>
+          </div>
+          <!-- Resumen para pantallas grandes (en el celular se usan las fichas de arriba) -->
+          <div class="ruta-stats">
+            <div class="stat-tile">
+              <span class="stat-tile__val" id="tile-streak">0</span>
+              <span class="stat-tile__lbl">Días de racha</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-tile__val" id="tile-points">0</span>
+              <span class="stat-tile__lbl">Puntos</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-tile__val" id="tile-level">1</span>
+              <span class="stat-tile__lbl">Nivel</span>
+            </div>
+          </div>
         </div>
 
-        <div class="route-card">
-          <svg class="route-card__svg" id="route-svg" viewBox="0 0 300 370" role="img"
-               aria-label="Tu ruta de aprendizaje por temas de Ciencias Sociales"></svg>
-        </div>
+        <div class="ruta-grid">
+          <div class="route-card">
+            <svg class="route-card__svg" id="route-svg" viewBox="0 0 300 370" role="img"
+                 aria-label="Tu ruta de aprendizaje por temas de Ciencias Sociales"></svg>
+          </div>
 
-        <a class="btn btn--primary btn--link" id="route-cta" href="/sesion.html">Práctica libre</a>
+          <aside class="ruta-side">
+            <div class="next-card">
+              <p class="next-card__kicker" id="next-kicker">Siguiente tema</p>
+              <h2 class="next-card__title" id="next-title"></h2>
+              <p class="next-card__desc" id="next-desc"></p>
+              <div class="progress" aria-hidden="true"><div class="progress__bar" id="route-progress"></div></div>
+              <p class="next-card__meta" id="route-progress-text"></p>
+              <a class="btn btn--primary btn--link" id="route-cta" href="/sesion.html">Práctica libre</a>
+              <a class="btn btn--ghost btn--link next-card__free" href="/sesion.html">Práctica libre</a>
+            </div>
+
+            <ol class="topic-list" id="topic-list" aria-label="Estado de los temas"></ol>
+          </aside>
+        </div>
       </section>
 
       <!-- PRÁCTICA: práctica libre + temas -->
-      <section class="panel" id="panel-practica" data-panel="practica" aria-labelledby="practica-title" hidden>
+      <section class="panel panel--practica" id="panel-practica" data-panel="practica" aria-labelledby="practica-title" hidden>
         <h1 class="section-title" id="practica-title">Práctica</h1>
 
         <a class="free-cta" href="/sesion.html">
-          <span class="free-cta__icon" aria-hidden="true">🎯</span>
           <span class="free-cta__text">
             <span class="free-cta__title">Práctica libre</span>
             <span class="free-cta__desc">Elige tus temas y cuántas preguntas quieres</span>
           </span>
-          <span class="free-cta__go" aria-hidden="true">→</span>
+          <svg class="ico free-cta__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
         </a>
 
         <div>
@@ -65,7 +95,7 @@
       </section>
 
       <!-- PERFIL: datos, estadísticas, historial, sesión y cierre de sesión -->
-      <section class="panel" id="panel-perfil" data-panel="perfil" aria-labelledby="profile-name" hidden>
+      <section class="panel panel--perfil" id="panel-perfil" data-panel="perfil" aria-labelledby="profile-name" hidden>
         <section class="user-profile" id="user-profile-section">
           <div class="user-profile__header">
             <div class="user-avatar" id="user-avatar" aria-hidden="true">CS</div>
@@ -73,7 +103,7 @@
               <h1 class="user-profile__name" id="profile-name">Cargando perfil...</h1>
               <p class="user-profile__email" id="profile-email"></p>
               <div class="user-profile__badges">
-                <span class="user-profile__tag">🏛️ Ciencias Sociales</span>
+                <span class="user-profile__tag">Ciencias Sociales</span>
                 <span class="user-profile__tag" id="profile-level">Nivel: Explorador</span>
               </div>
             </div>
@@ -95,7 +125,7 @@
         </section>
 
         <details class="q-history" id="q-history-container" hidden>
-          <summary class="summary-title">📜 Historial de cuestionarios realizados</summary>
+          <summary class="summary-title">Historial de cuestionarios realizados</summary>
           <div class="table-scroll mt-075">
             <table class="q-history__table">
               <thead>
@@ -132,15 +162,26 @@
     </main>
 
     <nav class="tabbar" aria-label="Navegación principal">
+      <div class="tabbar__brand">
+        <img class="app__logo" src="/icons/favicon.svg" alt="" width="40" height="40">
+        <span class="tabbar__name">Rural 11</span>
+      </div>
       <button class="tabbar__btn is-active" type="button" data-tab="ruta" aria-current="page">
-        <span class="tabbar__ico" aria-hidden="true">🗺️</span>Ruta
+        <svg class="ico tabbar__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h5a3.5 3.5 0 0 0 0-7h-2a3.5 3.5 0 0 1 0-7h5"/></svg>
+        <span>Ruta</span>
       </button>
       <button class="tabbar__btn" type="button" data-tab="practica">
-        <span class="tabbar__ico" aria-hidden="true">🎯</span>Práctica
+        <svg class="ico tabbar__ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+        <span>Práctica</span>
       </button>
       <button class="tabbar__btn" type="button" data-tab="perfil">
-        <span class="tabbar__ico" aria-hidden="true">👤</span>Perfil
+        <svg class="ico tabbar__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        <span>Perfil</span>
       </button>
+      <div class="tabbar__user">
+        <p class="tabbar__user-name" id="side-name"></p>
+        <p class="tabbar__user-sub">Ciencias Sociales</p>
+      </div>
     </nav>
   </div>
 

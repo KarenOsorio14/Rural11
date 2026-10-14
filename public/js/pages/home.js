@@ -183,15 +183,45 @@ function drawRoute(topics) {
   const goalLabel = svgEl('text', { class: 'rt-label rt-label--muted', x: goal.x + 32, y: goal.y + 4 }, goalGroup);
   goalLabel.textContent = 'Simulacro ICFES';
 
-  // Botón principal bajo el mapa.
+  // Botón principal bajo el mapa y tarjeta "Siguiente tema" (pantallas grandes).
+  const approved = doneFlags.filter(Boolean).length;
+  document.getElementById('route-progress').style.width = `${(approved / topics.length) * 100}%`;
+  document.getElementById('route-progress-text').textContent =
+    `${approved} de ${topics.length} temas aprobados`;
   if (currentIndex === -1) {
-    routeCta.textContent = '¡Ruta completada! Práctica libre';
+    routeCta.textContent = 'Ruta completada: ir a práctica libre';
     routeCta.href = '/sesion.html';
+    document.getElementById('next-kicker').textContent = 'Ruta completada';
+    document.getElementById('next-title').textContent = 'Aprobaste los 4 temas';
+    document.getElementById('next-desc').textContent = 'Sigue repasando con la práctica libre y mejora tu promedio.';
   } else {
     const t = topics[currentIndex];
     routeCta.textContent = `Continuar: ${SHORT_NAMES[t.id] || t.category}`;
     routeCta.href = `/practice.html?topic=${t.id}`;
+    document.getElementById('next-kicker').textContent = 'Siguiente tema';
+    document.getElementById('next-title').textContent = t.name;
+    document.getElementById('next-desc').textContent = t.description;
   }
+
+  // Lista de estado de los temas.
+  const STATUS = { done: 'Aprobado', now: 'En curso', locked: 'Pendiente' };
+  document.getElementById('topic-list').innerHTML = topics
+    .map((t, i) => {
+      const state = stateOf(i);
+      const link = state === 'locked'
+        ? ''
+        : `<a class="topic-row__go btn--link" href="/practice.html?topic=${t.id}">${state === 'done' ? 'Repasar' : 'Practicar'}</a>`;
+      return `
+        <li class="topic-row topic-row--${state}">
+          <span class="topic-mono topic-mono--${t.id}" aria-hidden="true">${t.category.charAt(0)}</span>
+          <span class="topic-row__text">
+            <span class="topic-row__name">${t.name}</span>
+            <span class="topic-row__status">${STATUS[state]}</span>
+          </span>
+          ${link}
+        </li>`;
+    })
+    .join('');
 }
 
 function dayKey(date) {
@@ -244,19 +274,22 @@ async function loadHomeData() {
     const streak = calcStreak(history);
     const points = history.reduce((acc, h) => acc + h.correctCount * 10, 0);
     // 10 puntos por cada respuesta correcta en cualquier cuestionario o práctica libre.
-    chipStreak.textContent = `🔥 ${streak} ${streak === 1 ? 'día' : 'días'}`;
-    chipPoints.textContent = `⭐ ${points}`;
+    chipStreak.textContent = `Racha ${streak} ${streak === 1 ? 'día' : 'días'}`;
+    chipPoints.textContent = `Puntos ${points}`;
     levelShort.textContent = `Nivel ${1 + passedCount}`;
+    document.getElementById('tile-streak').textContent = streak;
+    document.getElementById('tile-points').textContent = points;
+    document.getElementById('tile-level').textContent = 1 + passedCount;
 
     if (passedCount >= 4) {
       // Sistema simple de "niveles" gamificados según cuántos cuestionarios ha aprobado.
-      profileLevel.textContent = '🏅 Maestro en Ciencias Sociales';
+      profileLevel.textContent = 'Maestro en Ciencias Sociales';
     } else if (passedCount >= 2) {
-      profileLevel.textContent = '🎖️ Investigador Social';
+      profileLevel.textContent = 'Investigador Social';
     } else if (passedCount >= 1) {
-      profileLevel.textContent = '📖 Estudiante Activo';
+      profileLevel.textContent = 'Estudiante Activo';
     } else {
-      profileLevel.textContent = '🧭 Explorador Social';
+      profileLevel.textContent = 'Explorador Social';
       // Nivel por defecto para quien aún no ha aprobado ninguno.
     }
 
@@ -274,7 +307,7 @@ async function loadHomeData() {
         return `
         <article class="q-card">
           <div class="q-card__top">
-            <span class="q-card__icon">${t.icon}</span>
+            <span class="topic-mono topic-mono--${t.id}" aria-hidden="true">${t.category.charAt(0)}</span>
             <div class="q-card__badges">
               <span class="q-card__badge">${t.badge}</span>
               ${statsBadge}
@@ -283,8 +316,8 @@ async function loadHomeData() {
           <h3 class="q-card__title">${t.name}</h3>
           <p class="q-card__desc">${t.description}</p>
           <div class="q-card__meta">
-            <span>📚 ${t.questionnairesCount} cuestionario(s)</span>
-            <span>📝 ${t.totalQuestions} preguntas</span>
+            <span>${t.questionnairesCount} cuestionario(s)</span>
+            <span>${t.totalQuestions} preguntas</span>
           </div>
           <a href="/practice.html?topic=${t.id}" class="btn btn--primary q-card__btn btn--link">
             Practicar este tema
@@ -348,6 +381,7 @@ function renderSessionInfo({ user, session }) {
   userAvatar.textContent = getInitials(user.name);
   // Calcula y muestra las iniciales en el avatar.
   profileName.textContent = user.name;
+  document.getElementById('side-name').textContent = user.name;
   greeting.textContent = `¡Hola, ${user.firstName || user.name.split(' ')[0]}!`;
   // Saludo con el primer nombre.
   // Muestra el nombre completo.
