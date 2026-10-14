@@ -1,80 +1,45 @@
-/* Tokens de diseño: cambia aquí la identidad visual de todo el proyecto. */
+/* Tokens de diseño: Paleta A "Noche de mapa". Cambia aquí la identidad visual de todo el proyecto. */
+@font-face{font-family:"Baloo 2";font-weight:700;font-display:swap;src:url("/fonts/baloo-2-latin-700-normal.woff2") format("woff2");}
+@font-face{font-family:"Baloo 2";font-weight:800;font-display:swap;src:url("/fonts/baloo-2-latin-800-normal.woff2") format("woff2");}
+@font-face{font-family:"Manrope";font-weight:200 800;font-display:swap;src:url("/fonts/manrope-latin-wght-normal.woff2") format("woff2");}
+
 :root,
-:root[data-theme="light"] {
-  color-scheme: light;
-
-  --bg: #f3f5f7;
-  --surface: #ffffff;
-  --text: #17212b;
-  --muted: #5b6875;
-  --border: #d5dbe1;
-
-  --accent: #2447d6;
-  --accent-hover: #1b39ad;
-  --accent-contrast: #ffffff;
-  --accent-soft: #e5eafb;
-
-  --danger: #b42318;
-  --danger-soft: #fdecea;
-  --success: #067647;
-  --success-soft: #e6f4ec;
-  --warning: #a4470a;
-  --warning-soft: #fcf0e1;
-  --info: #2447d6;
-  --info-soft: #e5eafb;
-
-  --radius: 10px;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-
-    --bg: #0f1720;
-    --surface: #17212c;
-    --text: #e7ecf1;
-    --muted: #9aa7b4;
-    --border: #2a3644;
-
-    --accent: #7f9bff;
-    --accent-hover: #a2b6ff;
-    --accent-contrast: #0f1720;
-    --accent-soft: #1f2b4d;
-
-    --danger: #ff8a7d;
-    --danger-soft: #3a1f1d;
-    --success: #5fd39a;
-    --success-soft: #16301f;
-    --warning: #f5b26b;
-    --warning-soft: #372714;
-    --info: #7f9bff;
-    --info-soft: #1f2b4d;
-  }
-}
-
+:root[data-theme="light"],
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0f1720;
-  --surface: #17212c;
-  --text: #e7ecf1;
-  --muted: #9aa7b4;
-  --border: #2a3644;
+  --bg: #17153B;
+  --surface: #1F1C52;
+  --surface-hi: #2A2670;
+  --field: #232063;
+  --text: #FFF8EC;
+  --muted: #B9B6F0;
+  --hint: #8F8BD6;
+  --border: #4440B0;
 
-  --accent: #7f9bff;
-  --accent-hover: #a2b6ff;
-  --accent-contrast: #0f1720;
-  --accent-soft: #1f2b4d;
+  --accent: #FFC93C;
+  --accent-hover: #FFD764;
+  --accent-shadow: #C99400;
+  --accent-contrast: #2B1B00;
+  --accent-soft: #2A2670;
 
-  --danger: #ff8a7d;
-  --danger-soft: #3a1f1d;
-  --success: #5fd39a;
-  --success-soft: #16301f;
-  --warning: #f5b26b;
-  --warning-soft: #372714;
-  --info: #7f9bff;
-  --info-soft: #1f2b4d;
+  --mint: #2EE6C5;
+  --pink: #FF5D8F;
+  --disabled: #34307A;
+
+  --danger: #FF7A59;
+  --danger-shadow: #B3492A;
+  --danger-soft: #3A1F3F;
+  --success: #2EE6C5;
+  --success-soft: #12403F;
+  --warning: #FFC93C;
+  --warning-soft: #3A3320;
+  --info: #B9B6F0;
+  --info-soft: #2A2670;
+
+  --radius: 16px;
+  --font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Baloo 2", "Manrope", system-ui, sans-serif;
 }
 
 *,
@@ -102,6 +67,13 @@ h1,
 h2,
 p {
   margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
 }
 
 [hidden] {
