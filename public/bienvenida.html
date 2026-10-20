@@ -14,28 +14,27 @@
   <link rel="stylesheet" href="/css/bienvenida.css">
 </head>
 <body class="welcome">
+  <!-- Dos capas de paisaje (noche y día): al cambiar de modo una se desvanece sobre la otra -->
+  <div class="welcome__bg welcome__bg--noche" aria-hidden="true"></div>
+  <div class="welcome__bg welcome__bg--dia" aria-hidden="true"></div>
+  <div class="welcome__veil" aria-hidden="true"></div>
+
   <button class="theme-toggle theme-toggle--floating" id="theme-toggle" type="button" aria-label="Cambiar tema"></button>
 
   <main class="welcome__main">
-    <section class="welcome__card" aria-labelledby="welcome-title">
-      <div class="welcome__brand">
-        <img class="welcome__logo" src="/icons/favicon.svg" alt="" width="52" height="52">
-        <p class="welcome__name">Rural 11</p>
-      </div>
+    <img class="welcome__logo" src="/icons/favicon.svg" alt="" width="64" height="64">
+    <h1 class="welcome__title">Bienvenido a Rural 11</h1>
+    <p class="welcome__text">
+      Prepárate para la prueba Saber 11 en Ciencias Sociales. Sigue tu ruta, practica a tu ritmo
+      y mira cómo avanzas.
+    </p>
 
-      <h1 class="welcome__title" id="welcome-title">Bienvenido a Rural 11</h1>
-      <p class="welcome__text">
-        Prepárate para la prueba Saber 11 en Ciencias Sociales. Sigue tu ruta por temas,
-        practica a tu ritmo y mira cómo avanzas, desde tu celular.
-      </p>
+    <div class="welcome__actions">
+      <a class="btn btn--primary btn--link" href="/login.html">Iniciar sesión</a>
+      <a class="btn btn--ghost btn--link" href="/register.html">Crear cuenta</a>
+    </div>
 
-      <div class="welcome__actions">
-        <a class="btn btn--primary btn--link" href="/login.html">Iniciar sesión</a>
-        <a class="btn btn--ghost btn--link" href="/register.html">Crear cuenta</a>
-      </div>
-
-      <p class="welcome__foot">Institución Educativa Agropecuaria San Alfonso · Balboa, Cauca</p>
-    </section>
+    <p class="welcome__foot">IE Agropecuaria San Alfonso · Balboa, Cauca</p>
   </main>
 
   <script type="module" src="/js/pages/bienvenida.js"></script>
