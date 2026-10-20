@@ -357,6 +357,7 @@
 /* ---------- Ruta: bloques que solo se ven en pantallas grandes ---------- */
 .ruta-head { display: grid; gap: 0.25rem; }
 .ruta-grid { display: grid; gap: 1.1rem; }
+.tabbar__theme,
 .ruta-stats,
 .topic-list,
 .tabbar__brand,
@@ -438,10 +439,15 @@
   .tabbar__btn:hover { background: var(--surface-hi); color: var(--text); }
   .tabbar__btn.is-active { background: var(--surface-hi); color: var(--accent); }
 
+  .tabbar__theme {
+    display: inline-flex;
+    margin: auto 0 0.75rem 0.5rem;
+  }
+
   .tabbar__user {
     display: grid;
     gap: 0.1rem;
-    margin-top: auto;
+    margin-top: 0;
     padding: 0.9rem 0.9rem 0;
     border-top: 2px solid var(--border);
   }

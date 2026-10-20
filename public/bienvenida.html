@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bienvenido · Rural 11</title>
+  <meta name="theme-color" content="#17153B">
+  <script src="/js/core/theme-init.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/bienvenida.css">
+</head>
+<body class="welcome">
+  <button class="theme-toggle theme-toggle--floating" id="theme-toggle" type="button" aria-label="Cambiar tema"></button>
+
+  <main class="welcome__main">
+    <section class="welcome__card" aria-labelledby="welcome-title">
+      <div class="welcome__brand">
+        <img class="welcome__logo" src="/icons/favicon.svg" alt="" width="52" height="52">
+        <p class="welcome__name">Rural 11</p>
+      </div>
+
+      <h1 class="welcome__title" id="welcome-title">Bienvenido a Rural 11</h1>
+      <p class="welcome__text">
+        Prepárate para la prueba Saber 11 en Ciencias Sociales. Sigue tu ruta por temas,
+        practica a tu ritmo y mira cómo avanzas, desde tu celular.
+      </p>
+
+      <div class="welcome__actions">
+        <a class="btn btn--primary btn--link" href="/login.html">Iniciar sesión</a>
+        <a class="btn btn--ghost btn--link" href="/register.html">Crear cuenta</a>
+      </div>
+
+      <p class="welcome__foot">Institución Educativa Agropecuaria San Alfonso · Balboa, Cauca</p>
+    </section>
+  </main>
+
+  <script type="module" src="/js/pages/bienvenida.js"></script>
+</body>
+</html>

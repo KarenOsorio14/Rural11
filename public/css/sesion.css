@@ -82,7 +82,7 @@
   width: 28px;
   height: 28px;
   font-weight: 800;
-  color: #06332B;
+  color: var(--bg);
   border: 2px solid var(--border);
   border-radius: 50%;
 }
@@ -98,7 +98,7 @@
   width: 6px;
   height: 12px;
   margin-top: -2px;
-  border: solid #06332B;
+  border: solid var(--bg);
   border-width: 0 3px 3px 0;
   transform: rotate(45deg);
 }
