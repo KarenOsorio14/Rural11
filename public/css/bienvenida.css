@@ -1,57 +1,104 @@
-/* Pantalla de bienvenida: paisaje de fondo (día o noche) y tarjeta de cristal encima. */
+/* Pantalla de bienvenida: el paisaje ocupa toda la pantalla y el texto va directo encima, sin caja. */
 .welcome {
-  background-color: var(--bg);
-  background-image: url("/img/fondo-noche-v.webp");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  --scrim: rgba(8, 10, 38, 0.62);
+  --welcome-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  position: relative;
+  overflow-x: hidden;
 }
 
-:root[data-theme="light"] .welcome { background-image: url("/img/fondo-dia-v.webp"); }
+:root[data-theme="light"] .welcome {
+  --scrim: rgba(255, 244, 228, 0.7);
+  --welcome-shadow: 0 1px 12px rgba(255, 250, 240, 0.85);
+}
+
+/* ---------- Fondo: dos capas que se funden al cambiar de modo ---------- */
+.welcome__bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  transition: opacity 0.8s ease;
+}
+
+.welcome__bg--noche { background-image: url("/img/fondo-noche-v.webp"); opacity: 1; }
+.welcome__bg--dia { background-image: url("/img/fondo-dia-v.webp"); opacity: 0; }
+:root[data-theme="light"] .welcome__bg--noche { opacity: 0; }
+:root[data-theme="light"] .welcome__bg--dia { opacity: 1; }
 
 @media (min-aspect-ratio: 1/1) {
-  .welcome { background-image: url("/img/fondo-noche-h.webp"); }
-  :root[data-theme="light"] .welcome { background-image: url("/img/fondo-dia-h.webp"); }
+  .welcome__bg--noche { background-image: url("/img/fondo-noche-h.webp"); }
+  .welcome__bg--dia { background-image: url("/img/fondo-dia-h.webp"); }
 }
 
+/* Velo suave arriba para que el texto se lea sobre el cielo sin usar una caja */
+.welcome__veil {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, var(--scrim) 0%, transparent 55%);
+  transition: background 0.35s ease;
+}
+
+/* ---------- Contenido ---------- */
 .welcome__main {
-  display: grid;
-  place-items: start center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   min-height: 100vh;
   min-height: 100dvh;
-  /* La tarjeta va arriba para dejar a la vista el valle, la chiva y el sol o la luna */
-  padding: clamp(4rem, 10vh, 6.5rem) 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+  padding: clamp(4.5rem, 12vh, 8rem) 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+  text-align: center;
+  text-shadow: var(--welcome-shadow);
 }
 
-.welcome__card {
-  display: grid;
-  gap: 1rem;
-  width: min(100%, 26rem);
-  padding: 1.75rem 1.5rem;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: calc(var(--radius) + 8px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-}
+.welcome__logo { width: 64px; height: 64px; border-radius: 18px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); }
 
-.welcome__brand { display: flex; align-items: center; gap: 0.75rem; }
-.welcome__logo { width: 52px; height: 52px; border-radius: 14px; }
-.welcome__name {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+.welcome__title {
+  max-width: 14ch;
+  font-size: clamp(2.4rem, 8vw, 4.25rem);
   font-weight: 800;
+  line-height: 1.02;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
-.welcome__title { font-size: 2rem; font-weight: 800; line-height: 1.1; text-wrap: balance; }
-.welcome__text { color: var(--muted); }
-.welcome__actions { display: grid; gap: 0.75rem; margin-top: 0.25rem; }
-.welcome__foot { font-size: 0.8rem; color: var(--hint); text-align: center; }
-
-@media (min-width: 860px) {
-  .welcome__main { place-items: start start; padding-left: clamp(2rem, 8vw, 8rem); }
-  .welcome__title { font-size: 2.4rem; }
+.welcome__text {
+  max-width: 30rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
 }
+
+.welcome__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.75rem;
+  text-shadow: none;
+}
+
+/* Botones en forma de píldora, no cuadrados */
+.welcome__actions .btn {
+  min-height: 54px;
+  min-width: min(100%, 14rem);
+  padding: 0 2rem;
+  border-radius: 999px;
+}
+
+.welcome__actions .btn--ghost {
+  color: var(--text);
+  background: var(--glass);
+  border: 2px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.welcome__foot { margin-top: auto; padding-top: 1.5rem; font-size: 0.8rem; font-weight: 700; color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85); }
+
+/* Transición suave de colores de texto al cambiar de modo */
+.welcome, .welcome__title, .welcome__text, .welcome__foot { transition: color 0.3s ease; }
