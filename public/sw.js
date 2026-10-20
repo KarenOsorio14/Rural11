@@ -1,11 +1,19 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v7';
+const VERSION = 'v8';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
   '/',
+  '/bienvenida.html',
+  '/js/pages/bienvenida.js',
+  '/css/bienvenida.css',
+  '/js/core/theme-init.js',
+  '/img/fondo-dia-v.webp',
+  '/img/fondo-dia-h.webp',
+  '/img/fondo-noche-v.webp',
+  '/img/fondo-noche-h.webp',
   '/login.html',
   '/register.html',
   '/reset-password.html',

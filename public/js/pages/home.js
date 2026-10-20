@@ -429,8 +429,8 @@ async function init() {
           : { type: 'info', title: 'Inicia sesión', message: 'Necesitas una cuenta activa para entrar.' }
       );
       // Prepara un mensaje flash distinto según el motivo exacto.
-      location.replace('/login.html');
-      // Redirige al login, reemplazando la entrada en el historial (para que "atrás" no vuelva aquí).
+      location.replace(result.status === 'expired' ? '/login.html' : '/bienvenida.html');
+      // Sesión vencida: directo al login con el aviso. Sin sesión: pantalla de bienvenida.
       return;
       // Corta la ejecución: no tiene sentido seguir cargando datos sin sesión.
     }

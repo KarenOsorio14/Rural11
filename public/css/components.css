@@ -57,9 +57,10 @@
   padding: 0;
   font-size: 1.2rem;
   line-height: 1;
+  flex-shrink: 0;
   background: var(--surface);
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.15s ease, background-color 0.15s, border-color 0.15s;
@@ -80,7 +81,7 @@
   top: max(1rem, env(safe-area-inset-top));
   right: 1.25rem;
   z-index: 100;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 .topbar__actions {
@@ -283,11 +284,6 @@
 /* Segundo enlace del login ("Crear cuenta"): rosa, como en el diseño. */
 .auth-switch ~ .auth-switch a { color: var(--pink); }
 
-/* El diseño Paleta A es solo modo noche: se oculta el selector de tema. */
-.theme-toggle {
-  display: none !important;
-}
-
 /* ---------- Ventana de confirmación ---------- */
 .modal {
   position: fixed;
@@ -418,3 +414,10 @@
 .topic-mono--geografia { background: var(--mint); color: #06332B; }
 .topic-mono--constitucion { background: var(--pink); color: #3A0016; }
 .topic-mono--sociedad { background: var(--danger); color: #3B1000; }
+
+/* ---------- Ajustes del modo día ---------- */
+:root[data-theme="light"] .topic-mono--geografia { color: #fff; }
+:root[data-theme="light"] .topic-mono--constitucion { color: #fff; }
+:root[data-theme="light"] .topic-mono--sociedad { color: #fff; }
+:root[data-theme="light"] .rt-halo { opacity: 0.35; }
+.theme-toggle--end { margin-left: auto; }

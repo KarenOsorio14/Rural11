@@ -4,7 +4,6 @@
 @font-face{font-family:"Manrope";font-weight:200 800;font-display:swap;src:url("/fonts/manrope-latin-wght-normal.woff2") format("woff2");}
 
 :root,
-:root[data-theme="light"],
 :root[data-theme="dark"] {
   color-scheme: dark;
 
@@ -37,9 +36,49 @@
   --info: #B9B6F0;
   --info-soft: #2A2670;
 
+  --glass: rgba(31, 28, 82, 0.82);
+  --glass-border: rgba(185, 182, 240, 0.28);
+
   --radius: 16px;
   --font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font-display: "Baloo 2", "Manrope", system-ui, sans-serif;
+}
+
+/* Modo día: paleta del atardecer (salvia, terracota y crema), tomada de las ilustraciones. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #FBF1E3;
+  --surface: #FFFAF2;
+  --surface-hi: #F6E3CC;
+  --field: #FFFFFF;
+  --text: #2B2118;
+  --muted: #6A5946;
+  --hint: #8A7761;
+  --border: #E0C9AB;
+
+  --accent: #C4532D;
+  --accent-hover: #D2623B;
+  --accent-shadow: #8E3519;
+  --accent-contrast: #FFFFFF;
+  --accent-soft: #F8DFCC;
+
+  --mint: #2F7A58;
+  --pink: #C23B65;
+  --disabled: #E8D9C2;
+
+  --danger: #B93A1B;
+  --danger-shadow: #7F2610;
+  --danger-soft: #FBE0D6;
+  --success: #2F7A58;
+  --success-soft: #DDEFE4;
+  --warning: #A86B00;
+  --warning-soft: #FBEBC8;
+  --info: #6A5946;
+  --info-soft: #F6E3CC;
+
+  --glass: rgba(255, 250, 242, 0.84);
+  --glass-border: rgba(224, 201, 171, 0.9);
 }
 
 *,
