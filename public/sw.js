@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v8';
+const VERSION = 'v13';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -9,11 +9,14 @@ const SHELL = [
   '/bienvenida.html',
   '/js/pages/bienvenida.js',
   '/css/bienvenida.css',
+  '/img/grano/3d/idea.webp',
+  '/img/grano/3d/historiador.webp',
+  '/img/grano/3d/geografo.webp',
+  '/img/grano/3d/abogado.webp',
+  '/img/grano/3d/cultura.webp',
+  '/img/grano/3d/medalla.webp',
+  '/img/grano/grano-lupa.webp',
   '/js/core/theme-init.js',
-  '/img/fondo-dia-v.webp',
-  '/img/fondo-dia-h.webp',
-  '/img/fondo-noche-v.webp',
-  '/img/fondo-noche-h.webp',
   '/login.html',
   '/register.html',
   '/reset-password.html',
@@ -36,6 +39,7 @@ const SHELL = [
   '/js/core/form.js',
   '/js/core/notifications.js',
   '/js/core/pwa.js',
+  '/js/core/passage.js',
   '/js/core/theme.js',
   '/js/modules/users/index.js',
   '/js/modules/users/users.repository.js',
@@ -43,6 +47,7 @@ const SHELL = [
   '/js/modules/auth/password.js',
   '/js/modules/auth/session.js',
   '/js/modules/questionnaires/questionnaires.data.js',
+  '/js/modules/questionnaires/questionnaires.lectura.data.js',
   '/js/modules/questionnaires/questionnaires.repository.js',
   '/js/modules/questionnaires/questionnaires.service.js',
   '/js/pages/login.js',

@@ -1,5 +1,8 @@
 'use strict';
 // Modo estricto.
+
+import { LECTURAS } from './questionnaires.lectura.data.js';
+// Cuestionarios de lectura (cada pregunta con un texto), definidos en su propio archivo.
 //
 // NOTA GENERAL SOBRE ESTE ARCHIVO:
 // Este archivo es puramente de DATOS (no tiene lógica/funciones). Contiene el catálogo
@@ -60,7 +63,7 @@ export const TOPICS = [
 ];
 // Fin de TOPICS: 4 temas, cada uno enlazado por "category" a uno o más cuestionarios abajo.
 
-export const QUESTIONNAIRES = [
+const BASE_QUESTIONNAIRES = [
   {
     id: 'historia-colombia-latam',
     title: 'Historia de Colombia y Procesos de Independencia',
@@ -284,3 +287,6 @@ export const QUESTIONNAIRES = [
   }
 ];
 // Fin de QUESTIONNAIRES: 4 cuestionarios (uno por cada tema), con 3 o 4 preguntas cada uno.
+
+// Catálogo completo: primero el repaso general de cada tema y luego los cuestionarios de lectura.
+export const QUESTIONNAIRES = [...BASE_QUESTIONNAIRES, ...LECTURAS];

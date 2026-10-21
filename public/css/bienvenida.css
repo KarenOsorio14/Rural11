@@ -1,104 +1,101 @@
-/* Pantalla de bienvenida: el paisaje ocupa toda la pantalla y el texto va directo encima, sin caja. */
+/* Bienvenida: dos bloques de color plano (arriba la imagen, abajo el texto y los botones). */
 .welcome {
-  --scrim: rgba(8, 10, 38, 0.62);
-  --welcome-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
-  position: relative;
+  --w-top: #FFE9DE;
+  --w-bottom: #4F8159;
+  --w-title: #1E1B2E;
+  --w-text: #FFF8EC;
+  --w-ray: #FFC93C;
   overflow-x: hidden;
+  background: var(--w-top);
 }
 
-:root[data-theme="light"] .welcome {
-  --scrim: rgba(255, 244, 228, 0.7);
-  --welcome-shadow: 0 1px 12px rgba(255, 250, 240, 0.85);
+:root[data-theme="dark"] .welcome, :root:not([data-theme]) .welcome {
+  --w-top: #17153B;
+  --w-bottom: #2D2878;
+  --w-title: #FFF8EC;
 }
 
-/* ---------- Fondo: dos capas que se funden al cambiar de modo ---------- */
-.welcome__bg {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background-size: cover;
-  background-position: center bottom;
-  background-repeat: no-repeat;
-  transition: opacity 0.8s ease;
+.welcome__main { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+
+/* ---------- Bloque superior ---------- */
+.welcome__top {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 3vh, 1.5rem);
+  padding: clamp(3.5rem, 8vh, 5rem) 1.5rem 3rem;
+  background: var(--w-top);
 }
 
-.welcome__bg--noche { background-image: url("/img/fondo-noche-v.webp"); opacity: 1; }
-.welcome__bg--dia { background-image: url("/img/fondo-dia-v.webp"); opacity: 0; }
-:root[data-theme="light"] .welcome__bg--noche { opacity: 0; }
-:root[data-theme="light"] .welcome__bg--dia { opacity: 1; }
-
-@media (min-aspect-ratio: 1/1) {
-  .welcome__bg--noche { background-image: url("/img/fondo-noche-h.webp"); }
-  .welcome__bg--dia { background-image: url("/img/fondo-dia-h.webp"); }
+.welcome__title {
+  font-size: clamp(3rem, 13vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--w-title);
 }
 
-/* Velo suave arriba para que el texto se lea sobre el cielo sin usar una caja */
-.welcome__veil {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(to bottom, var(--scrim) 0%, transparent 55%);
-  transition: background 0.35s ease;
-}
+.welcome__stage { position: relative; width: min(86vw, 26rem); }
+.welcome__grano { display: block; width: 100%; height: auto; filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.22)); animation: grano-bob 3.4s ease-in-out infinite; }
 
-/* ---------- Contenido ---------- */
-.welcome__main {
+@keyframes grano-bob { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-9px) rotate(1deg); } }
+
+@media (prefers-reduced-motion: reduce) { .welcome__grano { animation: none; } }
+
+/* ---------- Bloque inferior ---------- */
+.welcome__bottom {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: clamp(4.5rem, 12vh, 8rem) 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+  margin-top: -2rem;
+  padding: 2.25rem 1.5rem max(1.25rem, env(safe-area-inset-bottom));
+  border-radius: 2.25rem 2.25rem 0 0;
+  background: var(--w-bottom);
+  color: var(--w-text);
   text-align: center;
-  text-shadow: var(--welcome-shadow);
 }
 
-.welcome__logo { width: 64px; height: 64px; border-radius: 18px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); }
+.welcome__kicker { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--w-ray); }
+.welcome__text { max-width: 28rem; font-size: 1.05rem; font-weight: 600; color: var(--w-text); }
 
-.welcome__title {
-  max-width: 14ch;
-  font-size: clamp(2.4rem, 8vw, 4.25rem);
-  font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
+.welcome__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; width: 100%; margin-top: 0.25rem; }
+.welcome__actions .btn { min-height: 56px; min-width: min(100%, 14rem); padding: 0 2rem; border-radius: 999px; font-size: 1.05rem; }
+.welcome__actions .btn--primary { background: #FFC93C; color: #2B2118; box-shadow: 0 5px 0 #C99410; }
+.welcome__actions .btn--ghost { color: var(--w-text); background: transparent; border: 3px solid var(--w-text); }
+
+.welcome__foot { padding-top: 0.5rem; font-size: 0.8rem; font-weight: 700; color: var(--w-text); opacity: 0.85; }
+
+/* ---------- Escritorio: imagen a la derecha, texto sobre el bloque verde a la izquierda ---------- */
+@media (min-width: 900px) {
+  .welcome__main { flex-direction: row-reverse; }
+  .welcome__top { flex: 1 1 55%; padding: 3rem; }
+  .welcome__stage { width: min(34rem, 38vw); }
+  .welcome__bottom {
+    flex: 1 1 45%;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0 -2.25rem 0 0;
+    padding: 3rem 4.5rem 3rem 3rem;
+    border-radius: 0 2.25rem 2.25rem 0;
+    text-align: left;
+    gap: 1.25rem;
+  }
+  .welcome__actions { justify-content: flex-start; }
 }
 
-.welcome__text {
-  max-width: 30rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text);
+@media (max-height: 520px) and (orientation: landscape) {
+  .welcome__top { padding-top: 1rem; padding-bottom: 1rem; }
+  .welcome__title { font-size: 2.2rem; }
+  .welcome__stage { width: min(34vh, 11rem); }
 }
 
-.welcome__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
-  margin-top: 0.75rem;
-  text-shadow: none;
+.welcome__actions .btn--ghost { border-color: var(--w-text); }
+@media (min-width: 900px) {
+  .welcome__text { font-size: 1.35rem; max-width: 26rem; }
+  .welcome__kicker { font-size: 0.95rem; }
 }
-
-/* Botones en forma de píldora, no cuadrados */
-.welcome__actions .btn {
-  min-height: 54px;
-  min-width: min(100%, 14rem);
-  padding: 0 2rem;
-  border-radius: 999px;
-}
-
-.welcome__actions .btn--ghost {
-  color: var(--text);
-  background: var(--glass);
-  border: 2px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-
-.welcome__foot { margin-top: auto; padding-top: 1.5rem; font-size: 0.8rem; font-weight: 700; color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85); }
-
-/* Transición suave de colores de texto al cambiar de modo */
-.welcome, .welcome__title, .welcome__text, .welcome__foot { transition: color 0.3s ease; }

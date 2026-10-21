@@ -421,3 +421,20 @@
 :root[data-theme="light"] .topic-mono--sociedad { color: #fff; }
 :root[data-theme="light"] .rt-halo { opacity: 0.35; }
 .theme-toggle--end { margin-left: auto; }
+
+/* ---------- Texto de lectura que acompaña a una pregunta ---------- */
+.q-passage {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 1rem 1.1rem 1.1rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-left: 8px solid var(--accent);
+  border-radius: var(--radius);
+}
+.q-passage__label { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.q-passage__title { font-size: 1.1rem; font-weight: 800; line-height: 1.25; }
+.q-passage__text { display: grid; gap: 0.6rem; max-width: 65ch; line-height: 1.6; }
+.q-passage__text p { margin: 0; }
+.q-passage__source { font-size: 0.8rem; font-weight: 700; color: var(--muted); }

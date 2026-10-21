@@ -19,7 +19,7 @@
 <body>
   <div class="app" id="home" hidden>
     <header class="app__top">
-      <img class="app__logo" src="/icons/favicon.svg" alt="Rural 11" width="40" height="40">
+      <span class="app__wordmark">Rural 11</span>
       <div class="app__chips">
         <span class="chip" id="chip-streak">Racha 0 días</span>
         <span class="chip" id="chip-points">Puntos 0</span>
@@ -54,12 +54,13 @@
 
         <div class="ruta-grid">
           <div class="route-card">
-            <svg class="route-card__svg" id="route-svg" viewBox="0 0 300 370" role="img"
+            <svg class="route-card__svg" id="route-svg" viewBox="0 0 320 960" role="img"
                  aria-label="Tu ruta de aprendizaje por temas de Ciencias Sociales"></svg>
           </div>
 
           <aside class="ruta-side">
             <div class="next-card">
+              <img class="next-card__grano" id="next-grano" src="/img/grano/3d/idea.webp" alt="" width="160" height="140">
               <p class="next-card__kicker" id="next-kicker">Siguiente tema</p>
               <h2 class="next-card__title" id="next-title"></h2>
               <p class="next-card__desc" id="next-desc"></p>
@@ -164,7 +165,6 @@
 
     <nav class="tabbar" aria-label="Navegación principal">
       <div class="tabbar__brand">
-        <img class="app__logo" src="/icons/favicon.svg" alt="" width="40" height="40">
         <span class="tabbar__name">Rural 11</span>
       </div>
       <button class="tabbar__btn is-active" type="button" data-tab="ruta" aria-current="page">

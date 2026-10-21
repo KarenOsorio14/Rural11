@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Bienvenido · Rural 11</title>
-  <meta name="theme-color" content="#17153B">
+  <meta name="theme-color" content="#FFE9DE">
   <script src="/js/core/theme-init.js"></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
@@ -14,27 +14,27 @@
   <link rel="stylesheet" href="/css/bienvenida.css">
 </head>
 <body class="welcome">
-  <!-- Dos capas de paisaje (noche y día): al cambiar de modo una se desvanece sobre la otra -->
-  <div class="welcome__bg welcome__bg--noche" aria-hidden="true"></div>
-  <div class="welcome__bg welcome__bg--dia" aria-hidden="true"></div>
-  <div class="welcome__veil" aria-hidden="true"></div>
-
   <button class="theme-toggle theme-toggle--floating" id="theme-toggle" type="button" aria-label="Cambiar tema"></button>
 
   <main class="welcome__main">
-    <img class="welcome__logo" src="/icons/favicon.svg" alt="" width="64" height="64">
-    <h1 class="welcome__title">Bienvenido a Rural 11</h1>
-    <p class="welcome__text">
-      Prepárate para la prueba Saber 11 en Ciencias Sociales. Sigue tu ruta, practica a tu ritmo
-      y mira cómo avanzas.
-    </p>
+    <section class="welcome__top">
+      <h1 class="welcome__title">Rural 11</h1>
+      <div class="welcome__stage" aria-hidden="true">
+        <img class="welcome__grano" src="/img/grano/grano-lupa.webp" alt="" width="965" height="820">
+      </div>
+    </section>
 
-    <div class="welcome__actions">
-      <a class="btn btn--primary btn--link" href="/login.html">Iniciar sesión</a>
-      <a class="btn btn--ghost btn--link" href="/register.html">Crear cuenta</a>
-    </div>
-
-    <p class="welcome__foot">IE Agropecuaria San Alfonso · Balboa, Cauca</p>
+    <section class="welcome__bottom">
+      <p class="welcome__kicker">Saber 11 · Ciencias Sociales</p>
+      <p class="welcome__text">
+        Prepárate para la prueba. Sigue tu ruta, practica a tu ritmo y descubre cómo avanzas.
+      </p>
+      <div class="welcome__actions">
+        <a class="btn btn--primary btn--link" href="/login.html">Iniciar sesión</a>
+        <a class="btn btn--ghost btn--link" href="/register.html">Crear cuenta</a>
+      </div>
+      <p class="welcome__foot">IE Agropecuaria San Alfonso · Balboa, Cauca</p>
+    </section>
   </main>
 
   <script type="module" src="/js/pages/bienvenida.js"></script>

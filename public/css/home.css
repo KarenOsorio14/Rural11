@@ -243,10 +243,13 @@
   padding: max(0.75rem, env(safe-area-inset-top)) 1.25rem 0.5rem;
 }
 
-.app__logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+.app__wordmark {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text);
 }
 
 .app__chips {
@@ -297,7 +300,7 @@
   border-radius: calc(var(--radius) + 6px);
 }
 
-.route-card__svg { display: block; width: 100%; height: auto; max-height: 52vh; }
+.route-card__svg { display: block; width: 100%; max-width: 26rem; height: auto; margin: 0 auto; }
 
 .rt-label {
   font-family: var(--font);
@@ -485,7 +488,6 @@
   }
 
   .route-card { padding: 1.5rem; }
-  .route-card__svg { max-height: 62vh; margin: 0 auto; }
   .rt-label { font-size: 12px; }
 
   .next-card {
@@ -567,3 +569,68 @@
   .app__main { width: min(100%, 92rem); }
   .panel--practica .q-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+
+/* ---------- Grano en la ruta ---------- */
+.next-card__grano { display: none; }
+
+.topic-grano {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--accent-soft);
+}
+.topic-grano img { width: 100%; height: 100%; object-fit: contain; }
+.topic-grano--geografia { background: rgba(46, 230, 197, 0.16); }
+.topic-grano--constitucion { background: rgba(255, 93, 143, 0.16); }
+.topic-grano--sociedad { background: rgba(255, 122, 89, 0.16); }
+.topic-row--locked .topic-grano img { opacity: 0.45; filter: grayscale(0.6); }
+
+@media (min-width: 900px) {
+  .next-card__grano { display: block; width: auto; height: 9rem; max-width: 100%; margin: 0 auto 0.25rem; object-fit: contain; }
+}
+
+
+/* ---------- Ruta paso a paso: una unidad de color por tema ---------- */
+.rm-c-historia { --c: #FFC93C; --c-dark: #C99410; --c-ink: #2B2118; }
+.rm-c-geografia { --c: #22B8A0; --c-dark: #15806E; --c-ink: #FFFFFF; }
+.rm-c-constitucion { --c: #4C7DFF; --c-dark: #2F52B8; --c-ink: #FFFFFF; }
+.rm-c-sociedad { --c: #FF7A59; --c-dark: #C4532D; --c-ink: #FFFFFF; }
+.rm-c-meta { --c: #E0457B; --c-dark: #A12957; --c-ink: #FFFFFF; }
+
+.rm-unit__bg { fill: var(--c); }
+.rm-unit__kicker { font-family: var(--font); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--c-ink); opacity: 0.8; }
+.rm-unit__name { font-family: var(--font-display); font-size: 21px; font-weight: 800; fill: var(--c-ink); }
+
+.rm-base { fill: var(--c-dark); }
+.rm-disc { fill: var(--c); }
+.rm-shine { fill: none; stroke: #fff; stroke-opacity: 0.45; stroke-width: 5; stroke-linecap: round; }
+.rm-icon { fill: none; stroke: var(--c-ink); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.rm-node--locked .rm-base { fill: var(--hint); opacity: 0.55; }
+.rm-node--locked .rm-disc { fill: var(--border); }
+.rm-node--locked .rm-icon { stroke: var(--hint); }
+.rm-node--locked .rm-shine { stroke-opacity: 0.25; }
+.rm-halo { fill: var(--c); opacity: 0.25; transform-box: fill-box; transform-origin: center; animation: rm-pulse 1.8s ease-in-out infinite; }
+.rm-badge { fill: var(--mint); stroke: var(--bg); stroke-width: 3; }
+.rm-badge--lock { fill: var(--surface); stroke: var(--border); }
+.rm-check { fill: none; stroke: var(--bg); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.rm-lock { fill: var(--hint); }
+.rm-lock-arc { fill: none; stroke: var(--hint); stroke-width: 2.2; }
+.rm-pill { fill: var(--surface); stroke: var(--c); stroke-width: 2.5; }
+.rm-pill__text { font-family: var(--font-display); font-size: 12px; font-weight: 800; letter-spacing: 0.06em; fill: var(--text); }
+.rm-step-name { font-family: var(--font); font-size: 12px; font-weight: 800; fill: var(--text); text-anchor: middle; }
+.rm-node--locked .rm-step-name { fill: var(--muted); }
+.rm-goal-name { font-family: var(--font-display); font-size: 16px; font-weight: 800; fill: var(--muted); }
+.rm-grano { filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.2)); }
+.rm-node { cursor: default; }
+a.rm-node { cursor: pointer; }
+a.rm-node:hover .rm-disc { filter: brightness(1.08); }
+a.rm-node:active .rm-disc { transform: translateY(5px); }
+a.rm-node:focus-visible .rm-disc { stroke: var(--text); stroke-width: 4; }
+
+@keyframes rm-pulse { 0%, 100% { transform: scale(1); opacity: 0.25; } 50% { transform: scale(1.1); opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .rm-halo { animation: none; } }
