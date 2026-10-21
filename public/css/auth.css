@@ -1,89 +1,85 @@
-.auth {
-  display: grid;
-  min-height: 100vh;
-  min-height: 100dvh;
+/* Pantallas de acceso (iniciar sesión, crear cuenta, restablecer): mismo estilo de la bienvenida.
+   Arriba el bloque claro con Grano; abajo una hoja de color plano con el formulario. */
+.auth-page {
+  --w-top: #FFE9DE;
+  --w-bottom: #4F8159;
+  --w-title: #1E1B2E;
+  --w-text: #FFF8EC;
+  --w-ray: #FFC93C;
+  background: var(--w-top);
 }
 
+:root[data-theme="dark"] .auth-page, :root:not([data-theme]) .auth-page {
+  --w-top: #17153B;
+  --w-bottom: #2D2878;
+  --w-title: #FFF8EC;
+}
+
+.auth { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+
+/* ---------- Bloque superior ---------- */
 .auth__brand {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: 1rem;
-  width: min(100%, 26rem);
-  margin: 0 auto;
-  padding: max(1.25rem, env(safe-area-inset-top)) 1.5rem 0;
-  color: var(--text);
-}
-
-.auth__logo {
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  padding: max(1rem, env(safe-area-inset-top)) 1.5rem 2.5rem;
+  background: var(--w-top);
 }
 
-.auth__logo-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-}
+.auth__logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+.auth__name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--w-title); }
+.auth__grano { display: block; width: auto; height: clamp(7rem, 20vh, 10rem); max-width: 80%; filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.2)); }
 
-.auth__name {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.02em;
-}
-
-.auth__lead {
-  color: var(--muted);
-  margin-top: -0.5rem;
-}
-
+/* ---------- Hoja con el formulario ---------- */
 .auth__panel {
+  flex: 1 1 auto;
   display: grid;
-  align-content: center;
+  align-content: start;
   justify-items: center;
-  padding: 1.25rem 1.5rem max(2rem, env(safe-area-inset-bottom));
+  margin-top: -1.75rem;
+  padding: 2rem 1.5rem max(2rem, env(safe-area-inset-bottom));
+  border-radius: 2.25rem 2.25rem 0 0;
+  background: var(--w-bottom);
+  color: var(--w-text);
 }
 
-.auth__form {
-  display: grid;
-  gap: 1.15rem;
-  width: min(100%, 22rem);
-}
+.auth__form { display: grid; gap: 1.1rem; width: min(100%, 24rem); }
+.auth__title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; color: var(--w-text); }
+.auth__lead { margin-top: -0.5rem; color: var(--w-text); opacity: 0.9; }
 
-.auth__title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
+/* Colores del formulario sobre la hoja: campos crema, texto oscuro, acentos amarillos */
+.auth__panel .field__label { color: var(--w-text); }
+.auth__panel .field__control { background: #FFF8EC; border-color: transparent; }
+.auth__panel .field__control:focus-within { border-color: var(--w-ray); outline: 3px solid rgba(255, 201, 60, 0.45); }
+.auth__panel .field__control[data-invalid="true"] { border-color: #FF7A59; }
+.auth__panel .field__input { color: #2B2118; }
+.auth__panel .field__input::placeholder { color: #7A6A58; }
+.auth__panel .field__toggle { color: #2D5F3F; }
+:root[data-theme="dark"] .auth__panel .field__toggle { color: #2D2878; }
+.auth__panel .field__hint { color: var(--w-text); opacity: 0.85; }
+.auth__panel .field__error { color: #FFD3C4; font-weight: 700; }
+.auth__panel .form-error { color: #8A2A12; background: #FFEDE6; font-weight: 700; }
+.auth__panel .check { color: var(--w-text); }
+.auth__panel .check input { accent-color: var(--w-ray); }
+.auth__panel .btn--primary { min-height: 56px; border-radius: 999px; color: #2B2118; background: #FFC93C; box-shadow: 0 5px 0 #C99410; }
+.auth__panel .btn--primary:hover:not(:disabled) { background: #FFD55E; }
+.auth__panel .btn--ghost { color: var(--w-text); box-shadow: inset 0 0 0 3px var(--w-text); border-radius: 999px; }
+.auth__panel .auth-switch { color: var(--w-text); }
+.auth__panel .auth-switch a, .auth__panel .auth-switch ~ .auth-switch a { color: var(--w-ray); text-decoration: underline; text-underline-offset: 3px; }
 
+/* ---------- Escritorio: Grano a la izquierda, formulario en la hoja de color ---------- */
 @media (min-width: 860px) {
-  .auth {
-    grid-template-columns: minmax(20rem, 5fr) 6fr;
-  }
-
-  .auth__brand {
-    justify-content: center;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 3rem;
-    background: var(--surface);
-    border-right: 2px solid var(--border);
-  }
-
-  .auth__brand .route-banner {
-    background: var(--bg);
-  }
-
-  .auth__name {
-    font-size: clamp(2.25rem, 4vw, 3.25rem);
-    line-height: 1.05;
-  }
-
+  .auth { flex-direction: row; }
+  .auth__brand { flex: 1 1 50%; justify-content: center; gap: 1.5rem; padding: 3rem; }
+  .auth__name { font-size: clamp(2.25rem, 4vw, 3.5rem); }
+  .auth__grano { height: auto; width: min(30rem, 38vw); max-width: 100%; }
   .auth__panel {
+    flex: 1 1 50%;
     align-content: center;
+    margin: 0 0 0 -2.25rem;
+    padding: 3rem 3rem 3rem 4.5rem;
+    border-radius: 2.25rem 0 0 2.25rem;
   }
 }

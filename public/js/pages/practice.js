@@ -1,6 +1,7 @@
 'use strict';
 
 import '../core/pwa.js';
+import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -195,6 +196,7 @@ function renderQuestion() {
         <span class="q-player__topic">
           ${currentQuiz.category}
         </span>
+        ${passageHtml(q.passage)}
         <h2 class="q-player__question-text">${q.text}</h2>
       </div>
 
@@ -401,6 +403,16 @@ async function init() {
 
     practiceMain.hidden = false;
     await renderTopicCatalog();
+
+    // Si se llegó desde la ruta con ?quiz=<id>, se abre directamente ese cuestionario.
+    const quizParam = new URLSearchParams(window.location.search).get('quiz');
+    if (quizParam) {
+      try {
+        if (getQuestionnaireById(quizParam).category === currentTopic.category) startQuiz(quizParam);
+      } catch (error) {
+        // Si el cuestionario no existe se deja el catálogo del tema.
+      }
+    }
   } catch (error) {
     notify({ type: 'error', title: 'Error', message: friendlyMessage(error) });
   }

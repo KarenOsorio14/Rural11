@@ -3,6 +3,7 @@
 // Todo ocurre en una sola página con 4 pasos: temas -> cantidad -> preguntas -> resultado.
 
 import '../core/pwa.js';
+import { passageHtml } from '../core/passage.js';
 import { notify, flash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -153,6 +154,7 @@ function vistaPregunta() {
         <p class="ps-progreso__txt">Pregunta ${estado.actual + 1} de ${n}</p>
       </div>
       <p class="ps-etiqueta">${esc(tema.category)}${p.tipo === 'vf' ? ' · Verdadero o falso' : ''}</p>
+      ${passageHtml(p.passage)}
       <h1 class="ps-pregunta">${esc(p.text)}</h1>
       <div class="ps-opciones">${opciones}</div>
       <p class="ps-aviso ps-aviso--error" role="alert" ${estado.errorRespuesta ? '' : 'hidden'}>Elige una respuesta para continuar.</p>

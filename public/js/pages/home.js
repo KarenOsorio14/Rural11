@@ -13,6 +13,7 @@ import { getSession, logout } from '../modules/auth/auth.service.js';
 // Funciones del servicio de autenticación: obtener sesión actual y cerrar sesión.
 import {
   getTopicsWithStats,
+  getQuestionnairesList,
   getUserAttempts
 } from '../modules/questionnaires/questionnaires.service.js';
 // Funciones del servicio de cuestionarios: temas con estadísticas e historial del usuario.
@@ -52,6 +53,10 @@ const statAvg = document.getElementById('stat-avg');
 
 // Contenedores de temas e historial
 const topicsGrid = document.getElementById('topics-grid');
+
+// Pose de Grano para cada tema (imágenes en /img/grano/3d/).
+const TOPIC_GRANO = { historia: 'historiador', geografia: 'geografo', constitucion: 'abogado', sociedad: 'cultura' };
+const granoSrc = (topicId) => `/img/grano/3d/${TOPIC_GRANO[topicId] || 'idea'}.webp`;
 // Contenedor donde se inyectan las tarjetas de los 4 temas.
 const historyContainer = document.getElementById('q-history-container');
 // Contenedor (tabla) que se muestra u oculta según si hay historial.
@@ -91,14 +96,15 @@ const SHORT_NAMES = {
 };
 // Nombres cortos para las etiquetas del mapa.
 
-const NODE_POS = [
-  { x: 70, y: 320 },
-  { x: 210, y: 260 },
-  { x: 90, y: 200 },
-  { x: 210, y: 140 },
-  { x: 150, y: 60 }
-];
-// Posiciones de las 5 paradas: 4 temas y la meta (Simulacro ICFES). Mismo trazado del diseño.
+// Cada tema es una unidad: franja de color con su nombre y, debajo, el botón redondo del tema.
+const NODE_X = [160, 210, 226, 210, 160, 110, 94, 110];
+const TOPIC_ICON = {
+  historia: 'M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z M12 6v13.5',
+  geografia: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 3c-3.5 3-3.5 15 0 18 M12 3c3.5 3 3.5 15 0 18 M3 12h18',
+  constitucion: 'M12 4v15 M7 20h10 M4.5 7.5h15 M4.5 7.5l-2.5 6.5a2.8 2.8 0 0 0 5.6 0z M19.5 7.5l-2.5 6.5a2.8 2.8 0 0 0 5.6 0z',
+  sociedad: 'M9 5a3 3 0 1 0 0 6a3 3 0 1 0 0-6z M17 7a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z M3 20c0-3.6 2.7-6 6-6s6 2.4 6 6 M15.5 14.5c3 0 5.5 1.7 5.5 5'
+};
+// Iconos de trazo de lo que representa cada tema (libro, globo, balanza, personas).
 
 function svgEl(name, attrs = {}, parent) {
   // Crea un elemento SVG con sus atributos (los colores van en clases CSS por la CSP).
@@ -108,115 +114,158 @@ function svgEl(name, attrs = {}, parent) {
   return el;
 }
 
-function segmentPath(a, b) {
-  // Curva en S entre dos paradas.
-  const mid = (a.x + b.x) / 2;
-  return `M${a.x} ${a.y} C ${mid} ${a.y}, ${mid} ${b.y}, ${b.x} ${b.y}`;
-}
-
-function drawRoute(topics) {
-  // Dibuja el mapa: tema aprobado = hecho, primer tema sin aprobar = actual, el resto = bloqueado.
+function drawRoute(topics, quizzes) {
+  // Dibuja la ruta paso a paso: cada tema es una unidad y cada cuestionario, un botón.
+  // Cuestionario aprobado = hecho, primero sin aprobar = actual, el resto = bloqueado.
   routeSvg.replaceChildren();
-  const doneFlags = topics.map((t) => t.passedCount > 0);
+  const steps = [];
+  topics.forEach((topic, u) => {
+    quizzes
+      .filter((q) => q.category === topic.category)
+      .forEach((quiz) => steps.push({ topic, quiz, unit: u }));
+  });
+  const doneFlags = steps.map((s) => s.quiz.passed);
   const currentIndex = doneFlags.indexOf(false);
-  // -1 si el usuario ya aprobó los 4 temas.
-
+  // -1 si el usuario ya aprobó todos los cuestionarios.
   const stateOf = (i) => (doneFlags[i] ? 'done' : i === currentIndex ? 'now' : 'locked');
 
-  // Tramos: base para todos y punteado verde para el recorrido ya hecho.
-  for (let i = 0; i < topics.length; i += 1) {
-    svgEl('path', { class: 'rt-base', d: segmentPath(NODE_POS[i], NODE_POS[i + 1]) }, routeSvg);
-  }
-  for (let i = 0; i < topics.length; i += 1) {
-    if (stateOf(i) === 'done' && stateOf(i + 1) !== 'locked') {
-      svgEl('path', { class: 'rt-done', d: segmentPath(NODE_POS[i], NODE_POS[i + 1]) }, routeSvg);
-    }
-  }
-  // La meta (i = 4) no es un tema: stateOf(4) devuelve 'locked' y el tramo final solo se
-  // pinta de verde cuando se aprobaron los 4 temas (ver más abajo).
-  if (currentIndex === -1) {
-    svgEl('path', { class: 'rt-done', d: segmentPath(NODE_POS[3], NODE_POS[4]) }, routeSvg);
-  }
+  const R = 38;
+  const DEPTH = 9;
+  const BANNER_H = 62;
+  const PITCH = 142;
+  const nodeCount = (u) => steps.filter((s) => s.unit === u).length;
 
-  topics.forEach((topic, i) => {
-    const { x, y } = NODE_POS[i];
+  // Alturas de cada unidad: franja + sus botones.
+  let cursorY = 8;
+  const unitTops = topics.map((t, u) => {
+    const top = cursorY;
+    cursorY += BANNER_H + 26 + nodeCount(u) * PITCH + 18;
+    return top;
+  });
+  routeSvg.setAttribute('viewBox', `0 0 320 ${cursorY + 150}`);
+
+  // Franjas de color de cada tema.
+  topics.forEach((topic, u) => {
+    const top = unitTops[u];
+    const banner = svgEl('g', { class: `rm-unit rm-c-${topic.id}` }, routeSvg);
+    svgEl('rect', { class: 'rm-unit__bg', x: 12, y: top, width: 296, height: BANNER_H, rx: 18 }, banner);
+    svgEl('text', { class: 'rm-unit__kicker', x: 30, y: top + 25 }, banner).textContent = `Tema ${u + 1}`;
+    svgEl('text', { class: 'rm-unit__name', x: 30, y: top + 48 }, banner).textContent = SHORT_NAMES[topic.id] || topic.category;
+  });
+
+  // Botones: uno por cuestionario, en una curva continua de lado a lado.
+  const seen = {};
+  steps.forEach((step, i) => {
+    const { topic, quiz, unit } = step;
     const state = stateOf(i);
-    const label = SHORT_NAMES[topic.id] || topic.category;
-    const onLeft = x > 150;
-    const text = state === 'now' ? `¡Sigue aquí! ${label}` : label;
+    const k = seen[unit] || 0;
+    seen[unit] = k + 1;
+    const x = NODE_X[i % NODE_X.length];
+    const y = unitTops[unit] + BANNER_H + 26 + k * PITCH + R + 4;
+    const label = quiz.shortTitle || 'Repaso general';
 
     let group;
     if (state === 'locked') {
-      group = svgEl('g', { 'aria-label': `${label} (bloqueado)` }, routeSvg);
+      group = svgEl('g', { class: `rm-node rm-node--locked rm-c-${topic.id}`, 'aria-label': `${label} (bloqueado)` }, routeSvg);
     } else {
-      group = svgEl('a', { href: `/practice.html?topic=${topic.id}`, class: 'rt-link', 'aria-label': `${text}: practicar este tema` }, routeSvg);
+      group = svgEl('a', {
+        href: `/practice.html?topic=${topic.id}&quiz=${quiz.id}`,
+        class: `rm-node rm-node--${state} rm-c-${topic.id}`,
+        'aria-label': `${state === 'now' ? '¡Sigue aquí! ' : ''}${label}: practicar`
+      }, routeSvg);
     }
 
-    if (state === 'now') svgEl('circle', { class: 'rt-halo', cx: x, cy: y, r: 27 }, group);
+    if (state === 'now') {
+      svgEl('circle', { class: 'rm-halo', cx: x, cy: y, r: R + 12 }, group);
+      // Grano con la pose del tema, a un lado del botón, esperando.
+      const left = x >= 160;
+      svgEl('image', {
+        class: 'rm-grano',
+        href: granoSrc(topic.id),
+        x: left ? x - R - 100 : x + R + 12,
+        y: y - 44,
+        width: 90,
+        height: 86,
+        preserveAspectRatio: 'xMidYMid meet'
+      }, group);
+    }
+
+    // Botón redondo con grosor (base más oscura debajo) y el icono del tema.
+    svgEl('circle', { class: 'rm-base', cx: x, cy: y + DEPTH, r: R }, group);
+    svgEl('circle', { class: 'rm-disc', cx: x, cy: y, r: R }, group);
+    svgEl('path', { class: 'rm-shine', d: `M${x - 26} ${y - 8} a28 28 0 0 1 30 -22` }, group);
+    const icon = svgEl('g', { class: 'rm-icon', transform: `translate(${x - 16} ${y - 16}) scale(1.33)` }, group);
+    svgEl('path', { d: TOPIC_ICON[topic.id] }, icon);
+
+    let below = y + R + DEPTH + 18;
     if (state === 'done') {
-      svgEl('circle', { class: 'rt-node-done', cx: x, cy: y, r: 19 }, group);
-      svgEl('path', { class: 'rt-check', d: `M${x - 7} ${y} l5.5 5.5 l9.5 -11` }, group);
-    } else if (state === 'now') {
-      svgEl('circle', { class: 'rt-node-now', cx: x, cy: y, r: 19 }, group);
-      svgEl('circle', { class: 'rt-dot', cx: x, cy: y, r: 6 }, group);
+      svgEl('circle', { class: 'rm-badge', cx: x + 28, cy: y + 30, r: 12 }, group);
+      svgEl('path', { class: 'rm-check', d: `M${x + 22.5} ${y + 30} l4 4 l7 -8` }, group);
+    } else if (state === 'locked') {
+      svgEl('circle', { class: 'rm-badge rm-badge--lock', cx: x + 28, cy: y + 30, r: 12 }, group);
+      svgEl('rect', { class: 'rm-lock', x: x + 23.5, y: y + 29.5, width: 9, height: 7, rx: 1.5 }, group);
+      svgEl('path', { class: 'rm-lock-arc', d: `M${x + 25.5} ${y + 29.5} v-2 a2.5 2.5 0 0 1 5 0 v2` }, group);
     } else {
-      svgEl('circle', { class: 'rt-node-lock', cx: x, cy: y, r: 19 }, group);
-      svgEl('rect', { class: 'rt-lock', x: x - 6, y: y - 1, width: 12, height: 9, rx: 2 }, group);
-      svgEl('path', { class: 'rt-lock-arc', d: `M${x - 3.5} ${y - 1} v-3 a3.5 3.5 0 0 1 7 0 v3` }, group);
+      svgEl('rect', { class: 'rm-pill', x: x - 40, y: y + R + DEPTH + 6, width: 80, height: 22, rx: 11 }, group);
+      svgEl('text', { class: 'rm-pill__text', x, y: y + R + DEPTH + 21, 'text-anchor': 'middle' }, group).textContent = 'EMPEZAR';
+      below += 28;
     }
-
-    const cls = state === 'now' ? 'rt-label rt-label--now' : state === 'locked' ? 'rt-label rt-label--muted' : 'rt-label';
-    const labelEl = svgEl('text', {
-      class: cls,
-      x: onLeft ? x - 28 : x + 28,
-      y: y + 4,
-      'text-anchor': onLeft ? 'end' : 'start'
-    }, group);
-    labelEl.textContent = text;
+    svgEl('text', { class: 'rm-step-name', x, y: below, 'text-anchor': 'middle' }, group).textContent = label;
   });
 
-  // Meta: Simulacro ICFES (llega en el Sprint 2, por ahora aparece como próxima parada).
-  const goal = NODE_POS[4];
-  const goalGroup = svgEl('g', { 'aria-label': 'Simulacro ICFES (próximamente)' }, routeSvg);
-  svgEl('circle', { class: 'rt-node-flag', cx: goal.x, cy: goal.y, r: 22 }, goalGroup);
-  svgEl('path', { class: 'rt-flag', d: `M${goal.x - 6} ${goal.y - 9} v18 M${goal.x - 6} ${goal.y - 9} h13 l-3.5 5 l3.5 5 h-13` }, goalGroup);
-  const goalLabel = svgEl('text', { class: 'rt-label rt-label--muted', x: goal.x + 32, y: goal.y + 4 }, goalGroup);
-  goalLabel.textContent = 'Simulacro ICFES';
+  // Meta: Simulacro ICFES (llega en el Sprint 2, por ahora aparece como última parada).
+  const gy = cursorY + 36;
+  const goalGroup = svgEl('g', { class: 'rm-node rm-node--goal rm-c-meta', 'aria-label': 'Simulacro ICFES (próximamente)' }, routeSvg);
+  svgEl('circle', { class: 'rm-base', cx: 160, cy: gy + DEPTH, r: R }, goalGroup);
+  svgEl('circle', { class: 'rm-disc', cx: 160, cy: gy, r: R }, goalGroup);
+  svgEl('path', { class: 'rm-shine', d: `M${160 - 26} ${gy - 8} a28 28 0 0 1 30 -22` }, goalGroup);
+  svgEl('path', { class: 'rt-flag', d: `M${160 - 9} ${gy - 14} v28 M${160 - 9} ${gy - 14} h19 l-5 7 l5 7 h-19` }, goalGroup);
+  svgEl('text', { class: 'rm-goal-name', x: 160, y: gy + R + DEPTH + 24, 'text-anchor': 'middle' }, goalGroup).textContent = 'Simulacro ICFES';
 
-  // Botón principal bajo el mapa y tarjeta "Siguiente tema" (pantallas grandes).
+  // Botón principal bajo el mapa y tarjeta "Siguiente" (pantallas grandes).
   const approved = doneFlags.filter(Boolean).length;
-  document.getElementById('route-progress').style.width = `${(approved / topics.length) * 100}%`;
+  document.getElementById('route-progress').style.width = `${steps.length ? (approved / steps.length) * 100 : 0}%`;
   document.getElementById('route-progress-text').textContent =
-    `${approved} de ${topics.length} temas aprobados`;
+    `${approved} de ${steps.length} cuestionarios aprobados`;
   if (currentIndex === -1) {
     routeCta.textContent = 'Ruta completada: ir a práctica libre';
     routeCta.href = '/sesion.html';
     document.getElementById('next-kicker').textContent = 'Ruta completada';
-    document.getElementById('next-title').textContent = 'Aprobaste los 4 temas';
+    document.getElementById('next-title').textContent = 'Aprobaste todos los cuestionarios';
     document.getElementById('next-desc').textContent = 'Sigue repasando con la práctica libre y mejora tu promedio.';
+    document.getElementById('next-grano').src = '/img/grano/3d/medalla.webp';
   } else {
-    const t = topics[currentIndex];
-    routeCta.textContent = `Continuar: ${SHORT_NAMES[t.id] || t.category}`;
-    routeCta.href = `/practice.html?topic=${t.id}`;
-    document.getElementById('next-kicker').textContent = 'Siguiente tema';
-    document.getElementById('next-title').textContent = t.name;
-    document.getElementById('next-desc').textContent = t.description;
+    const { topic, quiz } = steps[currentIndex];
+    routeCta.textContent = `Continuar: ${quiz.shortTitle || SHORT_NAMES[topic.id] || topic.category}`;
+    routeCta.href = `/practice.html?topic=${topic.id}&quiz=${quiz.id}`;
+    document.getElementById('next-kicker').textContent = `Siguiente · ${SHORT_NAMES[topic.id] || topic.category}`;
+    document.getElementById('next-title').textContent = quiz.title;
+    document.getElementById('next-desc').textContent = quiz.description;
+    document.getElementById('next-grano').src = granoSrc(topic.id);
   }
 
-  // Lista de estado de los temas.
+  // Lista de estado de los temas (un tema está hecho cuando se aprobaron todos sus cuestionarios).
   const STATUS = { done: 'Aprobado', now: 'En curso', locked: 'Pendiente' };
+  const topicState = (u) => {
+    const mine = steps.map((s, i) => ({ s, i })).filter(({ s }) => s.unit === u);
+    if (mine.length && mine.every(({ i }) => doneFlags[i])) return 'done';
+    if (mine.some(({ i }) => i === currentIndex)) return 'now';
+    return 'locked';
+  };
   document.getElementById('topic-list').innerHTML = topics
-    .map((t, i) => {
-      const state = stateOf(i);
+    .map((t, u) => {
+      const state = topicState(u);
+      const passed = steps.filter((s, i) => s.unit === u && doneFlags[i]).length;
+      const total = nodeCount(u);
       const link = state === 'locked'
         ? ''
         : `<a class="topic-row__go btn--link" href="/practice.html?topic=${t.id}">${state === 'done' ? 'Repasar' : 'Practicar'}</a>`;
       return `
         <li class="topic-row topic-row--${state}">
-          <span class="topic-mono topic-mono--${t.id}" aria-hidden="true">${t.category.charAt(0)}</span>
+          <span class="topic-grano topic-grano--${t.id}" aria-hidden="true"><img src="${granoSrc(t.id)}" alt="" width="56" height="56" loading="lazy"></span>
           <span class="topic-row__text">
             <span class="topic-row__name">${t.name}</span>
-            <span class="topic-row__status">${STATUS[state]}</span>
+            <span class="topic-row__status">${STATUS[state]} · ${passed} de ${total}</span>
           </span>
           ${link}
         </li>`;
@@ -294,7 +343,7 @@ async function loadHomeData() {
     }
 
     // 2. Mapa de la ruta y tarjetas de los 4 temas de Ciencias Sociales
-    drawRoute(topics);
+    drawRoute(topics, await getQuestionnairesList(currentUser.id));
     topicsGrid.innerHTML = topics
       .map((t) => {
         // Por cada tema, construye el HTML de su tarjeta.
@@ -307,7 +356,7 @@ async function loadHomeData() {
         return `
         <article class="q-card">
           <div class="q-card__top">
-            <span class="topic-mono topic-mono--${t.id}" aria-hidden="true">${t.category.charAt(0)}</span>
+            <img class="q-card__grano" src="${granoSrc(t.id)}" alt="" width="120" height="100" loading="lazy">
             <div class="q-card__badges">
               <span class="q-card__badge">${t.badge}</span>
               ${statsBadge}

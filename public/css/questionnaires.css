@@ -397,3 +397,7 @@
 
 .review-state { font-size: 0.8rem; font-weight: 700; }
 .review-detail { display: grid; gap: 0.25rem; font-size: 0.875rem; }
+
+
+/* Grano de cada tema en las tarjetas de práctica */
+.q-card__grano { width: auto; height: 6rem; max-width: 45%; object-fit: contain; }
