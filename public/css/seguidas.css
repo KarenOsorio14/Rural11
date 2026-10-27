@@ -120,8 +120,99 @@
   color: var(--accent);
 }
 
-.sg-ejemplo__texto { font-size: 0.9rem; }
-.sg-ejemplo__tip { font-size: 0.8rem; line-height: 1.4; color: var(--muted); }
+.sg-ver-ejemplo { width: 100%; margin-top: 0.25rem; }
+
+.sg-ejemplo__cuerpo { display: grid; gap: 0.55rem; }
+.sg-ejemplo__enunciado { font-size: 0.95rem; font-weight: 700; line-height: 1.4; }
+.sg-ejemplo__subtitulo {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sg-ejemplo__opciones {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sg-ejemplo__opcion {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.86rem;
+  line-height: 1.35;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 8px);
+}
+
+.sg-ejemplo__opcion.is-correcta { border-color: var(--mint); background: var(--success-soft); }
+.sg-ejemplo__letra { flex: none; font-weight: 800; color: var(--accent); }
+
+.sg-ejemplo__pasos {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.sg-ejemplo__conclusion { font-size: 0.9rem; font-weight: 800; color: var(--mint); }
+.sg-ejemplo__cerrar { justify-self: start; margin-top: 0.25rem; }
+.sg-ejemplo-vacio { font-size: 0.84rem; color: var(--muted); }
+
+.sg-rev-ejemplo {
+  margin-top: 0.4rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 6px);
+}
+
+.sg-rev-ejemplo summary { cursor: pointer; font-size: 0.84rem; font-weight: 800; color: var(--accent); }
+.sg-rev-ejemplo[open] summary { margin-bottom: 0.6rem; }
+
+/* ----- Subida de nivel (HU-18) ----- */
+.sg-nivel-aviso {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--success-soft);
+  border: 1px solid var(--mint);
+  border-radius: calc(var(--radius) - 6px);
+}
+
+.sg-temas-nivel {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sg-tema-nivel {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.88rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 6px);
+}
+
+.sg-tema-nivel__nombre { min-width: 0; font-weight: 700; }
+.sg-tema-nivel__dato { flex: none; color: var(--muted); }
 
 .sg-pie { display: grid; gap: 0.55rem; }
 .sg-guardado { min-height: 1.1rem; font-size: 0.76rem; text-align: center; color: var(--muted); }
