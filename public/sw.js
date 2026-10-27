@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v20';
+const VERSION = 'v21';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -69,9 +69,10 @@ const SHELL = [
   '/js/pages/practice.js',
   '/simulacro.html',
   '/js/pages/simulacro.js',
-  '/icons/favicon.svg',
+  '/icons/favicon.png',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', (event) => {
