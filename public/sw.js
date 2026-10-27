@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v23';
+const VERSION = 'v24';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
