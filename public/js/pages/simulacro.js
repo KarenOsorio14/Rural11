@@ -779,7 +779,7 @@ function renderResults(result) {
         </div>
         <div class="q-stat-card">
           <div class="q-stat-card__value">${result.percentage}%</div>
-          <div class="q-stat-card__label">Puntaje obtenido</div>
+          <div class="q-stat-card__label">Puntaje ponderado</div>
         </div>
         <div class="q-stat-card">
           <div class="q-stat-card__value">${time}</div>
@@ -790,6 +790,21 @@ function renderResults(result) {
           <div class="q-stat-card__label">Mínimo para aprobar</div>
         </div>
       </div>
+
+      <section class="sim-pondera" aria-labelledby="sim-pondera-title">
+        <h2 class="q-results__subtitle" id="sim-pondera-title">Cómo se calculó tu puntaje</h2>
+        <p>
+          Acertaste ${result.correctCount} de ${result.totalQuestions} preguntas (${result.rawPercentage}% de aciertos).
+          Las preguntas más difíciles pesan más: las básicas valen 1, las intermedias 2 y las avanzadas 3.
+          Por eso tu puntaje ponderado es <strong>${result.percentage} de 100</strong>.
+        </p>
+        <p>
+          En el Saber 11, Sociales y ciudadanas pesa ${result.moduleWeight.part} de las ${result.moduleWeight.of} partes del
+          puntaje global (Lectura crítica, Matemáticas y Ciencias naturales pesan 3 cada una e Inglés 1).
+          Con este resultado aportarías unos <strong>${result.globalContribution} de ${result.globalMax} puntos</strong>
+          del puntaje global de 500.
+        </p>
+      </section>
 
       <section class="sim-topic-results">
         <h2 class="q-results__subtitle">Desempeño por área</h2>
