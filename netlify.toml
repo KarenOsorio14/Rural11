@@ -1,0 +1,5 @@
+# Configuración de Netlify: la app es estática (carpeta public) y el correo de
+# verificación sale desde una función (netlify/functions/verificacion.js).
+[build]
+  publish = "public"
+  functions = "netlify/functions"
