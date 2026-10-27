@@ -1,6 +1,7 @@
 'use strict';
 
 import '../core/pwa.js';
+import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
@@ -298,6 +299,7 @@ async function finishQuiz() {
     resultsView.innerHTML = `
       <div class="q-results">
         <div class="q-results__header">
+          ${granoResultadoHtml(result.percentage)}
           <div class="q-score-badge ${scoreClass}">
             <span class="q-score-badge__number">${result.percentage}%</span>
             <span class="q-score-badge__label">${result.passed ? 'Aprobado' : 'Reprobado'}</span>
