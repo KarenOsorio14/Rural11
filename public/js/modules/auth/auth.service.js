@@ -181,6 +181,13 @@ export async function register({ documentNumber, email, firstName, lastName, pas
   }
   assertPasswordRules(password, 'password');
 
+  // Comprobación explícita de duplicados. Así la app sigue siendo segura aunque
+  // una base antigua tenga índices no únicos (por ejemplo, tras una migración).
+  const existing = await users.findByDocument(cleanDoc) || await users.findByEmail(cleanEmail);
+  if (existing) {
+    throw new AppError('EMAIL_TAKEN', 'Ya existe una cuenta con este número de identidad o correo.', 'documentNumber');
+  }
+
   const record = {
     id: crypto.randomUUID(),
     email: cleanEmail,

@@ -7,6 +7,8 @@ import { notify, flash, showPendingFlash } from '../core/notifications.js';
 // Utilidades de notificaciones.
 import { friendlyMessage, AppError } from '../core/errors.js';
 // friendlyMessage: mensaje seguro para errores desconocidos. AppError: clase de error de dominio.
+import { showStorageRecovery } from '../core/storage-recovery.js';
+// Pantalla de recuperación si el navegador no permite abrir IndexedDB.
 import { setInvalid, clearInvalid, setLoading, bindPasswordToggle } from '../core/form.js';
 // Utilidades de formularios: marcar/limpiar campos inválidos, estado de carga del botón,
 // y alternar visibilidad de contraseña.
@@ -106,8 +108,11 @@ async function init() {
       return;
       // Corta la ejecución.
     }
-  } catch {}
-  // Si getSession() falla, se ignora silenciosamente y se continúa mostrando el formulario de login.
+  } catch (error) {
+    // Si el problema es del almacenamiento local, se muestra la recuperación;
+    // de lo contrario se ignora y se continúa mostrando el formulario.
+    showStorageRecovery(error);
+  }
 
   // Limpiar siempre la contraseña al cargar la página
   passwordInput.value = '';
@@ -241,6 +246,9 @@ function handleLoginError(error) {
     notify({ type: 'error', title: 'Acceso bloqueado', message: error.message });
     return;
   }
+
+  if (showStorageRecovery(error)) return;
+  // Si el fallo es de IndexedDB, se muestra la pantalla de recuperación.
 
   notify({ type: 'error', title: 'Error al iniciar sesión', message: friendlyMessage(error) });
   // Caso genérico: cualquier otro error no contemplado arriba (por ejemplo, errores técnicos

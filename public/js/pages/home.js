@@ -7,6 +7,8 @@ import '../core/pwa.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 // Funciones para mostrar notificaciones: notify (toast inmediato), flash (mensaje que
 // sobrevive a una redirección) y showPendingFlash (muestra el flash pendiente al cargar).
+import { showStorageRecovery } from '../core/storage-recovery.js';
+// Pantalla de recuperación si IndexedDB está bloqueado o dañado.
 import { friendlyMessage } from '../core/errors.js';
 // Convierte cualquier error en un mensaje seguro y amigable para mostrar al usuario.
 import { getSession, logout } from '../modules/auth/auth.service.js';
@@ -17,6 +19,10 @@ import {
   getUserAttempts
 } from '../modules/questionnaires/questionnaires.service.js';
 // Funciones del servicio de cuestionarios: temas con estadísticas e historial del usuario.
+import { getSimulacrosDashboard } from '../modules/questionnaires/simulacros.service.js';
+// Simulacros completos: listado con mejor resultado e historial.
+import { getSeguidaSummary } from '../modules/questionnaires/seguidas.service.js';
+// Practica tus conocimientos: sesión activa y mejor resultado.
 
 const home = document.getElementById('home');
 // Contenedor principal de la página (oculto hasta confirmar que hay sesión activa).
@@ -53,6 +59,13 @@ const statAvg = document.getElementById('stat-avg');
 
 // Contenedores de temas e historial
 const topicsGrid = document.getElementById('topics-grid');
+const simulacrosGrid = document.getElementById('simulacros-grid');
+const simulacroHistoryContainer = document.getElementById('simulacro-history-container');
+const simulacroHistoryTbody = document.getElementById('simulacro-history-tbody');
+
+const seguidaCta = document.getElementById('seguidas-cta');
+const seguidaCtaTitle = document.getElementById('seguidas-cta-title');
+const seguidaCtaDesc = document.getElementById('seguidas-cta-desc');
 
 // Pose de Grano para cada tema (imágenes en /img/grano/3d/).
 const TOPIC_GRANO = { historia: 'historiador', geografia: 'geografo', constitucion: 'abogado', sociedad: 'cultura' };
@@ -66,6 +79,115 @@ const historyTbody = document.getElementById('q-history-tbody');
 const dateFormat = new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeStyle: 'short' });
 // Formateador de fechas en español (Colombia), con fecha larga y hora corta
 // (ej: "22 de septiembre de 2026, 10:30 a. m.").
+
+function formatDuration(totalSeconds) {
+  // Convierte segundos en un texto corto para la tabla de simulacros.
+  const seconds = Math.max(0, Math.round(Number(totalSeconds) || 0));
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+  if (minutes === 0) return `${rest} s`;
+  return `${minutes} min ${rest} s`;
+}
+
+function renderSimulacros(list) {
+  // Tarjetas de simulacros con el mejor resultado del usuario.
+  if (!simulacrosGrid) return;
+  simulacrosGrid.innerHTML = list
+    .map((simulacro, index) => {
+      const best = simulacro.bestScore !== null
+        ? `<span class="sim-card__best ${simulacro.passed ? 'is-pass' : ''}">Mejor: ${simulacro.bestScore}%</span>`
+        : '';
+      const paused = simulacro.paused;
+      const status = `<span class="sim-card__status">${paused ? '<span class="sim-card__paused">En pausa</span>' : ''}${best}</span>`;
+      const pausedMeta = paused
+        ? `<li>${paused.answeredCount}/${simulacro.questionCount} respondidas</li>
+           <li>Quedan ${formatDuration(paused.remainingSeconds)}</li>`
+        : '';
+      const href = `/simulacro.html?id=${encodeURIComponent(simulacro.id)}${paused ? '&amp;resume=1' : ''}`;
+      const label = paused
+        ? 'Continuar simulacro'
+        : (simulacro.attemptsCount ? 'Repetir simulacro' : 'Comenzar simulacro');
+
+      return `
+        <article class="sim-card sim-card--${(index % 3) + 1}">
+          <div class="sim-card__top">
+            <span class="sim-card__tag">${simulacro.badge}</span>
+            ${status}
+          </div>
+          <h3 class="sim-card__title">${simulacro.title}</h3>
+          <p class="sim-card__desc">${simulacro.description}</p>
+          <ul class="sim-card__meta">
+            <li>${simulacro.questionCount} preguntas</li>
+            <li>${simulacro.durationMinutes} min</li>
+            <li>${simulacro.areaCount} áreas</li>
+            ${pausedMeta}
+          </ul>
+          <a class="btn btn--primary btn--link" href="${href}">
+            ${label}
+          </a>
+        </article>`;
+    })
+    .join('');
+}
+
+function renderSimulacroHistory(history) {
+  // Historial de pruebas completas, separado del historial de cuestionarios.
+  if (!simulacroHistoryContainer || !simulacroHistoryTbody) return;
+
+  if (history.length === 0) {
+    simulacroHistoryContainer.hidden = true;
+    return;
+  }
+
+  simulacroHistoryTbody.innerHTML = history
+    .map((attempt) => {
+      const dateStr = dateFormat.format(new Date(attempt.createdAt));
+      const statusText = attempt.passed ? 'Aprobado' : 'No aprobado';
+      return `
+        <tr>
+          <td>
+            <strong>${attempt.questionnaireTitle || 'Simulacro'}</strong>
+            <div class="cell-sub">${attempt.totalQuestions || 0} preguntas</div>
+          </td>
+          <td>
+            <span class="pill ${attempt.passed ? 'pill--ok' : 'pill--bad'}">
+              ${attempt.percentage}% (${statusText})
+            </span>
+          </td>
+          <td>${attempt.correctCount} / ${attempt.totalQuestions}</td>
+          <td>${formatDuration(attempt.durationSeconds)}</td>
+          <td class="cell-date">${dateStr}</td>
+        </tr>`;
+    })
+    .join('');
+
+  simulacroHistoryContainer.hidden = false;
+}
+
+function renderSeguidaCta(summary) {
+  // La tarjeta de Práctica muestra si hay una sesión guardada o el mejor resultado.
+  if (!seguidaCta || !seguidaCtaTitle || !seguidaCtaDesc) return;
+
+  const progress = summary ? summary.progress : null;
+  const bestScore = summary ? summary.bestScore : null;
+
+  if (progress) {
+    const respondidas = progress.answeredCount === 1
+      ? '1 respondida'
+      : `${progress.answeredCount} respondidas`;
+    seguidaCta.href = '/seguidas.html';
+    seguidaCtaTitle.textContent = 'Continuar practicando';
+    seguidaCtaDesc.textContent =
+      `Vas por la pregunta ${progress.currentIndex + 1} de ${progress.total} · ${respondidas}`;
+    return;
+  }
+
+  seguidaCta.href = '/seguidas.html';
+  seguidaCtaTitle.textContent = 'Practica tus conocimientos';
+  seguidaCtaDesc.textContent = bestScore !== null
+    ? `Preguntas tipo ICFES, una tras otra · mejor resultado: ${bestScore}%`
+    : 'Preguntas tipo ICFES, una tras otra, con dificultad creciente';
+}
 
 let currentUser = null;
 // Variable de estado a nivel de módulo: guarda el usuario autenticado actual.
@@ -142,7 +264,7 @@ function drawRoute(topics, quizzes) {
     cursorY += BANNER_H + 26 + nodeCount(u) * PITCH + 18;
     return top;
   });
-  routeSvg.setAttribute('viewBox', `0 0 320 ${cursorY + 150}`);
+  routeSvg.setAttribute('viewBox', `0 0 320 ${cursorY + 190}`);
 
   // Franjas de color de cada tema.
   topics.forEach((topic, u) => {
@@ -213,14 +335,20 @@ function drawRoute(topics, quizzes) {
     svgEl('text', { class: 'rm-step-name', x, y: below, 'text-anchor': 'middle' }, group).textContent = label;
   });
 
-  // Meta: Simulacro ICFES (llega en el Sprint 2, por ahora aparece como última parada).
+  // Meta: Simulacro ICFES completo, disponible al final de la ruta.
   const gy = cursorY + 36;
-  const goalGroup = svgEl('g', { class: 'rm-node rm-node--goal rm-c-meta', 'aria-label': 'Simulacro ICFES (próximamente)' }, routeSvg);
+  const goalGroup = svgEl('a', {
+    href: '/simulacro.html',
+    class: 'rm-node rm-node--goal rm-c-meta',
+    'aria-label': 'Simulacro ICFES: prueba completa'
+  }, routeSvg);
   svgEl('circle', { class: 'rm-base', cx: 160, cy: gy + DEPTH, r: R }, goalGroup);
   svgEl('circle', { class: 'rm-disc', cx: 160, cy: gy, r: R }, goalGroup);
   svgEl('path', { class: 'rm-shine', d: `M${160 - 26} ${gy - 8} a28 28 0 0 1 30 -22` }, goalGroup);
   svgEl('path', { class: 'rt-flag', d: `M${160 - 9} ${gy - 14} v28 M${160 - 9} ${gy - 14} h19 l-5 7 l5 7 h-19` }, goalGroup);
-  svgEl('text', { class: 'rm-goal-name', x: 160, y: gy + R + DEPTH + 24, 'text-anchor': 'middle' }, goalGroup).textContent = 'Simulacro ICFES';
+  svgEl('rect', { class: 'rm-pill', x: 160 - 52, y: gy + R + DEPTH + 10, width: 104, height: 24, rx: 12 }, goalGroup);
+  svgEl('text', { class: 'rm-pill__text', x: 160, y: gy + R + DEPTH + 27, 'text-anchor': 'middle' }, goalGroup).textContent = 'EMPEZAR';
+  svgEl('text', { class: 'rm-goal-name', x: 160, y: gy + R + DEPTH + 54, 'text-anchor': 'middle' }, goalGroup).textContent = 'Simulacro ICFES';
 
   // Botón principal bajo el mapa y tarjeta "Siguiente" (pantallas grandes).
   const approved = doneFlags.filter(Boolean).length;
@@ -302,6 +430,10 @@ async function loadHomeData() {
     // Trae los 4 temas con sus estadísticas para este usuario.
     const history = await getUserAttempts(currentUser.id);
     // Trae el historial completo de intentos del usuario.
+    const simulacros = await getSimulacrosDashboard(currentUser.id);
+    // Simulacros: tarjetas con mejor resultado e historial de pruebas completas.
+    const seguida = await getSeguidaSummary(currentUser.id);
+    // Practica tus conocimientos: progreso guardado y mejor resultado.
 
     // 1. Métricas del perfil
     const totalAttempts = history.length;
@@ -322,7 +454,7 @@ async function loadHomeData() {
 
     const streak = calcStreak(history);
     const points = history.reduce((acc, h) => acc + h.correctCount * 10, 0);
-    // 10 puntos por cada respuesta correcta en cualquier cuestionario o práctica libre.
+    // 10 puntos por cada respuesta correcta en cualquier cuestionario, práctica libre o simulacro.
     chipStreak.textContent = `Racha ${streak} ${streak === 1 ? 'día' : 'días'}`;
     chipPoints.textContent = `Puntos ${points}`;
     levelShort.textContent = `Nivel ${1 + passedCount}`;
@@ -416,8 +548,15 @@ async function loadHomeData() {
       historyContainer.hidden = true;
       // Si no hay historial, oculta la tabla completa.
     }
+
+    // 4. Simulacros ICFES
+    renderSimulacros(simulacros.list);
+    renderSimulacroHistory(simulacros.history);
+    renderSeguidaCta(seguida);
   } catch (error) {
-    // Si cualquiera de las consultas anteriores falla (por ejemplo, IndexedDB no disponible)...
+    // Si el fallo es del almacenamiento local, se muestra la pantalla de recuperación.
+    if (showStorageRecovery(error)) return;
+    // Si cualquiera de las consultas anteriores falla...
     notify({ type: 'error', title: 'Error', message: 'No se pudieron cargar los datos de Ciencias Sociales.' });
     // Muestra una notificación de error genérica al usuario.
   }
@@ -494,15 +633,18 @@ async function init() {
     // Cada vez que la ventana/pestaña recupera el foco se vuelven a cargar los datos para
     // reflejar nuevos intentos sin necesidad de recargar manualmente.
   } catch (error) {
+    // Si getSession() falla por el almacenamiento local, se ofrece una salida
+    // clara (reintentar o restablecer) en vez de dejar la página en blanco.
+    if (showStorageRecovery(error)) return;
     // Si getSession() falla de forma inesperada...
     notify({ type: 'error', title: 'No se pudo verificar tu sesión', message: friendlyMessage(error) });
   }
 }
 
-// ---------- Pestañas Ruta / Práctica / Perfil ----------
+// ---------- Pestañas Ruta / Práctica / Simulacro / Perfil ----------
 const tabButtons = document.querySelectorAll('[data-tab]');
 const panels = document.querySelectorAll('[data-panel]');
-const TAB_NAMES = ['ruta', 'practica', 'perfil'];
+const TAB_NAMES = ['ruta', 'practica', 'simulacro', 'perfil'];
 
 function showTab(name, { updateHash = true } = {}) {
   const tab = TAB_NAMES.includes(name) ? name : 'ruta';
