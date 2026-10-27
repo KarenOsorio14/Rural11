@@ -32,19 +32,23 @@ Abre `http://localhost:3000`.
 ## Correo de verificación (HU-00)
 
 Al registrarse, la app manda un correo con un enlace (vale 48 horas) desde la función
-`netlify/functions/verificacion.js`. El enlace abre `verificar.html`, que marca la cuenta como
-verificada **en el navegador donde se registró el estudiante** (las cuentas viven en IndexedDB).
-Desde el Perfil se puede reenviar el correo. Iniciar sesión no exige tener el correo verificado.
+`functions/api/verificacion.js` (Cloudflare Pages Functions, responde en `/api/verificacion`).
+El enlace abre `verificar.html`, que marca la cuenta como verificada **en el navegador donde se
+registró el estudiante** (las cuentas viven en IndexedDB). Desde el Perfil se puede reenviar el
+correo. Iniciar sesión no exige tener el correo verificado. El correo sale por la API de Brevo
+(plan gratis, 300 correos al día).
 
-Para que funcione en Netlify hay que crear estas variables en
-*Site configuration > Environment variables* y volver a desplegar:
+Para que funcione hay que crear estas variables en Cloudflare, en
+*Workers y Pages > tu proyecto > Settings > Variables and Secrets*, y volver a desplegar:
 
 | Variable | Qué es |
 | --- | --- |
 | `VERIFY_SECRET` | Texto largo y aleatorio (mínimo 16 caracteres). Firma los enlaces. |
-| `GMAIL_USER` | Cuenta de Gmail desde la que salen los correos. |
-| `GMAIL_APP_PASSWORD` | «Contraseña de aplicación» de esa cuenta (Cuenta de Google > Seguridad > Verificación en dos pasos > Contraseñas de aplicaciones). No es la contraseña normal. |
-| `SITE_URL` | Opcional. Dirección pública de la app, por ejemplo `https://rural11.netlify.app`. |
+| `BREVO_API_KEY` | Clave de API de Brevo (SMTP y API > Claves de API). |
+| `MAIL_FROM` | Correo remitente, verificado como remitente en Brevo. |
+| `MAIL_FROM_NAME` | Opcional. Nombre que ve el estudiante (por defecto «Rural 11»). |
+| `SITE_URL` | Opcional. Dirección pública de la app, por ejemplo `https://rural11.pages.dev`. |
 
 Sin estas variables el registro sigue funcionando y la app avisa que el correo no se pudo enviar.
 En local (`npm start`) la función no existe, así que el envío siempre aparece como no disponible.
+Para probarla en local se puede usar `npx wrangler pages dev public`.
