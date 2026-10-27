@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/home.css">
   <link rel="stylesheet" href="/css/questionnaires.css">
+  <link rel="stylesheet" href="/css/simulacro.css">
 </head>
 
 <body>
@@ -79,13 +80,26 @@
       <section class="panel panel--practica" id="panel-practica" data-panel="practica" aria-labelledby="practica-title" hidden>
         <h1 class="section-title" id="practica-title">Práctica</h1>
 
-        <a class="free-cta" href="/sesion.html">
-          <span class="free-cta__text">
-            <span class="free-cta__title">Práctica libre</span>
-            <span class="free-cta__desc">Elige tus temas y cuántas preguntas quieres</span>
-          </span>
-          <svg class="ico free-cta__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-        </a>
+        <div class="practica-ctas">
+          <a class="free-cta" href="/sesion.html">
+            <span class="free-cta__text">
+              <span class="free-cta__title">Práctica libre</span>
+              <span class="free-cta__desc">Elige tus temas y cuántas preguntas quieres</span>
+            </span>
+            <svg class="ico free-cta__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </a>
+
+          <a class="free-cta free-cta--seguidas" id="seguidas-cta" href="/seguidas.html">
+            <span class="free-cta__icon" aria-hidden="true">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M5 7h9M5 12h9M5 17h6M18 8l2 2-5 5H13v-2z"/></svg>
+            </span>
+            <span class="free-cta__text">
+              <span class="free-cta__title" id="seguidas-cta-title">Practica tus conocimientos</span>
+              <span class="free-cta__desc" id="seguidas-cta-desc">Preguntas tipo ICFES, una tras otra, con dificultad creciente</span>
+            </span>
+            <svg class="ico free-cta__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
 
         <div>
           <h2 class="section-title section-title--sm">Temas de Ciencias Sociales</h2>
@@ -94,6 +108,46 @@
         <div class="q-grid" id="topics-grid">
           <!-- Generado dinámicamente con JS -->
         </div>
+      </section>
+
+      <!-- SIMULACRO: pruebas completas tipo ICFES -->
+      <section class="panel panel--simulacro" id="panel-simulacro" data-panel="simulacro" aria-labelledby="simulacro-title" hidden>
+        <div class="sim-hero">
+          <p class="sim-hero__kicker">Prueba completa · Saber 11</p>
+          <h1 class="sim-hero__title" id="simulacro-title">Simulacros ICFES</h1>
+          <p class="sim-hero__desc">
+            Practica con pruebas completas de Ciencias Sociales: cuatro áreas, preguntas de lectura,
+            temporizador, pausa con progreso guardado y revisión detallada al final.
+          </p>
+          <div class="sim-hero__meta">
+            <span>25 preguntas</span>
+            <span>50 minutos</span>
+            <span>4 áreas</span>
+            <span>60% para aprobar</span>
+          </div>
+        </div>
+
+        <div class="sim-list" id="simulacros-grid">
+          <!-- Generado dinámicamente con JS -->
+        </div>
+
+        <details class="q-history" id="simulacro-history-container" hidden>
+          <summary class="summary-title">Historial de simulacros</summary>
+          <div class="table-scroll mt-075">
+            <table class="q-history__table">
+              <thead>
+                <tr>
+                  <th>Simulacro</th>
+                  <th>Calificación</th>
+                  <th>Aciertos</th>
+                  <th>Tiempo</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="simulacro-history-tbody"></tbody>
+            </table>
+          </div>
+        </details>
       </section>
 
       <!-- PERFIL: datos, estadísticas, historial, sesión y cierre de sesión -->
@@ -174,6 +228,10 @@
       <button class="tabbar__btn" type="button" data-tab="practica">
         <svg class="ico tabbar__ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
         <span>Práctica</span>
+      </button>
+      <button class="tabbar__btn" type="button" data-tab="simulacro">
+        <svg class="ico tabbar__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 3h6"/></svg>
+        <span>Simulacro</span>
       </button>
       <button class="tabbar__btn" type="button" data-tab="perfil">
         <svg class="ico tabbar__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>

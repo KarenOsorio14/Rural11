@@ -1,4 +1,13 @@
 import './theme.js';
+import { showStorageRecovery } from './storage-recovery.js';
+
+// Cualquier error de IndexedDB que no haya sido atrapado por una página muestra
+// la pantalla de recuperación en lugar de dejar la interfaz en blanco.
+window.addEventListener('unhandledrejection', (event) => {
+  if (showStorageRecovery(event.reason)) {
+    event.preventDefault();
+  }
+});
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||

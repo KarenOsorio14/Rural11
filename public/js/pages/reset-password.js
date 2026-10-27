@@ -5,6 +5,7 @@
 import '../core/pwa.js';
 import { notify, flash } from '../core/notifications.js';
 import { friendlyMessage, AppError } from '../core/errors.js';
+import { showStorageRecovery } from '../core/storage-recovery.js';
 import { setInvalid, clearInvalid, setLoading, bindPasswordToggle } from '../core/form.js';
 import { resetPassword } from '../modules/auth/auth.service.js';
 
@@ -62,6 +63,8 @@ form.addEventListener('submit', async (event) => {
       fields[error.field].focus();
       return;
     }
+
+    if (showStorageRecovery(error)) return;
 
     // Un intento que no coincide limpia las contraseñas para que se vuelvan a escribir.
     fields.newPassword.value = '';

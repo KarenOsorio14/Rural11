@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Simulacro ICFES · Rural 11</title>
+  <meta name="description" content="Simulacros completos tipo ICFES de Ciencias Sociales para grado 11: 25 preguntas, cuatro áreas, temporizador y revisión detallada.">
+  <meta name="theme-color" content="#17153B">
+  <script src="/js/core/theme-init.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/questionnaires.css">
+  <link rel="stylesheet" href="/css/simulacro.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar__left">
+      <a href="/#simulacro" class="btn btn--ghost btn--sm btn--link">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg> Volver
+      </a>
+      <span class="topbar__brand" id="sim-topbar-title">Simulacro ICFES</span>
+    </div>
+    <div class="topbar__actions">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema"></button>
+    </div>
+  </header>
+
+  <main class="home sim-page" id="simulacro-main" hidden>
+    <!-- 1. Listado o instrucciones -->
+    <div id="sim-intro-view"></div>
+
+    <!-- 2. Examen en curso -->
+    <div id="sim-player-view" hidden></div>
+
+    <!-- 3. Resultados -->
+    <div id="sim-results-view" hidden></div>
+  </main>
+
+  <!-- Confirmación antes de entregar -->
+  <div class="modal" id="sim-finish-modal" role="dialog" aria-modal="true" aria-labelledby="sim-finish-title" hidden>
+    <div class="modal__box">
+      <h2 class="modal__title" id="sim-finish-title">¿Entregar el simulacro?</h2>
+      <p class="modal__text" id="sim-finish-text"></p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="sim-finish-cancel" type="button">Seguir respondiendo</button>
+        <button class="btn btn--primary" id="sim-finish-confirm" type="button">Entregar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmación al pausar: el progreso ya quedó guardado -->
+  <div class="modal" id="sim-pause-modal" role="dialog" aria-modal="true" aria-labelledby="sim-pause-title" hidden>
+    <div class="modal__box">
+      <h2 class="modal__title" id="sim-pause-title">Simulacro en pausa</h2>
+      <p class="modal__text" id="sim-pause-text"></p>
+      <div class="modal__actions">
+        <a class="btn btn--ghost btn--link" href="/#simulacro" id="sim-pause-exit">Volver al inicio</a>
+        <button class="btn btn--primary" id="sim-pause-resume" type="button">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script type="module" src="/js/pages/simulacro.js"></script>
+</body>
+
+</html>
