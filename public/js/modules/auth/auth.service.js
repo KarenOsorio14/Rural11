@@ -12,6 +12,8 @@ import * as sessions from './session.js';
 // Importa TODO el módulo de sesiones como un objeto "sessions" (sessions.start, sessions.end, sessions.current).
 
 export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+export const PASSWORD_RECOMMENDED_LENGTH = 12;
 // Constante exportada: longitud mínima exigida para la contraseña (se usa aquí y en la UI).
 const NAME_MIN_LENGTH = 2;
 // Constante exportada: longitud mínima exigida para el nombre.
@@ -134,6 +136,9 @@ function assertPasswordRules(password, field = 'password') {
   }
   if (value.length < PASSWORD_MIN_LENGTH) {
     throw new AppError('VALIDATION', `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`, field);
+  }
+  if (value.length > PASSWORD_MAX_LENGTH) {
+    throw new AppError('VALIDATION', `La contraseña debe tener máximo ${PASSWORD_MAX_LENGTH} caracteres.`, field);
   }
   if (!/[A-Z]/.test(value)) {
     throw new AppError('VALIDATION', 'La contraseña debe contener al menos una letra mayúscula.', field);
