@@ -1,0 +1,9 @@
+# Cabeceras de seguridad para Cloudflare (las mismas que pone server/ en local).
+/*
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: same-origin
+
+# El service worker debe revalidarse siempre para que las actualizaciones lleguen.
+/sw.js
+  Cache-Control: no-cache
