@@ -4,6 +4,7 @@
 // de cada respuesta. Al entrar se muestra directamente la primera pregunta.
 
 import '../core/pwa.js';
+import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
@@ -243,6 +244,7 @@ function vistaResultado() {
   return `
     <section class="ps-paso sg-resultado">
       <div class="ps-final ${resultado.percentage >= 60 ? 'ps-final--ok' : ''}">
+        ${granoResultadoHtml(resultado.percentage)}
         <p class="ps-final__pct">${resultado.percentage}%</p>
         <h1 class="ps-final__msg">${tituloFinal}</h1>
         <p class="ps-sub">${resultado.correctCount} de ${resultado.totalQuestions} respuestas correctas</p>

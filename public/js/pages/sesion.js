@@ -3,6 +3,7 @@
 // Todo ocurre en una sola página con 4 pasos: temas -> cantidad -> preguntas -> resultado.
 
 import '../core/pwa.js';
+import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
@@ -186,6 +187,7 @@ function vistaResultado() {
   return `
     <section class="ps-paso">
       <div class="ps-final ${r.passed ? 'ps-final--ok' : ''}">
+        ${granoResultadoHtml(r.percentage, { libre: true })}
         <p class="ps-final__pct">${r.percentage}%</p>
         <h1 class="ps-final__msg">${r.passed ? '¡Muy bien!' : 'Sigue practicando'}</h1>
         <p class="ps-sub">${r.correctCount} de ${r.totalQuestions} respuestas correctas</p>
