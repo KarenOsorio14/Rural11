@@ -4,6 +4,7 @@
 
 import { AppError } from '../../core/errors.js';
 import { QUESTIONNAIRES, TOPICS } from './questionnaires.data.js';
+import { EJEMPLOS_RESUELTOS } from './ejemplos.data.js';
 import { getAttemptsByUser, saveAttempt } from './questionnaires.repository.js';
 import {
   deleteProgress as deleteProgressRecord,
@@ -22,6 +23,11 @@ export const SEGUIDAS_PLAN = [
   { level: 2, name: 'Intermedio', count: 8, description: 'Lecturas y preguntas de aplicación.' },
   { level: 3, name: 'Avanzado', count: 6, description: 'Inferencias y casos de mayor exigencia.' }
 ];
+
+// Dificultad adaptativa (HU-18): la sesión empieza en el nivel 1 y sube de nivel
+// cuando el estudiante acierta esta cantidad de preguntas seguidas.
+export const SEGUIDAS_LEVEL_UP_STREAK = 3;
+const MAX_LEVEL = SEGUIDAS_PLAN[SEGUIDAS_PLAN.length - 1].level;
 
 const LEVEL_NAMES = Object.fromEntries(SEGUIDAS_PLAN.map((step) => [step.level, step.name]));
 const TOPIC_BY_CATEGORY = new Map(TOPICS.map((topic) => [topic.category, topic]));
@@ -118,35 +124,67 @@ function pickBalanced(pool, count) {
   return picked;
 }
 
-/** Crea el orden aleatorio de una sesión nueva. */
-export function createSeguidaSession() {
-  const selected = [];
-  const used = new Set();
+/** Nombre de un nivel de dificultad (Básico, Intermedio, Avanzado). */
+export function seguidaLevelName(level) {
+  return LEVEL_NAMES[level] || 'Intermedio';
+}
 
-  for (const step of SEGUIDAS_PLAN) {
+/**
+ * Elige la siguiente pregunta de la sesión para el nivel pedido.
+ * Si ya no quedan preguntas sin usar en ese nivel, se toma la del nivel más
+ * cercano que todavía tenga (primero hacia arriba, luego hacia abajo).
+ */
+export function pickNextSeguidaQuestion(servedIds, level) {
+  const used = new Set(servedIds);
+  const wanted = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
+  const offsets = [0, 1, -1, 2, -2];
+
+  for (const offset of offsets) {
+    const candidate = wanted + offset;
+    if (candidate < 1 || candidate > MAX_LEVEL) continue;
+
     const pool = SEGUIDAS_BANK.filter((question) =>
-      question.level === step.level && !used.has(question.id)
+      question.level === candidate && !used.has(question.id)
     );
-    const chosen = pickBalanced(pool, step.count);
-
-    for (const question of chosen) {
-      if (!used.has(question.id)) {
-        selected.push(question);
-        used.add(question.id);
-      }
-    }
+    if (pool.length) return pickBalanced(pool, 1)[0];
   }
 
-  // Si en el futuro el banco cambia y un nivel no tiene suficientes preguntas,
-  // se completa la sesión con las que queden disponibles.
-  if (selected.length < SEGUIDAS_SESSION_SIZE) {
-    const rest = shuffle(
-      SEGUIDAS_BANK.filter((question) => !used.has(question.id))
-    ).slice(0, SEGUIDAS_SESSION_SIZE - selected.length);
-    selected.push(...rest);
+  return null;
+}
+
+/** ¿Quedan preguntas sin usar en el nivel indicado? */
+function hasQuestionsAtLevel(level, servedIds) {
+  const used = new Set(servedIds);
+  return SEGUIDAS_BANK.some((question) => question.level === level && !used.has(question.id));
+}
+
+/**
+ * Actualiza el nivel y la racha después de responder una pregunta.
+ * Devuelve el nuevo estado y si el estudiante acaba de subir de nivel.
+ */
+export function advanceSeguidaLevel(state, wasCorrect, servedIds = []) {
+  const level = Math.max(1, Math.min(MAX_LEVEL, Number(state && state.level) || 1));
+  const streak = Math.max(0, Number(state && state.streak) || 0);
+
+  if (!wasCorrect) return { level, streak: 0, leveledUp: false };
+
+  const nextStreak = streak + 1;
+  if (nextStreak < SEGUIDAS_LEVEL_UP_STREAK) {
+    return { level, streak: nextStreak, leveledUp: false };
   }
 
-  return selected;
+  // Solo sube si existe un nivel superior con preguntas disponibles.
+  if (level < MAX_LEVEL && hasQuestionsAtLevel(level + 1, servedIds)) {
+    return { level: level + 1, streak: 0, leveledUp: true };
+  }
+
+  return { level, streak: 0, leveledUp: false };
+}
+
+/** Empieza una sesión nueva: primera pregunta del nivel básico. */
+export function createSeguidaSession() {
+  const first = pickNextSeguidaQuestion([], 1);
+  return first ? [first] : [];
 }
 
 /** Ejemplo modelo que refuerza la respuesta correcta sin repetir la pregunta. */
@@ -160,13 +198,26 @@ export function buildCorrectExample(question) {
   };
 }
 
+/**
+ * Ejemplo resuelto paso a paso para el tema de una pregunta (HU-17).
+ * Devuelve null si el tema no tiene ejemplos disponibles.
+ */
+export function buildSolvedExample(question) {
+  const list = EJEMPLOS_RESUELTOS[question && question.category] || [];
+  if (!list.length) return null;
+
+  const seed = String(question.id).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return list[seed % list.length];
+}
+
 /** Carga y valida la sesión guardada. Si el banco cambió, la descarta. */
 export async function getSeguidaProgress(userId) {
   const saved = await getProgressRecord(userId);
   if (!saved) return null;
 
   const ids = Array.isArray(saved.questionIds) ? saved.questionIds : [];
-  if (ids.length !== SEGUIDAS_SESSION_SIZE) {
+  // La sesión se va armando pregunta a pregunta, así que puede tener de 1 a 20.
+  if (!ids.length || ids.length > SEGUIDAS_SESSION_SIZE) {
     await deleteProgressRecord(userId).catch(() => {});
     return null;
   }
@@ -191,12 +242,18 @@ export async function getSeguidaProgress(userId) {
     Math.min(questions.length - 1, Number(saved.currentIndex) || 0)
   );
 
+  const lastLevel = questions[questions.length - 1].level;
+  const level = Math.max(1, Math.min(MAX_LEVEL, Number(saved.level) || lastLevel));
+  const streak = Math.max(0, Number(saved.streak) || 0);
+
   return {
     ...saved,
     questions,
     answers,
     currentIndex,
-    total: questions.length,
+    level,
+    streak,
+    total: SEGUIDAS_SESSION_SIZE,
     answeredCount: Object.keys(answers).length
   };
 }
@@ -206,7 +263,11 @@ export async function saveSeguidaProgress(userId, data) {
   const ids = Array.isArray(data.questionIds) ? data.questionIds : [];
   const questions = ids.map((id) => BANK_BY_ID.get(id));
 
-  if (questions.length !== SEGUIDAS_SESSION_SIZE || questions.some((question) => !question)) {
+  if (
+    !questions.length ||
+    questions.length > SEGUIDAS_SESSION_SIZE ||
+    questions.some((question) => !question)
+  ) {
     throw new AppError('INVALID_PROGRESS', 'No se pudo guardar el avance de la sesión.');
   }
 
@@ -233,6 +294,8 @@ export async function saveSeguidaProgress(userId, data) {
       0,
       Math.min(questions.length - 1, Number(data.currentIndex) || 0)
     ),
+    level: Math.max(1, Math.min(MAX_LEVEL, Number(data.level) || 1)),
+    streak: Math.max(0, Number(data.streak) || 0),
     startedAt: data.startedAt || new Date().toISOString()
   });
 }
@@ -253,6 +316,7 @@ export function evaluateSeguida(questions, answers) {
   }));
 
   let correctCount = 0;
+  const topics = new Map();
 
   const review = questions.map((question) => {
     const raw = selectedAnswers[question.id];
@@ -264,6 +328,18 @@ export function evaluateSeguida(questions, answers) {
     if (bucket) {
       bucket.total += 1;
       if (isCorrect) bucket.correct += 1;
+    }
+
+    // Nivel más alto en el que el estudiante acertó dentro de cada tema (HU-18).
+    const topicName = question.topicName;
+    if (!topics.has(topicName)) {
+      topics.set(topicName, { topicName, total: 0, correct: 0, maxLevel: 0 });
+    }
+    const topicStats = topics.get(topicName);
+    topicStats.total += 1;
+    if (isCorrect) {
+      topicStats.correct += 1;
+      topicStats.maxLevel = Math.max(topicStats.maxLevel, question.level);
     }
 
     return {
@@ -278,9 +354,16 @@ export function evaluateSeguida(questions, answers) {
       topicName: question.topicName,
       level: question.level,
       levelName: question.levelName,
-      example: buildCorrectExample(question)
+      example: buildCorrectExample(question),
+      solvedExample: isCorrect ? null : buildSolvedExample(question)
     };
   });
+
+  const byTopic = [...topics.values()].map((item) => ({
+    ...item,
+    maxLevelName: item.maxLevel ? seguidaLevelName(item.maxLevel) : 'Sin aciertos'
+  }));
+  const levelReached = review.reduce((max, item) => Math.max(max, item.level), 1);
 
   const totalQuestions = questions.length;
   const percentage = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
@@ -292,6 +375,9 @@ export function evaluateSeguida(questions, answers) {
     passed: percentage >= SEGUIDAS_PASSING_PERCENTAGE,
     review,
     byDifficulty,
+    byTopic,
+    levelReached,
+    levelReachedName: seguidaLevelName(levelReached),
     passingPercentage: SEGUIDAS_PASSING_PERCENTAGE
   };
 }
@@ -309,7 +395,9 @@ export async function saveSeguidaAttempt(userId, result) {
     percentage: result.percentage,
     passed: result.passed,
     review: result.review,
-    byDifficulty: result.byDifficulty
+    byDifficulty: result.byDifficulty,
+    byTopic: result.byTopic,
+    levelReached: result.levelReached
   });
 
   return { ...result, ...record };

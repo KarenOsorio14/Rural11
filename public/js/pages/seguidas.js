@@ -10,13 +10,17 @@ import { friendlyMessage } from '../core/errors.js';
 import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
 import {
-  buildCorrectExample,
+  SEGUIDAS_SESSION_SIZE,
+  advanceSeguidaLevel,
+  buildSolvedExample,
   clearSeguidaProgress,
   createSeguidaSession,
   evaluateSeguida,
   getSeguidaProgress,
+  pickNextSeguidaQuestion,
   saveSeguidaAttempt,
-  saveSeguidaProgress
+  saveSeguidaProgress,
+  seguidaLevelName
 } from '../modules/questionnaires/seguidas.service.js';
 
 const root = document.getElementById('sg');
@@ -33,6 +37,8 @@ const estado = {
   preguntas: [],
   respuestas: {},
   actual: 0,
+  nivel: 1,
+  racha: 0,
   seleccion: null,
   startedAt: null,
   resultado: null,
@@ -60,11 +66,49 @@ function actualizarGuardado() {
 }
 
 // ---------- Pregunta ----------
+/** Ejemplo resuelto paso a paso (HU-17). Se reutiliza en la revisión final. */
+function ejemploHtml(ejemplo, id = '') {
+  const opciones = ejemplo.opciones.map((texto, index) => `
+      <li class="sg-ejemplo__opcion ${index === ejemplo.correcta ? 'is-correcta' : ''}">
+        <span class="sg-ejemplo__letra" aria-hidden="true">${LETRAS[index]}</span>
+        <span>${esc(texto)}${index === ejemplo.correcta ? ' <strong>(correcta)</strong>' : ''}</span>
+      </li>`).join('');
+  const pasos = ejemplo.pasos.map((paso) => `<li>${esc(paso)}</li>`).join('');
+
+  return `
+    <div class="sg-ejemplo__cuerpo" ${id ? `id="${id}"` : ''}>
+      <p class="sg-ejemplo__titulo">Ejemplo resuelto</p>
+      <p class="sg-ejemplo__enunciado">${esc(ejemplo.enunciado)}</p>
+      <ul class="sg-ejemplo__opciones">${opciones}</ul>
+      <p class="sg-ejemplo__subtitulo">Solución paso a paso</p>
+      <ol class="sg-ejemplo__pasos">${pasos}</ol>
+      <p class="sg-ejemplo__conclusion">${esc(ejemplo.conclusion)}</p>
+    </div>`;
+}
+
 function feedbackHtml(pregunta, seleccion) {
   const acierto = seleccion === pregunta.correctIndex;
-  const ejemplo = buildCorrectExample(pregunta);
   const tuRespuesta = acierto ? '' : `
     <p class="sg-feedback__linea">Tu respuesta: <strong>${esc(pregunta.options[seleccion])}</strong></p>`;
+
+  // El ejemplo resuelto solo se ofrece cuando la respuesta fue incorrecta.
+  let bloqueEjemplo = '';
+  if (!acierto) {
+    const ejemplo = buildSolvedExample(pregunta);
+    bloqueEjemplo = ejemplo
+      ? `<button type="button" class="btn btn--ghost sg-ver-ejemplo" data-accion="ver-ejemplo"
+                 aria-expanded="false" aria-controls="sg-ejemplo">Ver ejemplo resuelto</button>
+         <section class="sg-ejemplo" id="sg-ejemplo" hidden>
+           ${ejemploHtml(ejemplo)}
+           <button type="button" class="btn btn--ghost btn--sm sg-ejemplo__cerrar" data-accion="cerrar-ejemplo">Cerrar ejemplo</button>
+         </section>`
+      : '<p class="sg-ejemplo-vacio">Todavía no hay un ejemplo resuelto para este tema.</p>';
+  }
+
+  // Aviso de subida de nivel (HU-18): el nivel guardado ya es mayor que el de esta pregunta.
+  const aviso = acierto && estado.nivel > pregunta.level
+    ? `<p class="sg-nivel-aviso" role="status">¡Subes de nivel! Las próximas preguntas serán de nivel <strong>${esc(seguidaLevelName(estado.nivel))}</strong>.</p>`
+    : '';
 
   return `
     <div class="sg-feedback ${acierto ? 'sg-feedback--ok' : 'sg-feedback--mal'}" role="status" aria-live="polite">
@@ -72,17 +116,14 @@ function feedbackHtml(pregunta, seleccion) {
       ${tuRespuesta}
       <p class="sg-feedback__linea">Respuesta correcta: <strong>${esc(pregunta.options[pregunta.correctIndex])}</strong></p>
       <p class="sg-feedback__explicacion">${esc(pregunta.explanation || '')}</p>
-      <div class="sg-ejemplo">
-        <p class="sg-ejemplo__titulo">Ejemplo similar correcto</p>
-        <p class="sg-ejemplo__texto">${esc(ejemplo.text)}</p>
-        <p class="sg-ejemplo__tip">${esc(ejemplo.tip)}</p>
-      </div>
+      ${aviso}
+      ${bloqueEjemplo}
     </div>`;
 }
 
 function vistaSesion() {
   const pregunta = estado.preguntas[estado.actual];
-  const total = estado.preguntas.length;
+  const total = SEGUIDAS_SESSION_SIZE;
   const respuesta = estado.respuestas[pregunta.id];
   const revisada = respuesta !== undefined;
   const seleccion = revisada ? respuesta : estado.seleccion;
@@ -170,6 +211,12 @@ function vistaResultado() {
         </div>`;
     }).join('');
 
+  const porTema = (resultado.byTopic || []).map((item) => `
+        <li class="sg-tema-nivel">
+          <span class="sg-tema-nivel__nombre">${esc(item.topicName)}</span>
+          <span class="sg-tema-nivel__dato">${item.correct} de ${item.total} · ${esc(item.maxLevelName)}</span>
+        </li>`).join('');
+
   const revision = resultado.review.map((pregunta, index) => {
     const estadoTexto = pregunta.selectedIndex === null
       ? 'Sin responder'
@@ -185,7 +232,11 @@ function vistaResultado() {
         <p class="ps-rev__resp">Tu respuesta: <strong>${tuRespuesta}</strong></p>
         <p class="ps-rev__resp">Correcta: <strong>${esc(pregunta.options[pregunta.correctIndex])}</strong></p>
         <p class="ps-rev__exp">${esc(pregunta.explanation || '')}</p>
-        <p class="ps-rev__exp"><strong>Ejemplo similar:</strong> ${esc(pregunta.example.text)}</p>
+        ${pregunta.solvedExample ? `
+          <details class="sg-rev-ejemplo">
+            <summary>Ver ejemplo resuelto</summary>
+            ${ejemploHtml(pregunta.solvedExample)}
+          </details>` : ''}
       </li>`;
   }).join('');
 
@@ -207,8 +258,8 @@ function vistaResultado() {
           <span class="sg-resultado-dato__lbl">preguntas</span>
         </div>
         <div class="sg-resultado-dato">
-          <span class="sg-resultado-dato__val">${resultado.byDifficulty.length}</span>
-          <span class="sg-resultado-dato__lbl">niveles</span>
+          <span class="sg-resultado-dato__val">${esc(resultado.levelReachedName || '')}</span>
+          <span class="sg-resultado-dato__lbl">nivel alcanzado</span>
         </div>
       </div>
 
@@ -216,6 +267,12 @@ function vistaResultado() {
         <h2 class="ps-h2">Resultado por dificultad</h2>
         <div class="sg-resultado-niveles">${niveles}</div>
       </div>
+
+      ${porTema ? `
+      <div>
+        <h2 class="ps-h2">Nivel alcanzado por tema</h2>
+        <ul class="sg-temas-nivel">${porTema}</ul>
+      </div>` : ''}
 
       <div class="sg-acciones">
         <a class="btn btn--ghost btn--link" href="/#practica">Volver a Práctica</a>
@@ -255,6 +312,8 @@ function persistir() {
     questionIds: estado.preguntas.map((pregunta) => pregunta.id),
     answers: { ...estado.respuestas },
     currentIndex: estado.actual,
+    level: estado.nivel,
+    streak: estado.racha,
     startedAt: estado.startedAt
   };
 
@@ -289,6 +348,8 @@ async function empezarSesion() {
   estado.preguntas = createSeguidaSession();
   estado.respuestas = {};
   estado.actual = 0;
+  estado.nivel = 1;
+  estado.racha = 0;
   estado.seleccion = null;
   estado.startedAt = new Date().toISOString();
   estado.resultado = null;
@@ -304,6 +365,16 @@ async function comprobarRespuesta() {
   if (estado.seleccion === null || estado.respuestas[pregunta.id] !== undefined) return;
 
   estado.respuestas[pregunta.id] = estado.seleccion;
+
+  // HU-18: tras varias respuestas correctas seguidas, sube el nivel de dificultad.
+  const avance = advanceSeguidaLevel(
+    { level: estado.nivel, streak: estado.racha },
+    estado.seleccion === pregunta.correctIndex,
+    estado.preguntas.map((item) => item.id)
+  );
+  estado.nivel = avance.level;
+  estado.racha = avance.streak;
+
   dibujar();
   await persistir();
 
@@ -315,7 +386,29 @@ async function comprobarRespuesta() {
 
 async function siguientePregunta() {
   if (estado.guardando) await cadenaGuardado.catch(() => {});
-  if (estado.actual >= estado.preguntas.length - 1) return;
+  if (estado.actual >= SEGUIDAS_SESSION_SIZE - 1) return;
+
+  // La siguiente pregunta se elige ahora, según el nivel actual del estudiante.
+  if (estado.actual + 1 >= estado.preguntas.length) {
+    const siguiente = pickNextSeguidaQuestion(
+      estado.preguntas.map((item) => item.id),
+      estado.nivel
+    );
+    if (!siguiente) return;
+
+    if (siguiente.level > estado.nivel) {
+      notify({
+        type: 'info',
+        title: 'Cambias de nivel',
+        message: `Ya no quedan preguntas de nivel ${seguidaLevelName(estado.nivel)}. Seguimos con ${seguidaLevelName(siguiente.level)}.`
+      });
+    }
+    if (siguiente.level !== estado.nivel) {
+      estado.nivel = siguiente.level;
+      estado.racha = 0;
+    }
+    estado.preguntas.push(siguiente);
+  }
 
   estado.actual += 1;
   estado.seleccion = null;
@@ -380,6 +473,20 @@ root.addEventListener('click', async (event) => {
   if (!boton) return;
 
   switch (boton.dataset.accion) {
+    case 'ver-ejemplo':
+    case 'cerrar-ejemplo': {
+      const panel = root.querySelector('#sg-ejemplo');
+      const abrir = root.querySelector('[data-accion="ver-ejemplo"]');
+      if (!panel || !abrir) return;
+
+      const mostrar = boton.dataset.accion === 'ver-ejemplo' ? panel.hidden : false;
+      panel.hidden = !mostrar;
+      abrir.setAttribute('aria-expanded', String(mostrar));
+      abrir.textContent = mostrar ? 'Ocultar ejemplo resuelto' : 'Ver ejemplo resuelto';
+      if (mostrar) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      else abrir.focus();
+      return;
+    }
     case 'comprobar':
       await comprobarRespuesta();
       return;
@@ -421,6 +528,8 @@ async function init() {
       estado.preguntas = guardada.questions;
       estado.respuestas = { ...guardada.answers };
       estado.actual = guardada.currentIndex;
+      estado.nivel = guardada.level;
+      estado.racha = guardada.streak;
       estado.startedAt = guardada.startedAt || new Date().toISOString();
       estado.seleccion = null;
       estado.resultado = null;
