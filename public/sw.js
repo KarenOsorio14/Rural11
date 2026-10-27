@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v21';
+const VERSION = 'v22';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -15,6 +15,10 @@ const SHELL = [
   '/img/grano/3d/abogado.webp',
   '/img/grano/3d/cultura.webp',
   '/img/grano/3d/medalla.webp',
+  '/img/grano/3d/celebra.webp',
+  '/img/grano/3d/confundido.webp',
+  '/img/grano/3d/nervioso.webp',
+  '/img/grano/3d/estudia.webp',
   '/img/grano/grano-lupa.webp',
   '/js/core/theme-init.js',
   '/login.html',
@@ -37,6 +41,7 @@ const SHELL = [
   '/js/modules/questionnaires/seguidas.service.js',
   '/js/modules/questionnaires/ejemplos.data.js',
   '/js/modules/questionnaires/difficulty.js',
+  '/js/core/grano-resultado.js',
   '/js/modules/questionnaires/seguidas.progress.repository.js',
   '/js/modules/questionnaires/practice.vf.data.js',
   '/fonts/baloo-2-latin-700-normal.woff2',

@@ -3,6 +3,7 @@
 // preguntas, entrega y resultados con revisión.
 
 import '../core/pwa.js';
+import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
@@ -760,6 +761,7 @@ function renderResults(result) {
   resultsView.innerHTML = `
     <section class="q-results sim-results">
       <div class="q-results__header">
+        ${granoResultadoHtml(result.percentage)}
         <div class="q-score-badge ${result.passed ? 'q-score-badge--pass' : 'q-score-badge--fail'}">
           <span class="q-score-badge__number">${result.percentage}%</span>
           <span class="q-score-badge__label">${result.passed ? 'Aprobado' : 'Reprobado'}</span>
