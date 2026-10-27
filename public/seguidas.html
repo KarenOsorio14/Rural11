@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Practica tus conocimientos · Ruta 11</title>
+  <meta name="theme-color" content="#17153B">
+  <script src="/js/core/theme-init.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/sesion.css">
+  <link rel="stylesheet" href="/css/seguidas.css">
+</head>
+<body>
+  <header class="ps-top ps-top--seguidas">
+    <a class="ps-top__back" id="sg-back" href="/#practica" aria-label="Volver a Práctica"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <p class="ps-top__title" id="sg-title">Practica tus conocimientos</p>
+    <button class="theme-toggle theme-toggle--end" id="theme-toggle" type="button" aria-label="Cambiar tema"></button>
+  </header>
+
+  <main class="ps" id="sg" hidden></main>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <script type="module" src="/js/pages/seguidas.js"></script>
+</body>
+</html>

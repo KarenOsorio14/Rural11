@@ -206,7 +206,7 @@
 /* ---------- Acceso a la Práctica libre ---------- */
 .free-cta {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.1rem;
@@ -222,6 +222,35 @@
 .free-cta__title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; line-height: 1.2; }
 .free-cta__desc { font-size: 0.9rem; }
 .free-cta__go { width: 1.6rem; height: 1.6rem; }
+
+.practica-ctas { display: grid; gap: 0.75rem; }
+
+.free-cta--seguidas {
+  grid-template-columns: auto 1fr auto;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--mint);
+  box-shadow: 0 4px 0 var(--border);
+}
+
+.free-cta--seguidas:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.free-cta__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--mint);
+  background: var(--success-soft);
+  border-radius: 50%;
+}
+
+.free-cta--seguidas .free-cta__desc { color: var(--muted); }
+.free-cta--seguidas .free-cta__go { color: var(--mint); }
 
 .topbar__left { display: flex; align-items: center; gap: 0.75rem; }
 .user-avatar--big { font-size: 2.2rem; }
@@ -325,7 +354,7 @@
   bottom: 0;
   transform: translateX(-50%);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.25rem;
   width: min(100%, 32rem);
   padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
