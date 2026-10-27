@@ -6,6 +6,7 @@
 // para que todos los simulacros sean completos y mantengan el mismo nivel de exigencia.
 
 import { QUESTIONNAIRES, TOPICS } from './questionnaires.data.js';
+import { LEVEL_WEIGHT, questionLevel } from './difficulty.js';
 
 export const SIMULACRO_PASSING_PERCENTAGE = 60;
 // Mismo mínimo de aprobación que los cuestionarios y la práctica libre.
@@ -84,8 +85,10 @@ function questionPool(topic) {
   return QUESTIONNAIRES
     .filter((quiz) => quiz.category === topic.category)
     .flatMap((quiz) =>
-      quiz.questions.map((question) => ({
+      quiz.questions.map((question, index) => ({
         ...question,
+        level: questionLevel(quiz, index),
+        weight: LEVEL_WEIGHT[questionLevel(quiz, index)],
         topicId: topic.id,
         topicName: topic.name,
         category: topic.category,

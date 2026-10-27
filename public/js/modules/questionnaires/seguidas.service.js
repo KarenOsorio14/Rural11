@@ -5,6 +5,7 @@
 import { AppError } from '../../core/errors.js';
 import { QUESTIONNAIRES, TOPICS } from './questionnaires.data.js';
 import { EJEMPLOS_RESUELTOS } from './ejemplos.data.js';
+import { questionLevel } from './difficulty.js';
 import { getAttemptsByUser, saveAttempt } from './questionnaires.repository.js';
 import {
   deleteProgress as deleteProgressRecord,
@@ -38,23 +39,6 @@ const EXAMPLE_TIPS = {
   'Constitución y Ciudadanía': 'Identifica el derecho o mecanismo y explica a quién protege.',
   'Sociedad y Cultura': 'Distingue hechos, derechos y opiniones, y busca un ejemplo.'
 };
-
-/**
- * Nivel de una pregunta tipo ICFES.
- * Las preguntas directas (sin lectura) abren la sesión; después vienen las
- * lecturas y, al final, las preguntas de inferencia de cada texto.
- */
-function questionLevel(quiz, questionIndex) {
-  const difficulty = String(quiz.difficulty || '').toLowerCase();
-  const isReading = quiz.id.includes('-lectura-');
-
-  if (!isReading) {
-    return difficulty.includes('avanzado') ? 2 : 1;
-  }
-  if (difficulty.includes('avanzado')) return 3;
-  if (questionIndex === quiz.questions.length - 1) return 3;
-  return 2;
-}
 
 /** Añade a cada pregunta los datos que necesita la sesión y la evaluación. */
 function enrichQuestion(question, quiz, questionIndex) {
