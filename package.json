@@ -12,8 +12,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "nodemailer": "^6.10.1"
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "browser-sync": "^3.0.4",
