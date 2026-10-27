@@ -1,4 +1,4 @@
-// Verificación del correo (HU-00) como Cloudflare Pages Function: responde en /api/verificacion.
+// Verificación del correo (HU-00). La usa worker/index.js para responder en /api/verificacion.
 //
 // Dos acciones (POST con JSON):
 //   { accion: 'enviar', email, nombre }  -> manda al correo un enlace firmado que dura 48 horas.
@@ -8,7 +8,7 @@
 // falta base de datos: nadie puede fabricar ni cambiar un enlace sin conocer VERIFY_SECRET.
 // El correo sale por la API de Brevo (plan gratis).
 //
-// Variables (Cloudflare > Workers y Pages > tu proyecto > Settings > Variables and Secrets):
+// Variables (Cloudflare > Workers y Pages > rural11 > Configuración > Variables y secretos, tipo «Secreto»):
 //   VERIFY_SECRET   texto largo y aleatorio (mínimo 16 caracteres). Firma los enlaces.
 //   BREVO_API_KEY   clave de API de Brevo.
 //   MAIL_FROM       correo remitente, verificado como remitente en Brevo.
