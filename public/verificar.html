@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Verificar correo · Rural 11</title>
+  <meta name="theme-color" content="#17153B">
+  <script src="/js/core/theme-init.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body class="auth-page">
+  <button class="theme-toggle theme-toggle--floating" id="theme-toggle" type="button" aria-label="Cambiar tema"></button>
+
+  <main class="auth">
+    <section class="auth__brand">
+      <a class="auth__logo" href="/bienvenida.html">
+        <span class="auth__name">Rural 11</span>
+      </a>
+      <img class="auth__grano auth__grano--pose" id="verif-grano" src="/img/grano/3d/estudia.webp" alt="" width="220" height="220">
+    </section>
+
+    <section class="auth__panel">
+      <div class="auth__form" id="verif" aria-live="polite">
+        <h1 class="auth__title" id="verif-titulo">Verificando tu correo…</h1>
+        <p class="auth__lead" id="verif-texto">Un momento, estamos comprobando el enlace.</p>
+        <a class="btn btn--primary" id="verif-ir" href="/login.html" hidden>Ir a iniciar sesión</a>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/js/pages/verificar.js"></script>
+</body>
+</html>

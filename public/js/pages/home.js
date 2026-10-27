@@ -12,6 +12,7 @@ import { showStorageRecovery } from '../core/storage-recovery.js';
 import { friendlyMessage } from '../core/errors.js';
 // Convierte cualquier error en un mensaje seguro y amigable para mostrar al usuario.
 import { getSession, logout } from '../modules/auth/auth.service.js';
+import { solicitarVerificacion, motivoLegible } from '../modules/auth/verificacion.service.js';
 // Funciones del servicio de autenticación: obtener sesión actual y cerrar sesión.
 import {
   getTopicsWithStats,
@@ -562,6 +563,38 @@ async function loadHomeData() {
   }
 }
 
+// Estado del correo (HU-00): etiqueta en el perfil y botón para reenviar el correo de verificación.
+const ESPERA_REENVIO_MS = 60 * 1000;
+let ultimoReenvio = 0;
+
+function renderVerificacion(user) {
+  const etiqueta = document.getElementById('profile-verif');
+  const boton = document.getElementById('resend-verif');
+  if (!etiqueta || !boton) return;
+  const verificado = Boolean(user.emailVerified);
+  etiqueta.hidden = verificado;
+  boton.hidden = verificado;
+  if (boton.dataset.listo) return;
+  boton.dataset.listo = '1';
+  boton.addEventListener('click', async () => {
+    const falta = ESPERA_REENVIO_MS - (Date.now() - ultimoReenvio);
+    if (falta > 0) {
+      notify({ type: 'info', title: 'Espera un momento', message: `Puedes pedir otro correo en ${Math.ceil(falta / 1000)} segundos.` });
+      return;
+    }
+    ultimoReenvio = Date.now();
+    boton.disabled = true;
+    const envio = await solicitarVerificacion({ email: currentUser.email, nombre: currentUser.name.split(' ')[0] });
+    boton.disabled = false;
+    if (envio.ok) {
+      notify({ type: 'success', title: 'Correo enviado', message: 'Revisa tu bandeja y el correo no deseado.' });
+    } else {
+      ultimoReenvio = 0;
+      notify({ type: 'error', title: 'No se pudo enviar', message: motivoLegible(envio.motivo) });
+    }
+  });
+}
+
 function renderSessionInfo({ user, session }) {
   // Pinta en el DOM los datos del usuario y de la sesión (llamado una sola vez al iniciar).
   currentUser = user;
@@ -583,6 +616,7 @@ function renderSessionInfo({ user, session }) {
   const expEl = document.getElementById('session-expires');
   // Elemento que muestra cuándo expira la sesión.
 
+  renderVerificacion(user);
   if (emailEl) emailEl.textContent = user.email;
   // Solo actualiza si el elemento existe en el DOM (defensivo, por si cambia el HTML).
   if (typeEl) {
