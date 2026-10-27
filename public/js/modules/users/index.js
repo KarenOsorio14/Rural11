@@ -19,7 +19,7 @@ export const users = {
   // Alias directo a la búsqueda combinada (documento o email).
 
   // Datos que pueden llegar a la interfaz (nunca la contraseña).
-  toPublic: ({ id, name, email, documentNumber }) => ({ id, name, email, documentNumber: documentNumber || '' }),
+  toPublic: ({ id, name, email, documentNumber, emailVerified }) => ({ id, name, email, documentNumber: documentNumber || '', emailVerified: Boolean(emailVerified) }),
   // Función que recibe un registro de usuario completo (que incluye el hash de la contraseña)
   // y devuelve SOLO los campos seguros para exponer en la UI: id, name, email y documentNumber
   // (con documentNumber por defecto en cadena vacía si no existiera). La contraseña nunca sale de aquí.

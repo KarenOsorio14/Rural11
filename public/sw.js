@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v24';
+const VERSION = 'v25';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -42,6 +42,9 @@ const SHELL = [
   '/js/modules/questionnaires/ejemplos.data.js',
   '/js/modules/questionnaires/difficulty.js',
   '/js/core/grano-resultado.js',
+  '/verificar.html',
+  '/js/pages/verificar.js',
+  '/js/modules/auth/verificacion.service.js',
   '/js/modules/questionnaires/seguidas.progress.repository.js',
   '/js/modules/questionnaires/practice.vf.data.js',
   '/fonts/baloo-2-latin-700-normal.woff2',
