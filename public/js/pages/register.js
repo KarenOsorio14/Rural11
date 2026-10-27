@@ -12,6 +12,7 @@ import { showStorageRecovery } from '../core/storage-recovery.js';
 // Pantalla de recuperación si el navegador no permite abrir IndexedDB.
 import { setInvalid, clearInvalid, setLoading, bindPasswordToggle } from '../core/form.js';
 // Utilidades de formularios.
+import { solicitarVerificacion, motivoLegible } from '../modules/auth/verificacion.service.js';
 import { register, getSession } from '../modules/auth/auth.service.js';
 // Funciones del servicio de autenticación necesarias para el registro.
 
@@ -156,10 +157,17 @@ if (values.password !== values.confirm) {
     // Llama al servicio de registro con los datos del formulario (nótese que "confirm"
     // NO se envía, ya cumplió su propósito de validación local).
 
+    // Correo de verificación (HU-00). Si falla, la cuenta ya existe y se puede reenviar desde Perfil.
+    const envio = await solicitarVerificacion({
+      email: values.email,
+      nombre: values.firstName,
+    });
     flash({
-      type: 'success',
+      type: envio.ok ? 'success' : 'warning',
       title: 'Cuenta creada',
-      message: 'Ahora inicia sesión con tu número de identidad y tu contraseña.',
+      message: envio.ok
+        ? 'Te enviamos un correo para verificarla; revisa tu bandeja y el correo no deseado. Ahora inicia sesión con tu número de identidad.'
+        : `${motivoLegible(envio.motivo)} Tu cuenta quedó creada: inicia sesión y reenvía el correo desde tu perfil.`,
     });
     // Prepara un mensaje de éxito para mostrarlo en la página de login.
 

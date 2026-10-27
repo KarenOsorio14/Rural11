@@ -28,3 +28,23 @@ npm start
 ```
 
 Abre `http://localhost:3000`.
+
+## Correo de verificación (HU-00)
+
+Al registrarse, la app manda un correo con un enlace (vale 48 horas) desde la función
+`netlify/functions/verificacion.js`. El enlace abre `verificar.html`, que marca la cuenta como
+verificada **en el navegador donde se registró el estudiante** (las cuentas viven en IndexedDB).
+Desde el Perfil se puede reenviar el correo. Iniciar sesión no exige tener el correo verificado.
+
+Para que funcione en Netlify hay que crear estas variables en
+*Site configuration > Environment variables* y volver a desplegar:
+
+| Variable | Qué es |
+| --- | --- |
+| `VERIFY_SECRET` | Texto largo y aleatorio (mínimo 16 caracteres). Firma los enlaces. |
+| `GMAIL_USER` | Cuenta de Gmail desde la que salen los correos. |
+| `GMAIL_APP_PASSWORD` | «Contraseña de aplicación» de esa cuenta (Cuenta de Google > Seguridad > Verificación en dos pasos > Contraseñas de aplicaciones). No es la contraseña normal. |
+| `SITE_URL` | Opcional. Dirección pública de la app, por ejemplo `https://rural11.netlify.app`. |
+
+Sin estas variables el registro sigue funcionando y la app avisa que el correo no se pudo enviar.
+En local (`npm start`) la función no existe, así que el envío siempre aparece como no disponible.

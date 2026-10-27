@@ -564,3 +564,7 @@
 .color-chip[data-color-value="rosa"] { --chip-a: #3A1741; --chip-b: #FF7FB0; }
 .color-chip[data-color-value="naranja"] { --chip-a: #3A200C; --chip-b: #FF9A3C; }
 .color-chip[data-color-value="azul"] { --chip-a: #12294D; --chip-b: #5CC8FF; }
+
+/* Estado del correo en el perfil */
+.user-profile .user-profile__tag--aviso { color: var(--warning); background: var(--warning-soft); }
+.user-profile__reenviar { justify-self: start; margin-top: 0.5rem; }
