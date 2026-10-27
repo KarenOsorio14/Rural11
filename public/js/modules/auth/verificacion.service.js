@@ -3,7 +3,7 @@
 
 import { users } from '../users/index.js';
 
-const ENDPOINT = '/.netlify/functions/verificacion';
+const ENDPOINT = '/api/verificacion';
 const ESPERA_MAX_MS = 12000;
 
 async function llamar(cuerpo) {
