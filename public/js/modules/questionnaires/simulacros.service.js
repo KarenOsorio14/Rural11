@@ -178,6 +178,20 @@ export function getSimulacroById(id) {
   return simulacro;
 }
 
+// En el puntaje global del Saber 11 (de 0 a 500) las pruebas pesan así: Lectura
+// crítica, Matemáticas, Sociales y ciudadanas y Ciencias naturales 3 cada una, e
+// Inglés 1 (13 partes en total). Este simulacro corresponde a Sociales y ciudadanas.
+export const MODULE_WEIGHT = { part: 3, of: 13 };
+
+/** Puntos que un puntaje de módulo (0 a 100) aporta al puntaje global (0 a 500). */
+function globalContribution(moduleScore) {
+  const factor = (5 * MODULE_WEIGHT.part) / MODULE_WEIGHT.of;
+  return {
+    points: Math.round(moduleScore * factor),
+    max: Math.round(100 * factor)
+  };
+}
+
 /**
  * Corrige un simulacro sin guardarlo. Se separa del guardado para poder mostrar el
  * resultado aunque IndexedDB falle.
@@ -188,12 +202,19 @@ export function evaluateSimulacro(simulacroId, userAnswers, { durationSeconds = 
   const topicStats = new Map();
 
   let correctCount = 0;
+  let totalWeight = 0;
+  let correctWeight = 0;
 
   const review = simulacro.questions.map((question) => {
     const rawAnswer = answers[question.id];
     const selectedIndex = rawAnswer === undefined || rawAnswer === null ? null : Number(rawAnswer);
     const isCorrect = selectedIndex === question.correctIndex;
     if (isCorrect) correctCount += 1;
+
+    // Ponderación (HU-06): cada pregunta pesa según su dificultad.
+    const weight = Number(question.weight) || 1;
+    totalWeight += weight;
+    if (isCorrect) correctWeight += weight;
 
     const current = topicStats.get(question.topicId) || {
       id: question.topicId,
@@ -216,13 +237,18 @@ export function evaluateSimulacro(simulacroId, userAnswers, { durationSeconds = 
       passage: question.passage || null,
       topicId: question.topicId,
       topicName: question.topicName,
-      category: question.category
+      category: question.category,
+      level: question.level,
+      weight
     };
   });
 
   const totalQuestions = simulacro.questions.length;
-  const percentage = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  const rawPercentage = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  // El puntaje del simulacro es el ponderado por dificultad (de 0 a 100).
+  const percentage = totalWeight ? Math.round((correctWeight / totalWeight) * 100) : 0;
   const passed = percentage >= SIMULACRO_PASSING_PERCENTAGE;
+  const global = globalContribution(percentage);
 
   return {
     simulacroId: simulacro.id,
@@ -232,6 +258,12 @@ export function evaluateSimulacro(simulacroId, userAnswers, { durationSeconds = 
     correctCount,
     totalQuestions,
     percentage,
+    rawPercentage,
+    correctWeight,
+    totalWeight,
+    globalContribution: global.points,
+    globalMax: global.max,
+    moduleWeight: MODULE_WEIGHT,
     passed,
     review,
     byTopic: [...topicStats.values()],
@@ -251,6 +283,8 @@ export async function saveSimulacroAttempt(userId, result) {
     correctCount: result.correctCount,
     totalQuestions: result.totalQuestions,
     percentage: result.percentage,
+    rawPercentage: result.rawPercentage,
+    globalContribution: result.globalContribution,
     passed: result.passed,
     review: result.review,
     byTopic: result.byTopic,
