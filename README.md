@@ -29,17 +29,26 @@ npm start
 
 Abre `http://localhost:3000`.
 
+## Despliegue en Cloudflare
+
+La app se publica como Worker de Cloudflare (`rural11`), conectado a la rama `main` de GitHub:
+cada mezcla a `main` se despliega sola con `npx wrangler deploy`. La configuración está en
+`wrangler.jsonc`: los archivos de `public/` se sirven tal cual y `worker/index.js` solo atiende
+`/api/verificacion`. Las cabeceras de seguridad están en `public/_headers`.
+
+Para probarlo en local como en Cloudflare: `npx wrangler dev` (las variables van en un archivo
+`.dev.vars`, que no se sube a GitHub).
+
 ## Correo de verificación (HU-00)
 
-Al registrarse, la app manda un correo con un enlace (vale 48 horas) desde la función
-`functions/api/verificacion.js` (Cloudflare Pages Functions, responde en `/api/verificacion`).
+Al registrarse, la app manda un correo con un enlace (vale 48 horas) desde `worker/verificacion.js`.
 El enlace abre `verificar.html`, que marca la cuenta como verificada **en el navegador donde se
 registró el estudiante** (las cuentas viven en IndexedDB). Desde el Perfil se puede reenviar el
 correo. Iniciar sesión no exige tener el correo verificado. El correo sale por la API de Brevo
 (plan gratis, 300 correos al día).
 
 Para que funcione hay que crear estas variables en Cloudflare, en
-*Workers y Pages > tu proyecto > Settings > Variables and Secrets*, y volver a desplegar:
+*Workers y Pages > rural11 > Configuración > Variables y secretos*, con tipo **Secreto**:
 
 | Variable | Qué es |
 | --- | --- |
@@ -47,8 +56,6 @@ Para que funcione hay que crear estas variables en Cloudflare, en
 | `BREVO_API_KEY` | Clave de API de Brevo (SMTP y API > Claves de API). |
 | `MAIL_FROM` | Correo remitente, verificado como remitente en Brevo. |
 | `MAIL_FROM_NAME` | Opcional. Nombre que ve el estudiante (por defecto «Rural 11»). |
-| `SITE_URL` | Opcional. Dirección pública de la app, por ejemplo `https://rural11.pages.dev`. |
+| `SITE_URL` | Opcional. Dirección pública de la app. |
 
 Sin estas variables el registro sigue funcionando y la app avisa que el correo no se pudo enviar.
-En local (`npm start`) la función no existe, así que el envío siempre aparece como no disponible.
-Para probarla en local se puede usar `npx wrangler pages dev public`.

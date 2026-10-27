@@ -1,0 +1,14 @@
+// Configuración del Worker «rural11» en Cloudflare (se despliega con `npx wrangler deploy`).
+{
+  "name": "rural11",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    // Sirve /login.html tal cual (sin redirigir a /login), como espera el service worker.
+    "html_handling": "none"
+  },
+  // Conserva las variables creadas en el panel de Cloudflare al volver a desplegar.
+  "keep_vars": true
+}
