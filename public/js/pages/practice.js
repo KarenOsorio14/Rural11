@@ -4,6 +4,7 @@ import '../core/pwa.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
+import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
 import {
   TOPICS,
@@ -414,6 +415,7 @@ async function init() {
       }
     }
   } catch (error) {
+    if (showStorageRecovery(error)) return;
     notify({ type: 'error', title: 'Error', message: friendlyMessage(error) });
   }
 }

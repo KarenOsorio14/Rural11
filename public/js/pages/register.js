@@ -8,6 +8,8 @@ import { notify, flash } from '../core/notifications.js';
 // necesita mostrar mensajes pendientes de páginas anteriores).
 import { friendlyMessage, AppError } from '../core/errors.js';
 // Utilidades de manejo de errores.
+import { showStorageRecovery } from '../core/storage-recovery.js';
+// Pantalla de recuperación si el navegador no permite abrir IndexedDB.
 import { setInvalid, clearInvalid, setLoading, bindPasswordToggle } from '../core/form.js';
 // Utilidades de formularios.
 import { register, getSession } from '../modules/auth/auth.service.js';
@@ -49,8 +51,11 @@ getSession()
       // Redirige a la página principal (no tiene sentido mostrarle el formulario de registro).
     }
   })
-  .catch(() => {});
-  // Si falla la consulta de sesión, se ignora silenciosamente y se deja ver el formulario.
+  .catch((error) => {
+    // Si el fallo es del almacenamiento local, se muestra la recuperación.
+    showStorageRecovery(error);
+  });
+  // Cualquier otro fallo de la consulta de sesión se ignora y se deja ver el formulario.
 
 function showFieldError(error) {
   // Muestra el error de un AppError en el campo correspondiente, según error.field.
@@ -188,6 +193,9 @@ if (values.password !== values.confirm) {
       return;
       // Corta aquí: ya se manejó visualmente el error específico del campo.
     }
+
+    if (showStorageRecovery(error)) return;
+    // Si el fallo es de IndexedDB, se muestra la pantalla de recuperación.
 
     notify({
       type: 'error',

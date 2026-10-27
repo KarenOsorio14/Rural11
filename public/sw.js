@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v13';
+const VERSION = 'v18';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -27,9 +27,15 @@ const SHELL = [
   '/css/auth.css',
   '/css/home.css',
   '/css/questionnaires.css',
+  '/css/simulacro.css',
   '/css/sesion.css',
+  '/css/seguidas.css',
   '/sesion.html',
   '/js/pages/sesion.js',
+  '/seguidas.html',
+  '/js/pages/seguidas.js',
+  '/js/modules/questionnaires/seguidas.service.js',
+  '/js/modules/questionnaires/seguidas.progress.repository.js',
   '/js/modules/questionnaires/practice.vf.data.js',
   '/fonts/baloo-2-latin-700-normal.woff2',
   '/fonts/baloo-2-latin-800-normal.woff2',
@@ -38,6 +44,7 @@ const SHELL = [
   '/js/core/errors.js',
   '/js/core/form.js',
   '/js/core/notifications.js',
+  '/js/core/storage-recovery.js',
   '/js/core/pwa.js',
   '/js/core/passage.js',
   '/js/core/theme.js',
@@ -50,11 +57,16 @@ const SHELL = [
   '/js/modules/questionnaires/questionnaires.lectura.data.js',
   '/js/modules/questionnaires/questionnaires.repository.js',
   '/js/modules/questionnaires/questionnaires.service.js',
+  '/js/modules/questionnaires/simulacros.data.js',
+  '/js/modules/questionnaires/simulacros.service.js',
+  '/js/modules/questionnaires/simulacros.progress.repository.js',
   '/js/pages/login.js',
   '/js/pages/register.js',
   '/js/pages/home.js',
   '/practice.html',
   '/js/pages/practice.js',
+  '/simulacro.html',
+  '/js/pages/simulacro.js',
   '/icons/favicon.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -91,7 +103,9 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE).then((cache) => cache.put(request, copy));
           return response;
         })
-        .catch(() => caches.match(request).then((hit) => hit || caches.match('/login.html')))
+        .catch(() =>
+          caches.match(request).then((hit) => hit || caches.match(url.pathname) || caches.match('/login.html'))
+        )
     );
     return;
   }

@@ -6,6 +6,7 @@ import '../core/pwa.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash } from '../core/notifications.js';
 import { friendlyMessage } from '../core/errors.js';
+import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
 import { TOPICS, QUESTIONNAIRES } from '../modules/questionnaires/questionnaires.data.js';
 import { VF_QUESTIONS } from '../modules/questionnaires/practice.vf.data.js';
@@ -334,6 +335,7 @@ async function init() {
     root.hidden = false;
     dibujar();
   } catch (error) {
+    if (showStorageRecovery(error)) return;
     notify({ type: 'error', title: 'No se pudo verificar tu sesión', message: friendlyMessage(error) });
   }
 }

@@ -256,6 +256,68 @@
   }
 }
 
+/* ---------- Recuperación del almacenamiento local ---------- */
+.storage-recovery {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.storage-recovery__card {
+  width: min(100%, 30rem);
+  padding: 1.5rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.28);
+}
+
+.storage-recovery__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.storage-recovery__message {
+  margin: 0 0 0.55rem;
+  color: var(--text);
+}
+
+.storage-recovery__help {
+  margin: 0 0 1rem;
+  font-size: 0.925rem;
+  color: var(--muted);
+}
+
+.storage-recovery__status {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.9rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+}
+
+.storage-recovery__status[data-error="true"] {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.storage-recovery__actions {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.storage-recovery__actions .btn {
+  width: 100%;
+}
+
 /* ---------- Ayudas y errores por campo ---------- */
 .field__hint,
 .field__error {
