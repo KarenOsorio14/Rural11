@@ -7,4 +7,10 @@
     theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   }
   document.documentElement.setAttribute('data-theme', theme);
+  // Color elegido en Perfil (si no hay ninguno, queda la paleta original).
+  var color = null;
+  try { color = localStorage.getItem('color_preference'); } catch (e) { color = null; }
+  if (color === 'verde' || color === 'rosa' || color === 'naranja' || color === 'azul') {
+    document.documentElement.setAttribute('data-color', color);
+  }
 })();

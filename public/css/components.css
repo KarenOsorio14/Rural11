@@ -522,3 +522,45 @@
 @media (prefers-reduced-motion: reduce) {
   .grano-resultado { animation: none; }
 }
+
+/* Selector de colores (Perfil) */
+.color-picker {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+}
+.color-picker__title { font-size: 1.1rem; }
+.color-picker__hint { font-size: 0.9rem; color: var(--muted); }
+.color-picker__list { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.color-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.35rem 0.9rem 0.35rem 0.4rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--field);
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.color-chip[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.color-chip__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border);
+  background: linear-gradient(135deg, var(--chip-a) 50%, var(--chip-b) 50%);
+}
+/* Cada punto muestra el fondo (noche) y el acento del color que representa. */
+.color-chip[data-color-value="original"] { --chip-a: #17153B; --chip-b: #FFC93C; }
+.color-chip[data-color-value="verde"] { --chip-a: #163A2F; --chip-b: #7BE495; }
+.color-chip[data-color-value="rosa"] { --chip-a: #3A1741; --chip-b: #FF7FB0; }
+.color-chip[data-color-value="naranja"] { --chip-a: #3A200C; --chip-b: #FF9A3C; }
+.color-chip[data-color-value="azul"] { --chip-a: #12294D; --chip-b: #5CC8FF; }
