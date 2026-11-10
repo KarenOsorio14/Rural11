@@ -24,6 +24,10 @@ import { getSimulacrosDashboard } from '../modules/questionnaires/simulacros.ser
 // Simulacros completos: listado con mejor resultado e historial.
 import { getSeguidaSummary } from '../modules/questionnaires/seguidas.service.js';
 // Practica tus conocimientos: sesión activa y mejor resultado.
+import { calculatePoints } from '../modules/points/points.service.js';
+// Sistema de puntos HU_20 (compartido con insignias y recompensas).
+import { checkAchievements } from '../core/achievements-notify.js';
+import { getAchievementsOverview } from '../modules/gamification/gamification.service.js';
 
 const home = document.getElementById('home');
 // Contenedor principal de la página (oculto hasta confirmar que hay sesión activa).
@@ -420,6 +424,48 @@ function calcStreak(history) {
   return streak;
 }
 
+function esc(text) {
+  return String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function achievementCard(item) {
+  const visual = `<img class="ach-card__img" src="${esc(item.image)}" alt="" width="56" height="56" loading="lazy">`;
+  const pct = Math.max(0, Math.min(100, Math.round((item.progress / item.target) * 100)));
+  const status = item.earned
+    ? `<span class="ach-card__status">${item.reusable && item.count > 1 ? `Obtenida ×${item.count}` : 'Obtenida'}</span>`
+    : `<span class="ach-card__status ach-card__status--pending">Pendiente</span>`;
+  const bar = item.earned && !item.reusable
+    ? ''
+    : `<div class="progress" aria-hidden="true"><div class="progress__bar" data-pct="${pct}"></div></div>
+       <p class="ach-card__meta">${item.progress} / ${item.target}</p>`;
+  return `
+    <li class="ach-card ${item.earned ? 'is-earned' : 'is-locked'}">
+      ${visual}
+      <div class="ach-card__body">
+        <p class="ach-card__name">${esc(item.name)} ${status}</p>
+        <p class="ach-card__desc">${esc(item.description)}</p>
+        <p class="ach-card__goal">Objetivo: ${esc(item.goal)}</p>
+        ${bar}
+      </div>
+    </li>`;
+}
+
+function renderAchievements(overview) {
+  const fill = (id, list) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = list.map((item) => achievementCard(item)).join('');
+    // El ancho se pone desde JavaScript: la política de seguridad (CSP) bloquea los style="" del HTML.
+    el.querySelectorAll('.progress__bar[data-pct]').forEach((bar) => { bar.style.width = `${bar.dataset.pct}%`; });
+  };
+  fill('badges-list', overview.badges);
+  fill('rewards-list', overview.rewards);
+  const badgeCount = document.getElementById('badges-count');
+  const rewardCount = document.getElementById('rewards-count');
+  if (badgeCount) badgeCount.textContent = `${overview.badges.filter((b) => b.earned).length} de ${overview.badges.length}`;
+  if (rewardCount) rewardCount.textContent = `${overview.rewards.filter((r) => r.earned).length} de ${overview.rewards.length}`;
+}
+
 async function loadHomeData() {
   // Carga y renderiza toda la información dinámica de la página principal (estadísticas,
   // temas y tabla de historial). Se puede volver a llamar cuando el usuario regresa a la pestaña.
@@ -454,7 +500,7 @@ async function loadHomeData() {
     // Muestra el promedio con el símbolo de porcentaje.
 
     const streak = calcStreak(history);
-    const points = history.reduce((acc, h) => acc + h.correctCount * 10, 0);
+    const points = calculatePoints(history);
     // 10 puntos por cada respuesta correcta en cualquier cuestionario, práctica libre o simulacro.
     chipStreak.textContent = `Racha ${streak} ${streak === 1 ? 'día' : 'días'}`;
     chipPoints.textContent = `Puntos ${points}`;
@@ -554,6 +600,10 @@ async function loadHomeData() {
     renderSimulacros(simulacros.list);
     renderSimulacroHistory(simulacros.history);
     renderSeguidaCta(seguida);
+
+    // 5. Insignias y recompensas (HU_21 / HU_22): se otorga lo pendiente y se pinta el estado.
+    await checkAchievements(currentUser.id);
+    renderAchievements(await getAchievementsOverview(currentUser.id));
   } catch (error) {
     // Si el fallo es del almacenamiento local, se muestra la pantalla de recuperación.
     if (showStorageRecovery(error)) return;
