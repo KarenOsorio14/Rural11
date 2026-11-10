@@ -6,6 +6,7 @@ import '../core/pwa.js';
 import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
+import { checkAchievements } from '../core/achievements-notify.js';
 import { friendlyMessage } from '../core/errors.js';
 import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -699,6 +700,7 @@ async function finishExam({ auto = false } = {}) {
     let saveError = null;
     try {
       await saveSimulacroAttempt(state.user.id, result);
+      checkAchievements(state.user.id);
     } catch (error) {
       saveError = error;
     }

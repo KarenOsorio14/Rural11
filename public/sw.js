@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v25';
+const VERSION = 'v26';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -20,6 +20,17 @@ const SHELL = [
   '/img/grano/3d/nervioso.webp',
   '/img/grano/3d/estudia.webp',
   '/img/grano/grano-lupa.webp',
+  '/img/grano/3d/estrella.webp',
+  '/img/grano/alegre.webp',
+  '/img/grano/cafe.webp',
+  '/img/grano/estudia.webp',
+  '/img/grano/explorador.webp',
+  '/img/grano/genial.webp',
+  '/img/grano/hola.webp',
+  '/img/grano/i-birrete.webp',
+  '/img/grano/i-brillo.webp',
+  '/img/grano/i-brujula.webp',
+  '/img/grano/i-grano.webp',
   '/js/core/theme-init.js',
   '/login.html',
   '/register.html',
@@ -51,6 +62,12 @@ const SHELL = [
   '/fonts/baloo-2-latin-800-normal.woff2',
   '/fonts/manrope-latin-wght-normal.woff2',
   '/js/core/db.js',
+  '/js/core/achievements-notify.js',
+  '/js/modules/points/points.service.js',
+  '/js/modules/gamification/catalog.js',
+  '/js/modules/gamification/stats.js',
+  '/js/modules/gamification/gamification.repository.js',
+  '/js/modules/gamification/gamification.service.js',
   '/js/core/errors.js',
   '/js/core/form.js',
   '/js/core/notifications.js',
