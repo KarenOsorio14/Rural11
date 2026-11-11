@@ -92,6 +92,20 @@ export async function getQuestionnairesList(userId, category = null) {
 }
 
 /**
+ * Ruta paso a paso: siguiente cuestionario por aprobar, en el mismo orden que dibuja el inicio
+ * (temas en el orden de TOPICS y, dentro de cada tema, sus cuestionarios en orden).
+ * Devuelve { topic, quiz } o null si ya aprobó todos.
+ */
+export async function getNextRouteStep(userId) {
+  const list = await getQuestionnairesList(userId);
+  for (const topic of TOPICS) {
+    const quiz = list.find((q) => q.category === topic.category && !q.passed);
+    if (quiz) return { topic, quiz };
+  }
+  return null;
+}
+
+/**
  * Obtiene un cuestionario por ID.
  */
 export function getQuestionnaireById(id) {
