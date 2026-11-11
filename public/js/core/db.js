@@ -1,7 +1,7 @@
 import { AppError } from './errors.js';
 
 const DB_NAME = 'mi-pwa';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 // Índices que la aplicación necesita para funcionar. Si una base creada por una
 // versión anterior no los tiene, se completan durante la migración.
@@ -9,7 +9,8 @@ const REQUIRED_INDEXES = {
   users: ['email', 'documentNumber'],
   questionnaire_attempts: ['userId', 'questionnaireId', 'userId_questionnaireId'],
   simulacro_progress: ['userId'],
-  seguidas_progress: ['userId']
+  seguidas_progress: ['userId'],
+  achievements: ['userId']
 };
 
 let dbPromise = null;
@@ -97,6 +98,18 @@ function migrateSchema(request) {
     const seguidaStore = transaction.objectStore('seguidas_progress');
     if (!seguidaStore.indexNames.contains('userId')) {
       seguidaStore.createIndex('userId', 'userId', { unique: false });
+    }
+  }
+
+  // Insignias (HU_21) y recompensas (HU_22) obtenidas. El id (estudiante + tipo + logro +
+  // repetición) es la clave primaria, por lo que la base rechaza logros duplicados.
+  if (!db.objectStoreNames.contains('achievements')) {
+    const achievementsStore = db.createObjectStore('achievements', { keyPath: 'id' });
+    achievementsStore.createIndex('userId', 'userId', { unique: false });
+  } else {
+    const achievementsStore = transaction.objectStore('achievements');
+    if (!achievementsStore.indexNames.contains('userId')) {
+      achievementsStore.createIndex('userId', 'userId', { unique: false });
     }
   }
 }
