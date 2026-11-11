@@ -239,7 +239,8 @@ async function finalizar() {
     const sel = estado.respuestas[k];
     const ok = sel === p.correctIndex;
     if (ok) aciertos++;
-    return { id: p.id, text: p.text, options: p.options, selectedIndex: sel, correctIndex: p.correctIndex, isCorrect: ok, explanation: p.explanation };
+    // tema: id del tema de cada pregunta, para calcular los temas con menor rendimiento (HU_27).
+    return { id: p.id, text: p.text, options: p.options, selectedIndex: sel, correctIndex: p.correctIndex, isCorrect: ok, explanation: p.explanation, tema: p.tema };
   });
   const total = estado.preguntas.length;
   const percentage = Math.round((aciertos / total) * 100);

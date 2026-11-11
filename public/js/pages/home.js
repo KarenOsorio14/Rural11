@@ -28,6 +28,8 @@ import { calculatePoints } from '../modules/points/points.service.js';
 // Sistema de puntos HU_20 (compartido con insignias y recompensas).
 import { checkAchievements } from '../core/achievements-notify.js';
 import { getAchievementsOverview } from '../modules/gamification/gamification.service.js';
+import { calcularEstadisticas, calcularTemas, PERIODO, UMBRAL_REFUERZO } from '../modules/performance/performance.service.js';
+// Desempeño del estudiante: estadísticas (HU_28) y temas con menor rendimiento (HU_27).
 
 const home = document.getElementById('home');
 // Contenedor principal de la página (oculto hasta confirmar que hay sesión activa).
@@ -450,6 +452,127 @@ function achievementCard(item) {
     </li>`;
 }
 
+// ---------- HU_28: estadísticas de desempeño ----------
+const fechaCorta = new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short' });
+
+function drawEvolution(puntos) {
+  // Gráfico de línea del puntaje (0 a 100 %) en las últimas actividades. Los colores van en
+  // clases CSS (la CSP no permite estilos en línea) y cada punto muestra su detalle al tocarlo.
+  const box = document.getElementById('perf-chart');
+  const tip = document.getElementById('perf-chart-tip');
+  const empty = document.getElementById('perf-chart-empty');
+  box.replaceChildren();
+  const ayuda = `La línea punteada marca el aprobado (${UMBRAL_REFUERZO}%). Toca un punto para ver su detalle.`;
+  tip.textContent = puntos.length ? ayuda : '';
+  empty.hidden = puntos.length > 0;
+  if (!puntos.length) return;
+
+  const W = 320, H = 168, L = 34, R = 14, T = 12, B = 26;
+  const x = (i) => (puntos.length === 1 ? (L + W - R) / 2 : L + (i * (W - L - R)) / (puntos.length - 1));
+  const y = (v) => T + ((100 - v) * (H - T - B)) / 100;
+  const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'perf-chart__svg', role: 'img',
+    'aria-label': `Puntaje de tus últimas ${puntos.length} actividades, de ${puntos[0].porcentaje}% a ${puntos[puntos.length - 1].porcentaje}%` }, box);
+
+  [0, 50, 100].forEach((v) => {
+    svgEl('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'perf-chart__grid' }, svg);
+    svgEl('text', { x: L - 6, y: y(v) + 4, class: 'perf-chart__axis', 'text-anchor': 'end' }, svg).textContent = `${v}%`;
+  });
+  // Línea de aprobación (60 %), punteada; su nombre va en la nota de abajo para no tapar la línea.
+  svgEl('line', { x1: L, x2: W - R, y1: y(UMBRAL_REFUERZO), y2: y(UMBRAL_REFUERZO), class: 'perf-chart__pass' }, svg);
+
+  if (puntos.length > 1) {
+    svgEl('polyline', { points: puntos.map((p, i) => `${x(i)},${y(p.porcentaje)}`).join(' '), class: 'perf-chart__line' }, svg);
+  }
+  const primero = puntos[0];
+  const ultimo = puntos[puntos.length - 1];
+  svgEl('text', { x: L, y: H - 6, class: 'perf-chart__axis' }, svg).textContent = fechaCorta.format(primero.fecha);
+  if (puntos.length > 1) {
+    svgEl('text', { x: W - R, y: H - 6, class: 'perf-chart__axis', 'text-anchor': 'end' }, svg).textContent = fechaCorta.format(ultimo.fecha);
+  }
+
+  const detalle = (p) => `${p.actividad}, ${fechaCorta.format(p.fecha)}: ${p.porcentaje}%`;
+  let activo = null;
+  puntos.forEach((p, i) => {
+    const punto = svgEl('circle', { cx: x(i), cy: y(p.porcentaje), r: 4, class: 'perf-chart__dot' }, svg);
+    // Zona de toque más grande que el punto, para usarlo con el dedo.
+    const zona = svgEl('circle', { cx: x(i), cy: y(p.porcentaje), r: 13, class: 'perf-chart__hit', tabindex: 0,
+      role: 'button', 'aria-label': detalle(p) }, svg);
+    const mostrar = () => {
+      if (activo) activo.classList.remove('is-active');
+      activo = punto;
+      punto.classList.add('is-active');
+      tip.textContent = detalle(p);
+    };
+    zona.addEventListener('pointerenter', mostrar);
+    zona.addEventListener('click', mostrar);
+    zona.addEventListener('focus', mostrar);
+  });
+  // Solo el último punto lleva su valor escrito; el resto se ve al tocarlo.
+  svgEl('text', { x: x(puntos.length - 1), y: y(ultimo.porcentaje) - 10, class: 'perf-chart__value',
+    'text-anchor': puntos.length === 1 ? 'middle' : 'end' }, svg).textContent = `${ultimo.porcentaje}%`;
+}
+
+function renderPerformance(historial) {
+  const est = calcularEstadisticas(historial);
+  document.getElementById('perf-best').textContent = `${est.mejorPuntaje}%`;
+  document.getElementById('perf-sims').textContent = est.simulacros;
+
+  const trend = document.getElementById('perf-trend');
+  const note = document.getElementById('perf-trend-note');
+  trend.classList.remove('is-up', 'is-down');
+  if (est.mejora) {
+    const d = est.mejora.puntos;
+    trend.textContent = `${d > 0 ? '+' : ''}${d} pts`;
+    if (d > 0) trend.classList.add('is-up');
+    if (d < 0) trend.classList.add('is-down');
+    note.textContent = `Mejora: promedio de tus últimas ${PERIODO} actividades (${est.mejora.actual}%) frente a las ${PERIODO} anteriores (${est.mejora.anterior}%).`;
+  } else {
+    trend.textContent = '—';
+    const faltan = PERIODO * 2 - est.total;
+    note.textContent = `Para calcular tu mejora necesitas ${PERIODO * 2} actividades; ${faltan === 1 ? 'te falta 1' : `te faltan ${faltan}`}.`;
+  }
+  document.getElementById('perf-chart-sub').textContent = est.evolucion.length > 1 ? `(últimas ${est.evolucion.length} actividades)` : '';
+  drawEvolution(est.evolucion);
+}
+
+// ---------- HU_27: temas con menor rendimiento ----------
+function renderWeakTopics(historial) {
+  const { temas, sugeridos, todosSobreUmbral } = calcularTemas(historial);
+  const advice = document.getElementById('weak-advice');
+  const nombre = (id) => temas.find((t) => t.id === id).nombre;
+
+  if (!sugeridos.length) {
+    advice.textContent = 'Aún no tienes resultados. Haz un cuestionario o un simulacro para conocer tus temas a reforzar.';
+  } else if (todosSobreUmbral) {
+    advice.textContent = `Vas bien: todos tus temas están sobre ${UMBRAL_REFUERZO}%. Para seguir subiendo, practica ${nombre(sugeridos[0])}.`;
+  } else {
+    const lista = sugeridos.map(nombre);
+    const texto = lista.length > 1 ? `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}` : lista[0];
+    advice.textContent = `Te sugerimos practicar ${texto}: ${lista.length > 1 ? 'están' : 'está'} por debajo de ${UMBRAL_REFUERZO}%.`;
+  }
+
+  const el = document.getElementById('weak-list');
+  el.innerHTML = temas.map((t) => {
+    const sinDatos = t.porcentaje === null;
+    const reforzar = !sinDatos && t.porcentaje < UMBRAL_REFUERZO;
+    const estado = sinDatos ? 'Sin datos' : reforzar ? 'Reforzar' : 'Bien';
+    return `
+      <li class="weak-row${reforzar ? ' is-weak' : ''}${sinDatos ? ' is-empty' : ''}">
+        <div class="weak-row__head">
+          <span class="weak-row__name">${esc(t.nombre)}</span>
+          <span class="weak-row__pct">${sinDatos ? '—' : `${t.porcentaje}%`}</span>
+        </div>
+        <div class="weak-row__bar" aria-hidden="true"><div class="weak-row__fill" data-pct="${sinDatos ? 0 : t.porcentaje}"></div></div>
+        <div class="weak-row__foot">
+          <span class="weak-row__state">${estado}${sinDatos ? '' : ` · ${t.correctas} de ${t.total} correctas`}</span>
+          <a class="weak-row__go btn--link" href="/practice.html?topic=${esc(t.id)}">Practicar</a>
+        </div>
+      </li>`;
+  }).join('');
+  // El ancho se pone desde JavaScript: la CSP bloquea los style="" del HTML.
+  el.querySelectorAll('.weak-row__fill[data-pct]').forEach((bar) => { bar.style.width = `${bar.dataset.pct}%`; });
+}
+
 function renderAchievements(overview) {
   const fill = (id, list) => {
     const el = document.getElementById(id);
@@ -601,7 +724,11 @@ async function loadHomeData() {
     renderSimulacroHistory(simulacros.history);
     renderSeguidaCta(seguida);
 
-    // 5. Insignias y recompensas (HU_21 / HU_22): se otorga lo pendiente y se pinta el estado.
+    // 5. Desempeño (HU_28) y temas a reforzar (HU_27), calculados con el mismo historial.
+    renderPerformance(history);
+    renderWeakTopics(history);
+
+    // 6. Insignias y recompensas (HU_21 / HU_22): se otorga lo pendiente y se pinta el estado.
     await checkAchievements(currentUser.id);
     renderAchievements(await getAchievementsOverview(currentUser.id));
   } catch (error) {

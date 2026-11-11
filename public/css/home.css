@@ -723,3 +723,108 @@ a.rm-node:focus-visible .rm-disc { stroke: var(--text); stroke-width: 4; }
 
 .ach-card .progress { height: 8px; margin-top: 0.2rem; overflow: hidden; background: var(--surface); border-radius: 999px; }
 .ach-card .progress__bar { width: 0; height: 100%; background: var(--mint); border-radius: 999px; }
+
+/* ---------- HU_28: estadísticas de desempeño / HU_27: temas para reforzar ---------- */
+.perf {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 0;
+}
+
+.perf__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.perf-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 0.7rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  min-width: 0;
+}
+
+.perf-tile__val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.perf-tile__val.is-up { color: var(--success); }
+.perf-tile__val.is-down { color: var(--danger); }
+
+.perf-tile__lbl { font-size: 0.75rem; color: var(--muted); line-height: 1.25; }
+
+.perf__note,
+.perf__advice { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.perf__advice { color: var(--text); font-weight: 600; }
+
+.perf-chart {
+  margin: 0;
+  padding: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.perf-chart__cap { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+.perf-chart__cap span { font-weight: 500; color: var(--muted); }
+.perf-chart__svg { display: block; width: 100%; height: auto; max-width: 100%; overflow: visible; }
+.perf-chart__grid { stroke: var(--border); stroke-width: 1; }
+.perf-chart__pass { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 4; }
+.perf-chart__axis { fill: var(--muted); font-size: 10px; font-family: inherit; }
+.perf-chart__value { fill: var(--text); font-size: 11px; font-weight: 700; font-family: inherit; }
+.perf-chart__line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.perf-chart__dot { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+.perf-chart__dot.is-active { r: 6; }
+.perf-chart__hit { fill: transparent; cursor: pointer; outline: none; }
+.perf-chart__hit:focus-visible { stroke: var(--accent); stroke-width: 2; }
+.perf-chart__empty,
+.perf-chart__tip { margin: 0; font-size: 0.8rem; color: var(--muted); min-height: 1.1em; }
+
+.weak-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+
+.weak-row {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  min-width: 0;
+}
+.weak-row.is-weak { border-color: var(--danger); }
+
+.weak-row__head,
+.weak-row__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.weak-row__name { font-weight: 700; color: var(--text); min-width: 0; }
+.weak-row__pct { font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.weak-row.is-empty .weak-row__pct { color: var(--muted); }
+
+.weak-row__bar { height: 8px; border-radius: 999px; background: var(--surface-hi); overflow: hidden; }
+.weak-row__fill { width: 0; height: 100%; border-radius: 999px; background: var(--accent); }
+.weak-row.is-weak .weak-row__fill { background: var(--danger); }
+
+.weak-row__state { font-size: 0.8rem; color: var(--muted); }
+.weak-row.is-weak .weak-row__state { color: var(--danger); font-weight: 700; }
+.weak-row__go { font-size: 0.85rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+@media (max-width: 380px) {
+  .perf-tile__val { font-size: 1.1rem; }
+}
