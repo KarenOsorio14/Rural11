@@ -10,5 +10,15 @@
     "html_handling": "none"
   },
   // Conserva las variables creadas en el panel de Cloudflare al volver a desplegar.
-  "keep_vars": true
+  "keep_vars": true,
+  // HU-29: base de datos en línea (Cloudflare D1, plan gratis). El database_id lo da Cloudflare
+  // al crear la base "rural11-db"; no es un secreto. Las tablas están en la carpeta migrations.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "rural11-db",
+      "database_id": "60c55e62-46a1-40b2-8c1d-c9a97fc8c319",
+      "migrations_dir": "migrations"
+    }
+  ]
 }

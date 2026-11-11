@@ -4,8 +4,12 @@
 
 import { notify } from './notifications.js';
 import { evaluateAchievements } from '../modules/gamification/gamification.service.js';
+import { sincronizarAvance } from '../modules/cloud/nube.js';
 
 export async function checkAchievements(userId) {
+  // HU-29: cada vez que se revisan los logros (al terminar una actividad o al abrir el inicio)
+  // se suben al servidor las actividades nuevas. No se espera: sin internet se reintenta después.
+  sincronizarAvance(userId).catch((error) => console.warn('No se pudo sincronizar el avance:', error));
   try {
     const earned = await evaluateAchievements(userId);
     const badges = earned.filter((item) => item.kind === 'badge');

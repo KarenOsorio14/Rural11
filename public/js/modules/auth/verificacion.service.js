@@ -1,5 +1,6 @@
 'use strict';
-// Verificación del correo (HU-00): pide el correo a la función de Netlify y marca la cuenta como verificada.
+// Verificación del correo (HU-00): pide el correo al Worker y marca la cuenta como verificada
+// (HU-29: en la cuenta en línea, así el enlace sirve desde cualquier dispositivo).
 
 import { users } from '../users/index.js';
 
@@ -35,7 +36,7 @@ export async function solicitarVerificacion({ email, nombre }) {
 }
 
 /**
- * Comprueba el enlace del correo y marca la cuenta como verificada en este navegador.
+ * Comprueba el enlace del correo y marca la cuenta como verificada (en línea y en este navegador).
  * Estados: verificado | ya-verificado | sin-cuenta-aqui | invalido | expirado | sin-conexion | error
  */
 export async function confirmarVerificacion(token) {
@@ -49,10 +50,15 @@ export async function confirmarVerificacion(token) {
   }
   const email = String(r.datos.email).toLowerCase();
   const cuenta = await users.findByEmail(email);
+  if (cuenta && !cuenta.emailVerified) {
+    await users.update({ ...cuenta, emailVerified: true, emailVerifiedAt: new Date().toISOString() });
+  }
+  if (r.datos.enLinea) {
+    // HU-29: la cuenta en línea ya quedó verificada, sin importar en qué dispositivo se abrió el enlace.
+    return { estado: r.datos.yaVerificado ? 'ya-verificado' : 'verificado', email };
+  }
   if (!cuenta) return { estado: 'sin-cuenta-aqui', email };
-  if (cuenta.emailVerified) return { estado: 'ya-verificado', email };
-  await users.update({ ...cuenta, emailVerified: true, emailVerifiedAt: new Date().toISOString() });
-  return { estado: 'verificado', email };
+  return { estado: cuenta.emailVerified ? 'ya-verificado' : 'verificado', email };
 }
 
 /** Texto para el estudiante según el motivo por el que no se pudo enviar el correo. */

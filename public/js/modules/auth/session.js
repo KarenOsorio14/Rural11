@@ -15,13 +15,15 @@ const DURATION = {
   // Si el usuario SÍ marcó "recordarme": la sesión dura 30 días (30 * 24 horas).
 };
 
-export async function start(userId, remember) {
+export async function start(userId, remember, token = null) {
   // Crea (o reemplaza) la sesión activa para un usuario dado.
   const duration = remember ? DURATION.remembered : DURATION.temporary;
   // Elige la duración según si se pidió "recordar" o no.
   const expiresAt = Date.now() + duration;
   // Calcula el timestamp exacto (ms) en el que la sesión expirará.
-  await dbPut('session', { key: KEY, userId, remember: Boolean(remember), expiresAt });
+  await dbPut('session', { key: KEY, userId, remember: Boolean(remember), expiresAt, token: token || null });
+  // HU-29: "token" es la llave firmada por el servidor para guardar y leer el avance en línea
+  // (null si la sesión se abrió sin conexión).
   // Guarda (o sobrescribe, porque es "put") el registro de sesión en el almacén "session",
   // usando siempre la misma clave KEY ('current'). Incluye el id de usuario, si es
   // persistente (remember) y cuándo expira.
@@ -62,4 +64,10 @@ export async function current() {
 
   return { status: 'active', record };
   // Si sigue vigente, se devuelve el registro completo junto con el estado "active".
+}
+
+/** HU-29: token de la sesión en línea, o null si la sesión se abrió sin conexión. */
+export async function token() {
+  const record = await dbGet('session', KEY);
+  return record && record.expiresAt > Date.now() ? record.token || null : null;
 }
