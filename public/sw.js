@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v27';
+const VERSION = 'v28';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -69,6 +69,7 @@ const SHELL = [
   '/js/modules/gamification/gamification.repository.js',
   '/js/modules/gamification/gamification.service.js',
   '/js/modules/performance/performance.service.js',
+  '/js/modules/cloud/nube.js',
   '/js/core/errors.js',
   '/js/core/form.js',
   '/js/core/notifications.js',

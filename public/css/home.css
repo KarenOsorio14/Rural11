@@ -828,3 +828,29 @@ a.rm-node:focus-visible .rm-disc { stroke: var(--text); stroke-width: 4; }
 @media (max-width: 380px) {
   .perf-tile__val { font-size: 1.1rem; }
 }
+
+/* ---------- HU_23 / HU_24: tabla de posiciones y comparación ---------- */
+.perf__tiles--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rank__status { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.rank__body { display: grid; gap: 0.6rem; min-width: 0; }
+
+.rank-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.rank-row {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+}
+.rank-row.is-me { border-color: var(--accent); background: var(--accent-soft); }
+.rank-row.is-gap { margin-top: 0.4rem; }
+.rank-row__pos { font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rank-row.is-me .rank-row__pos { color: var(--accent); }
+.rank-row__name { font-weight: 700; color: var(--text); min-width: 0; overflow-wrap: anywhere; }
+.rank-row__pts { font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.rank__hide { display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.85rem; color: var(--muted); cursor: pointer; }
+.rank__hide input { margin-top: 0.15rem; accent-color: var(--accent); }
