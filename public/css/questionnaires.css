@@ -159,9 +159,13 @@
   user-select: none;
 }
 
-.q-option:hover {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+/* El resaltado al pasar el mouse solo en computador: en celulares (sobre todo iPhone) el :hover
+   se queda pegado en la opción que estaba bajo el dedo y parecía que había dos respuestas marcadas. */
+@media (hover: hover) and (pointer: fine) {
+  .q-option:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
 }
 
 .q-option input[type="radio"] {
