@@ -182,6 +182,41 @@
           </div>
         </section>
 
+        <!-- HU_28: estadísticas de desempeño -->
+        <section class="perf" aria-labelledby="perf-title">
+          <h2 class="color-picker__title" id="perf-title">Mi desempeño</h2>
+          <p class="color-picker__hint">Se actualiza solo cada vez que terminas una actividad.</p>
+          <div class="perf__tiles">
+            <div class="perf-tile">
+              <span class="perf-tile__val" id="perf-best">0%</span>
+              <span class="perf-tile__lbl">Mejor puntaje</span>
+            </div>
+            <div class="perf-tile">
+              <span class="perf-tile__val" id="perf-sims">0</span>
+              <span class="perf-tile__lbl">Simulacros realizados</span>
+            </div>
+            <div class="perf-tile">
+              <span class="perf-tile__val" id="perf-trend">—</span>
+              <span class="perf-tile__lbl" id="perf-trend-lbl">Mejora</span>
+            </div>
+          </div>
+          <p class="perf__note" id="perf-trend-note"></p>
+          <figure class="perf-chart" id="perf-chart-box">
+            <figcaption class="perf-chart__cap">Evolución de tu puntaje <span id="perf-chart-sub"></span></figcaption>
+            <div class="perf-chart__plot" id="perf-chart"></div>
+            <p class="perf-chart__empty" id="perf-chart-empty" hidden>Cuando completes tu primera actividad, aquí verás cómo evoluciona tu puntaje.</p>
+            <p class="perf-chart__tip" id="perf-chart-tip" aria-live="polite"></p>
+          </figure>
+        </section>
+
+        <!-- HU_27: temas con menor rendimiento -->
+        <section class="perf" aria-labelledby="weak-title">
+          <h2 class="color-picker__title" id="weak-title">Temas para reforzar</h2>
+          <p class="color-picker__hint">Tu porcentaje de aciertos en cada tema, de menor a mayor.</p>
+          <p class="perf__advice" id="weak-advice"></p>
+          <ul class="weak-list" id="weak-list"></ul>
+        </section>
+
         <section class="achievements" aria-labelledby="badges-title">
           <h2 class="color-picker__title" id="badges-title">Insignias <span class="achievements__count" id="badges-count"></span></h2>
           <p class="color-picker__hint">Se ganan solas al cumplir objetivos de práctica.</p>
