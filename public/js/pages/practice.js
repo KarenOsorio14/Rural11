@@ -4,6 +4,7 @@ import '../core/pwa.js';
 import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
+import { checkAchievements } from '../core/achievements-notify.js';
 import { friendlyMessage } from '../core/errors.js';
 import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -289,6 +290,7 @@ function renderQuestion() {
 async function finishQuiz() {
   try {
     const result = await evaluateAndSaveAttempt(currentUser.id, currentQuiz.id, userAnswers);
+    checkAchievements(currentUser.id);
 
     const scoreClass = result.passed ? 'q-score-badge--pass' : 'q-score-badge--fail';
     const statusText = result.passed ? '¡Aprobado con éxito!' : 'No alcanzaste el puntaje mínimo';

@@ -6,6 +6,7 @@ import '../core/pwa.js';
 import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash } from '../core/notifications.js';
+import { checkAchievements } from '../core/achievements-notify.js';
 import { friendlyMessage } from '../core/errors.js';
 import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -257,6 +258,7 @@ async function finalizar() {
   };
   try {
     estado.resultado = await saveAttempt(intento);
+    checkAchievements(estado.usuario.id);
   } catch (error) {
     estado.resultado = intento; // se muestra igual aunque no se haya podido guardar
     notify({ type: 'warning', title: 'No se guardó el resultado', message: friendlyMessage(error) });
