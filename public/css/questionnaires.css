@@ -401,3 +401,11 @@
 
 /* Grano de cada tema en las tarjetas de práctica */
 .q-card__grano { width: auto; height: 6rem; max-width: 45%; object-fit: contain; }
+
+/* Botón "Siguiente nivel" al aprobar un cuestionario de la ruta */
+.q-results__next { text-decoration: none; }
+@media (max-width: 600px) {
+  .q-results__footer { flex-direction: column; }
+  .q-results__footer .btn { width: 100%; justify-content: center; }
+  .q-results__next { order: -1; }
+}

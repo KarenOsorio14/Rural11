@@ -12,6 +12,7 @@ import {
   TOPICS,
   getQuestionnairesList,
   getQuestionnaireById,
+  getNextRouteStep,
   evaluateAndSaveAttempt,
   getUserAttempts
 } from '../modules/questionnaires/questionnaires.service.js';
@@ -292,6 +293,20 @@ async function finishQuiz() {
     const result = await evaluateAndSaveAttempt(currentUser.id, currentQuiz.id, userAnswers);
     checkAchievements(currentUser.id);
 
+    // Si aprobó, se ofrece pasar directo al siguiente nivel de la ruta, sin volver al inicio.
+    let next = null;
+    if (result.passed) {
+      const step = await getNextRouteStep(currentUser.id);
+      next = step
+        ? {
+            href: `/practice.html?topic=${encodeURIComponent(step.topic.id)}&quiz=${encodeURIComponent(step.quiz.id)}`,
+            label: step.topic.id === currentTopic.id
+              ? `Siguiente nivel: ${step.quiz.shortTitle || 'Repaso general'}`
+              : `Siguiente tema: ${step.topic.category}`,
+          }
+        : { href: '/', label: 'Ruta completada: ver mi ruta' };
+    }
+
     const scoreClass = result.passed ? 'q-score-badge--pass' : 'q-score-badge--fail';
     const statusText = result.passed ? '¡Aprobado con éxito!' : 'No alcanzaste el puntaje mínimo';
     const statusDesc = result.passed
@@ -362,9 +377,10 @@ async function finishQuiz() {
           <button class="btn btn--ghost" id="q-btn-return-catalog">
             ${ICON_BACK} Volver a cuestionarios de este tema
           </button>
-          <button class="btn btn--primary" id="q-btn-retry">
+          <button class="btn ${next ? 'btn--ghost' : 'btn--primary'}" id="q-btn-retry">
             Reintentar este cuestionario
           </button>
+          ${next ? `<a class="btn btn--primary q-results__next" id="q-btn-next-level" href="${next.href}">${next.label} ${ICON_NEXT}</a>` : ''}
         </div>
       </div>
     `;
