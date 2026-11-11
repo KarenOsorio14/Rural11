@@ -2,7 +2,8 @@
 //
 // Dos acciones (POST con JSON):
 //   { accion: 'enviar', email, nombre }  -> manda al correo un enlace firmado que dura 48 horas.
-//   { accion: 'validar', token }         -> comprueba la firma y la fecha del enlace.
+//   { accion: 'validar', token }         -> comprueba la firma y la fecha del enlace y, si la base en
+//                                           línea está conectada (HU-29), marca la cuenta como verificada.
 //
 // El enlace lleva el correo y la fecha de vencimiento firmados con HMAC-SHA256, así que no hace
 // falta base de datos: nadie puede fabricar ni cambiar un enlace sin conocer VERIFY_SECRET.
@@ -78,12 +79,12 @@ function contenidoCorreo({ nombre, enlace }) {
   const saludo = nombre ? `Hola, ${nombre}` : 'Hola';
   return {
     subject: 'Verifica tu correo en Rural 11',
-    textContent: `${saludo}.\n\nPara terminar de crear tu cuenta en Rural 11, verifica tu correo abriendo este enlace (vale 48 horas):\n${enlace}\n\nÁbrelo en el mismo navegador donde te registraste.\nSi no creaste la cuenta, ignora este mensaje.`,
+    textContent: `${saludo}.\n\nPara terminar de crear tu cuenta en Rural 11, verifica tu correo abriendo este enlace (vale 48 horas):\n${enlace}\n\nPuedes abrirlo desde cualquier celular o computador.\nSi no creaste la cuenta, ignora este mensaje.`,
     htmlContent: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;color:#2B2118">
 <h2 style="margin:0 0 12px">${escapar(saludo)}</h2>
 <p>Para terminar de crear tu cuenta en <strong>Rural 11</strong>, verifica tu correo (el enlace vale 48 horas):</p>
 <p><a href="${escapar(enlace)}" style="display:inline-block;padding:12px 20px;background:#C4532D;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Verificar mi correo</a></p>
-<p style="font-size:13px;color:#6A5946">Ábrelo en el mismo navegador donde te registraste. Si no creaste la cuenta, ignora este mensaje.</p>
+<p style="font-size:13px;color:#6A5946">Puedes abrirlo desde cualquier celular o computador. Si no creaste la cuenta, ignora este mensaje.</p>
 </div>`,
   };
 }
@@ -115,6 +116,18 @@ export async function onRequest({ request, env }) {
 
   if (datos.accion === 'validar') {
     const lectura = await leerToken(datos.token, secreto);
+    if (lectura.ok && env.DB) {
+      // HU-29: la verificación queda guardada en la cuenta en línea, sin importar el dispositivo.
+      try {
+        const cambio = await env.DB.prepare('UPDATE usuarios SET verificado = 1 WHERE correo = ?1 AND verificado = 0')
+          .bind(lectura.email).run();
+        const existe = await env.DB.prepare('SELECT 1 FROM usuarios WHERE correo = ?1').bind(lectura.email).first();
+        lectura.enLinea = Boolean(existe);
+        lectura.yaVerificado = Boolean(existe) && !(cambio.meta && cambio.meta.changes);
+      } catch (error) {
+        console.error('No se pudo marcar el correo como verificado:', error && error.message);
+      }
+    }
     return responder(lectura.ok ? 200 : 400, lectura);
   }
 
