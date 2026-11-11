@@ -10,6 +10,10 @@ import { hashPassword, verifyPassword } from './password.js';
 // Importa las funciones para crear y verificar hashes de contraseña (PBKDF2).
 import * as sessions from './session.js';
 // Importa TODO el módulo de sesiones como un objeto "sessions" (sessions.start, sessions.end, sessions.current).
+import { llamar, sinServidor, descargarAvance, sincronizarAvance } from '../cloud/nube.js';
+import { dbGetAllByIndex, dbPut, dbDelete } from '../../core/db.js';
+// HU-29: las cuentas viven en la base de datos en línea. En este navegador se guarda una copia
+// (con su propio hash de la contraseña) para poder entrar sin conexión.
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
@@ -86,6 +90,14 @@ function recordFailedAttempt() {
     }
   } catch {}
   // Si localStorage falla, no se rompe la app; simplemente no se registra el intento.
+}
+
+/** HU-29: aplica en esta página el bloqueo que decidió el servidor. */
+function lockFor(seconds) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.FAILED_ATTEMPTS, String(MAX_FAILED_ATTEMPTS));
+    localStorage.setItem(STORAGE_KEYS.LOCKOUT_UNTIL, String(Date.now() + Math.max(1, Number(seconds) || 60) * 1000));
+  } catch {}
 }
 
 function resetFailedAttempts() {
@@ -186,15 +198,32 @@ export async function register({ documentNumber, email, firstName, lastName, pas
   }
   assertPasswordRules(password, 'password');
 
-  // Comprobación explícita de duplicados. Así la app sigue siendo segura aunque
-  // una base antigua tenga índices no únicos (por ejemplo, tras una migración).
+  // Comprobación explícita de duplicados en este navegador (cuentas viejas que solo existían aquí).
   const existing = await users.findByDocument(cleanDoc) || await users.findByEmail(cleanEmail);
   if (existing) {
     throw new AppError('EMAIL_TAKEN', 'Ya existe una cuenta con este número de identidad o correo.', 'documentNumber');
   }
 
+  // HU-29: la cuenta se crea en la base de datos en línea.
+  const r = await llamar('/api/cuentas', {
+    accion: 'registro', documento: cleanDoc, correo: cleanEmail, nombres: cleanFirst, apellidos: cleanLast, clave: password,
+  });
+  let id = crypto.randomUUID();
+  if (r.status === 201 && r.datos && r.datos.ok) {
+    id = r.datos.usuario.id;
+  } else if (r.status === 409) {
+    throw new AppError('EMAIL_TAKEN', 'Ya existe una cuenta con este número de identidad o correo.', 'documentNumber');
+  } else if (r.status === 400 && r.datos && r.datos.motivo === 'validacion') {
+    throw new AppError('VALIDATION', r.datos.mensaje, r.datos.campo);
+  } else if (!r.red) {
+    throw new AppError('OFFLINE', 'Necesitas conexión a internet para crear tu cuenta.');
+  } else if (!sinServidor(r)) {
+    throw new AppError('SERVER', 'No se pudo crear la cuenta en este momento. Inténtalo de nuevo.');
+  }
+  // Si el sitio todavía no tiene la base en línea conectada (503), la cuenta queda solo en este navegador.
+
   const record = {
-    id: crypto.randomUUID(),
+    id,
     email: cleanEmail,
     documentNumber: cleanDoc,
     firstName: cleanFirst,
@@ -233,15 +262,92 @@ export async function resetPassword({ documentNumber, email, newPassword }) {
   }
   assertPasswordRules(newPassword, 'newPassword');
 
-  const user = await users.findByDocument(cleanDoc);
-  // Mensaje genérico: no se revela si el documento existe o si fue el correo el que no coincide.
-  if (!user || normalizeEmail(user.email) !== cleanEmail) {
-    throw new AppError('NO_MATCH', 'Los datos no coinciden con ninguna cuenta.');
+  // HU-29: la contraseña se cambia en la cuenta en línea.
+  const r = await llamar('/api/cuentas', { accion: 'restablecer', documento: cleanDoc, correo: cleanEmail, clave: newPassword });
+  if (r.status === 404) throw new AppError('NO_MATCH', 'Los datos no coinciden con ninguna cuenta.');
+  if (r.status === 400 && r.datos && r.datos.motivo === 'validacion') {
+    throw new AppError('VALIDATION', r.datos.mensaje, r.datos.campo);
   }
+  if (!r.red) throw new AppError('OFFLINE', 'Necesitas conexión a internet para cambiar tu contraseña.');
+  const enLinea = r.status === 200;
+  if (!enLinea && !sinServidor(r)) throw new AppError('SERVER', 'No se pudo cambiar la contraseña en este momento.');
 
-  await users.update({ ...user, password: await hashPassword(newPassword) });
+  const user = await users.findByDocument(cleanDoc);
+  if (!enLinea) {
+    // Sitio sin base en línea: solo existe la copia de este navegador.
+    // Mensaje genérico: no se revela si el documento existe o si fue el correo el que no coincide.
+    if (!user || normalizeEmail(user.email) !== cleanEmail) {
+      throw new AppError('NO_MATCH', 'Los datos no coinciden con ninguna cuenta.');
+    }
+  }
+  if (user && normalizeEmail(user.email) === cleanEmail) {
+    await users.update({ ...user, password: await hashPassword(newPassword) });
+  }
   resetFailedAttempts(); // si estaba bloqueado por intentos fallidos, queda libre
   await sessions.end(); // se cierra cualquier sesión abierta con la contraseña anterior
+}
+
+/**
+ * HU-29: guarda en este navegador la copia de la cuenta que respondió el servidor.
+ * Si aquí existía una cuenta vieja con el mismo documento pero otro id, su avance pasa a la cuenta en línea.
+ */
+async function saveLocalCopy(remote, password) {
+  const viejo = await users.findByDocument(remote.documentNumber) || await users.findByEmail(remote.email);
+  if (viejo && viejo.id !== remote.id) {
+    const intentos = await dbGetAllByIndex('questionnaire_attempts', 'userId', viejo.id).catch(() => []);
+    for (const intento of intentos || []) await dbPut('questionnaire_attempts', { ...intento, userId: remote.id });
+    await dbDelete('users', viejo.id);
+  }
+  const actual = await users.findById(remote.id);
+  const record = {
+    ...(actual || {}),
+    id: remote.id,
+    email: remote.email,
+    documentNumber: remote.documentNumber,
+    firstName: remote.firstName,
+    lastName: remote.lastName,
+    name: remote.name,
+    emailVerified: Boolean(remote.emailVerified),
+    password: await hashPassword(password),
+    createdAt: (actual && actual.createdAt) || new Date().toISOString(),
+  };
+  await users.update(record);
+  return record;
+}
+
+/** Abre la sesión con el token del servidor y deja el avance igual en el servidor y en este dispositivo. */
+async function startOnlineSession(record, token, remember) {
+  resetFailedAttempts();
+  setRememberedIdentity(record.documentNumber, remember);
+  await sessions.start(record.id, Boolean(remember), token);
+  await descargarAvance(record.id, token);
+  await sincronizarAvance(record.id);
+  return users.toPublic(record);
+}
+
+/** Login sin la base en línea: igual que antes, con la copia de este navegador. */
+async function localLogin(cleanDoc, password, remember) {
+  const user = await users.findByDocument(cleanDoc);
+  const valid = user ? await verifyPassword(password, user.password) : false;
+  if (!valid) failLogin();
+  resetFailedAttempts();
+  setRememberedIdentity(cleanDoc, remember);
+  await sessions.start(user.id, Boolean(remember));
+  return users.toPublic(user);
+}
+
+/** Cuenta un intento fallido y lanza el error que corresponde (bloqueo o credenciales). */
+function failLogin() {
+  recordFailedAttempt();
+  const newLock = getLockoutStatus();
+  if (newLock.isLocked) {
+    throw new AppError(
+      'ACCOUNT_LOCKED',
+      `Has superado el límite de intentos fallidos. Acceso bloqueado por ${newLock.remainingSeconds} segundos.`
+    );
+  }
+  // Mismo mensaje si el número no existe o si la contraseña no coincide (HU-03).
+  throw new AppError('INVALID_CREDENTIALS', 'Credenciales incorrectas.');
 }
 
 export async function login({ documentNumber, password, remember }) {
@@ -278,43 +384,53 @@ export async function login({ documentNumber, password, remember }) {
     throw new AppError('VALIDATION', 'Campo obligatorio.', 'password');
   }
 
-  // 4. Búsqueda de usuario por número de identidad
-  const user = await users.findByDocument(cleanDoc);
-  // Busca en IndexedDB un usuario que tenga ese documento (o undefined/null si no existe).
+  // 4. HU-29: se valida contra la cuenta en línea.
+  const r = await llamar('/api/cuentas', { accion: 'login', documento: cleanDoc, clave: password });
 
-  // 5. Verificación de contraseña
-  const valid = user ? await verifyPassword(password, user.password) : false;
-  // Si el usuario existe, verifica la contraseña contra el hash guardado; si no existe, "valid" es false directamente
-  // (esto evita revelar si el documento existe o no, mismo mensaje de error en ambos casos).
-
-  // 6. Si las credenciales son incorrectas (número no registrado O contraseña inválida)
-  if (!valid) {
-    // Si la validación falló por cualquier motivo...
-    recordFailedAttempt();
-    // Registra un intento fallido más (puede activar el bloqueo).
-    const newLock = getLockoutStatus();
-    // Vuelve a consultar el estado de bloqueo (por si este intento activó el bloqueo).
-    if (newLock.isLocked) {
-      // Si justo con este intento se activó el bloqueo...
-      throw new AppError(
-        'ACCOUNT_LOCKED',
-        `Has superado el límite de intentos fallidos. Acceso bloqueado por ${newLock.remainingSeconds} segundos.`
-      );
-    }
-    throw new AppError('INVALID_CREDENTIALS', 'Credenciales incorrectas.');
-    // Si no se bloqueó todavía, informa credenciales incorrectas genéricas.
+  if (r.status === 200 && r.datos && r.datos.ok) {
+    const record = await saveLocalCopy(r.datos.usuario, password);
+    return startOnlineSession(record, r.datos.token, remember);
   }
 
-  // 7. Ingreso exitoso: restablecer intentos, guardar preferencia de recordar y crear sesión
-  resetFailedAttempts();
-  // Limpia el contador de fallos porque el login fue exitoso.
-  setRememberedIdentity(cleanDoc, remember);
-  // Guarda o borra el documento recordado según la preferencia del usuario.
-  await sessions.start(user.id, Boolean(remember));
-  // Crea la sesión en IndexedDB, indicando si debe durar más tiempo (remember=true) o menos.
+  if (r.status === 429 && r.datos) {
+    lockFor(r.datos.segundos);
+    throw new AppError(
+      'ACCOUNT_LOCKED',
+      `Has superado el límite de intentos fallidos. Acceso bloqueado por ${getLockoutStatus().remainingSeconds} segundos.`
+    );
+  }
 
-  return users.toPublic(user);
-  // Devuelve los datos públicos del usuario autenticado.
+  if (r.status === 400 && r.datos && r.datos.motivo === 'validacion') {
+    throw new AppError('VALIDATION', r.datos.mensaje, r.datos.campo);
+  }
+
+  if (r.status === 401) {
+    // La cuenta pudo haberse creado antes de HU-29 y existir solo en este navegador: si la contraseña
+    // coincide con esa copia, se sube al servidor con el mismo id (y su avance la acompaña).
+    const local = await users.findByDocument(cleanDoc);
+    if (local && await verifyPassword(password, local.password)) {
+      const [nombres, ...resto] = String(local.firstName ? local.firstName : local.name || '').split(' ');
+      const subida = await llamar('/api/cuentas', {
+        accion: 'registro',
+        id: local.id,
+        documento: cleanDoc,
+        correo: local.email,
+        nombres: local.firstName || nombres,
+        apellidos: local.lastName || resto.join(' ') || nombres,
+        clave: password,
+      });
+      if (subida.status === 201 && subida.datos && subida.datos.ok) {
+        const record = await saveLocalCopy(subida.datos.usuario, password);
+        return startOnlineSession(record, subida.datos.token, remember);
+      }
+    }
+    failLogin();
+  }
+
+  // 5. Sin conexión o sitio sin base en línea: se entra con la copia de este navegador.
+  if (sinServidor(r)) return localLogin(cleanDoc, password, remember);
+
+  throw new AppError('SERVER', 'No se pudo iniciar sesión en este momento. Inténtalo de nuevo.');
 }
 
 export async function logout() {
@@ -349,4 +465,18 @@ export async function getSession() {
     session: { persistent: result.record.remember, expiresAt: result.record.expiresAt },
     // Si la sesión es "recordada" (persistente) y cuándo expira.
   };
+}
+
+/** HU-29: actualiza la copia local con los datos de la cuenta en línea (por ejemplo, si ya verificó el correo). */
+export async function refreshAccount() {
+  const token = await sessions.token();
+  if (!token) return null;
+  const r = await llamar('/api/cuentas', { accion: 'yo', token });
+  if (!(r.status === 200 && r.datos && r.datos.ok)) return null;
+  const remote = r.datos.usuario;
+  const local = await users.findById(remote.id);
+  if (!local) return null;
+  const record = { ...local, email: remote.email, name: remote.name, firstName: remote.firstName, lastName: remote.lastName, emailVerified: remote.emailVerified };
+  await users.update(record);
+  return users.toPublic(record);
 }

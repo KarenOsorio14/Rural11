@@ -217,6 +217,31 @@
           <ul class="weak-list" id="weak-list"></ul>
         </section>
 
+        <!-- HU_23 y HU_24: tabla de posiciones y comparación con el grupo (datos en línea, HU_29) -->
+        <section class="perf" aria-labelledby="rank-title">
+          <h2 class="color-picker__title" id="rank-title">Tabla de posiciones</h2>
+          <p class="color-picker__hint">Puntos de los estudiantes de Rural 11. Solo se muestra el nombre y la inicial del apellido.</p>
+          <p class="rank__status" id="rank-status" aria-live="polite">Cargando…</p>
+          <div class="rank__body" id="rank-body" hidden>
+            <div class="perf__tiles perf__tiles--2">
+              <div class="perf-tile">
+                <span class="perf-tile__val" id="cmp-mine">—</span>
+                <span class="perf-tile__lbl">Tu promedio</span>
+              </div>
+              <div class="perf-tile">
+                <span class="perf-tile__val" id="cmp-all">—</span>
+                <span class="perf-tile__lbl" id="cmp-all-lbl">Promedio general</span>
+              </div>
+            </div>
+            <p class="perf__advice" id="cmp-note"></p>
+            <ol class="rank-list" id="rank-list"></ol>
+            <label class="rank__hide">
+              <input type="checkbox" id="rank-hide">
+              <span>Ocultarme de la tabla y de las comparaciones (yo sí veo mi posición)</span>
+            </label>
+          </div>
+        </section>
+
         <section class="achievements" aria-labelledby="badges-title">
           <h2 class="color-picker__title" id="badges-title">Insignias <span class="achievements__count" id="badges-count"></span></h2>
           <p class="color-picker__hint">Se ganan solas al cumplir objetivos de práctica.</p>

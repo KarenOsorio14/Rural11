@@ -11,7 +11,9 @@ import { showStorageRecovery } from '../core/storage-recovery.js';
 // Pantalla de recuperación si IndexedDB está bloqueado o dañado.
 import { friendlyMessage } from '../core/errors.js';
 // Convierte cualquier error en un mensaje seguro y amigable para mostrar al usuario.
-import { getSession, logout } from '../modules/auth/auth.service.js';
+import { getSession, logout, refreshAccount } from '../modules/auth/auth.service.js';
+import { obtenerRanking, obtenerComparacion, cambiarOculto } from '../modules/cloud/nube.js';
+// HU-29: datos en línea. HU-23 / HU-24: tabla de posiciones y comparación con el grupo.
 import { solicitarVerificacion, motivoLegible } from '../modules/auth/verificacion.service.js';
 // Funciones del servicio de autenticación: obtener sesión actual y cerrar sesión.
 import {
@@ -731,12 +733,100 @@ async function loadHomeData() {
     // 6. Insignias y recompensas (HU_21 / HU_22): se otorga lo pendiente y se pinta el estado.
     await checkAchievements(currentUser.id);
     renderAchievements(await getAchievementsOverview(currentUser.id));
+
+    // 7. Tabla de posiciones y comparación (HU_23 / HU_24). Necesitan internet; no bloquean lo demás.
+    renderRanking();
   } catch (error) {
     // Si el fallo es del almacenamiento local, se muestra la pantalla de recuperación.
     if (showStorageRecovery(error)) return;
     // Si cualquiera de las consultas anteriores falla...
     notify({ type: 'error', title: 'Error', message: 'No se pudieron cargar los datos de Ciencias Sociales.' });
     // Muestra una notificación de error genérica al usuario.
+  }
+}
+
+// ---------- HU_23 / HU_24: tabla de posiciones y comparación con el grupo ----------
+const MENSAJE_RANKING = {
+  'sin-conexion': 'Conéctate a internet para ver la tabla de posiciones.',
+  'sin-sesion': 'Cierra sesión y vuelve a entrar con internet para ver la tabla de posiciones.',
+  'sin-servidor': 'La tabla de posiciones estará disponible cuando el sitio tenga la base de datos en línea.',
+  error: 'No se pudo cargar la tabla de posiciones. Inténtalo más tarde.',
+};
+
+async function renderRanking() {
+  const status = document.getElementById('rank-status');
+  const body = document.getElementById('rank-body');
+  if (!status || !body) return;
+  const [ranking, cmp] = await Promise.all([obtenerRanking(), obtenerComparacion()]);
+  if (ranking.estado !== 'ok') {
+    status.textContent = MENSAJE_RANKING[ranking.estado] || MENSAJE_RANKING.error;
+    status.hidden = false;
+    body.hidden = true;
+    return;
+  }
+
+  // HU_24: comparación con el promedio general.
+  const mine = document.getElementById('cmp-mine');
+  const all = document.getElementById('cmp-all');
+  const note = document.getElementById('cmp-note');
+  if (cmp.estado === 'ok') {
+    mine.textContent = cmp.miPromedio === null ? '—' : `${cmp.miPromedio}%`;
+    all.textContent = cmp.promedioGeneral === null ? '—' : `${cmp.promedioGeneral}%`;
+    document.getElementById('cmp-all-lbl').textContent = `Promedio general (${cmp.estudiantes} ${cmp.estudiantes === 1 ? 'estudiante' : 'estudiantes'})`;
+    if (cmp.miPromedio === null) {
+      note.textContent = 'Termina una actividad para compararte con el grupo.';
+    } else if (cmp.promedioGeneral !== null) {
+      const d = cmp.miPromedio - cmp.promedioGeneral;
+      const pts = (n) => `${n} ${n === 1 ? 'punto' : 'puntos'}`;
+      note.textContent = d > 0 ? `Estás ${pts(d)} por encima del promedio general.`
+        : d < 0 ? `Estás ${pts(-d)} por debajo del promedio general. ¡Sigue practicando!`
+          : 'Estás justo en el promedio general.';
+    }
+  } else {
+    note.textContent = '';
+  }
+
+  // HU_23: tabla ordenada de mayor a menor puntaje; solo nombre + inicial y puntos.
+  const list = document.getElementById('rank-list');
+  let previa = 0;
+  list.innerHTML = ranking.tabla.map((fila) => {
+    const salto = fila.posicion > previa + 1 && previa > 0 && fila.soyYo;
+    previa = fila.posicion;
+    return `
+      <li class="rank-row${fila.soyYo ? ' is-me' : ''}${salto ? ' is-gap' : ''}">
+        <span class="rank-row__pos">${fila.posicion}.</span>
+        <span class="rank-row__name">${esc(fila.nombre)}${fila.soyYo ? ' (tú)' : ''}</span>
+        <span class="rank-row__pts">${fila.puntos.toLocaleString('es-CO')} pts</span>
+      </li>`;
+  }).join('');
+  if (!ranking.tabla.length) {
+    status.textContent = 'Todavía nadie tiene puntos. ¡Termina una actividad y sé el primero!';
+    status.hidden = false;
+  } else {
+    status.textContent = ranking.yo.posicion
+      ? `Vas en el puesto ${ranking.yo.posicion} de ${ranking.participantes}.`
+      : 'Aún no tienes puntos: termina una actividad para entrar a la tabla.';
+    status.hidden = false;
+  }
+  body.hidden = false;
+
+  // HU_24: ocultarse de las comparaciones públicas.
+  const hide = document.getElementById('rank-hide');
+  hide.checked = Boolean(ranking.yo.oculto);
+  if (!hide.dataset.listo) {
+    hide.dataset.listo = '1';
+    hide.addEventListener('change', async () => {
+      hide.disabled = true;
+      const r = await cambiarOculto(hide.checked);
+      hide.disabled = false;
+      if (r.estado !== 'ok') {
+        hide.checked = !hide.checked;
+        notify({ type: 'error', title: 'No se pudo guardar', message: MENSAJE_RANKING[r.estado] || MENSAJE_RANKING.error });
+        return;
+      }
+      notify({ type: 'success', title: r.oculto ? 'Ya no apareces' : 'Vuelves a aparecer', message: r.oculto ? 'Tus compañeros ya no te ven en la tabla ni en el promedio.' : 'Tus compañeros te verán en la tabla de posiciones.' });
+      renderRanking();
+    });
   }
 }
 
@@ -794,6 +884,10 @@ function renderSessionInfo({ user, session }) {
   // Elemento que muestra cuándo expira la sesión.
 
   renderVerificacion(user);
+  // HU-29: trae de la cuenta en línea si el correo ya se verificó (por ejemplo, desde otro dispositivo).
+  refreshAccount().then((fresh) => {
+    if (fresh) { currentUser = { ...currentUser, ...fresh }; renderVerificacion(fresh); }
+  }).catch(() => {});
   if (emailEl) emailEl.textContent = user.email;
   // Solo actualiza si el elemento existe en el DOM (defensivo, por si cambia el HTML).
   if (typeEl) {
