@@ -80,10 +80,6 @@ const seguidaCtaDesc = document.getElementById('seguidas-cta-desc');
 const TOPIC_GRANO = { historia: 'historiador', geografia: 'geografo', constitucion: 'abogado', sociedad: 'cultura' };
 const granoSrc = (topicId) => `/img/grano/3d/${TOPIC_GRANO[topicId] || 'idea'}.webp`;
 // Contenedor donde se inyectan las tarjetas de los 4 temas.
-const historyContainer = document.getElementById('q-history-container');
-// Contenedor (tabla) que se muestra u oculta según si hay historial.
-const historyTbody = document.getElementById('q-history-tbody');
-// Cuerpo de la tabla de historial, donde se inyectan las filas.
 
 const dateFormat = new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeStyle: 'short' });
 // Formateador de fechas en español (Colombia), con fecha larga y hora corta
@@ -683,43 +679,8 @@ async function loadHomeData() {
       .join('');
     // Une todas las tarjetas generadas en un solo string HTML y lo inyecta de una vez.
 
-    // 3. Renderizar historial general
-    if (history.length > 0) {
-      // Solo se construye la tabla si hay al menos un intento registrado.
-      historyTbody.innerHTML = history
-        .map((att) => {
-          // Por cada intento del historial, construye una fila de tabla.
-          const dateStr = dateFormat.format(new Date(att.createdAt));
-          // Formatea la fecha de creación del intento a texto legible en español.
-          // Color del texto de la insignia según si aprobó o no (variables CSS del tema).
-          // Color de fondo suave, a juego con el color de texto.
-          const statusText = att.passed ? 'Aprobado' : 'No aprobado';
-          // Texto descriptivo del resultado.
-
-          return `
-          <tr>
-            <td>
-              <strong>${att.questionnaireTitle || 'Cuestionario'}</strong>
-              <div class="cell-sub">${att.category || ''}</div>
-            </td>
-            <td>
-              <span class="pill ${att.passed ? 'pill--ok' : 'pill--bad'}">
-                ${att.percentage}% (${statusText})
-              </span>
-            </td>
-            <td>${att.correctCount} / ${att.totalQuestions}</td>
-            <td class="cell-date">${dateStr}</td>
-          </tr>
-        `;
-        })
-        .join('');
-      // Une todas las filas y las inyecta en el <tbody>.
-      historyContainer.hidden = false;
-      // Muestra el contenedor de la tabla (por si estaba oculto).
-    } else {
-      historyContainer.hidden = true;
-      // Si no hay historial, oculta la tabla completa.
-    }
+    // 3. Resultados anteriores (HU_26): todas las actividades, de la más reciente a la más antigua.
+    renderPastResults(history);
 
     // 4. Simulacros ICFES
     renderSimulacros(simulacros.list);
@@ -745,6 +706,133 @@ async function loadHomeData() {
   }
 }
 
+// ---------- HU_26: resultados anteriores ----------
+const PAST_PAGE = 15;
+let pastAll = [];
+let pastShown = 0;
+
+function attemptKind(att) {
+  if (att.isSimulacro) return 'Simulacro';
+  if (att.isSeguida) return 'Practica tus conocimientos';
+  if (att.questionnaireId === 'practica-libre') return 'Práctica libre';
+  return 'Cuestionario';
+}
+
+function attemptTitle(att) {
+  if (att.questionnaireId === 'practica-libre') return att.questionnaireTitle || 'Práctica libre';
+  if (att.isSeguida) return 'Preguntas seguidas';
+  return att.questionnaireTitle || att.category || 'Cuestionario';
+}
+
+/** Detalle de respuestas de un intento: se arma solo cuando el estudiante lo abre. */
+function reviewHtml(att) {
+  const items = Array.isArray(att.review) ? att.review : [];
+  if (!items.length) return '<p class="past-detail__empty">Este intento no guardó el detalle de las respuestas.</p>';
+  return `<ol class="past-detail">${items.map((r) => {
+    const options = Array.isArray(r.options) ? r.options : [];
+    const elegida = r.selectedIndex === null || r.selectedIndex === undefined ? null : options[r.selectedIndex];
+    const correcta = options[r.correctIndex];
+    return `
+      <li class="past-q ${r.isCorrect ? 'is-ok' : 'is-bad'}">
+        <p class="past-q__text">${esc(r.text || '')}</p>
+        <p class="past-q__line"><span class="past-q__tag">${r.isCorrect ? 'Correcta' : 'Incorrecta'}</span>
+          Tu respuesta: <strong>${elegida === null || elegida === undefined ? 'Sin responder' : esc(elegida)}</strong></p>
+        ${r.isCorrect || correcta === undefined ? '' : `<p class="past-q__line">Respuesta correcta: <strong>${esc(correcta)}</strong></p>`}
+        ${r.explanation ? `<p class="past-q__why">${esc(r.explanation)}</p>` : ''}
+      </li>`;
+  }).join('')}</ol>`;
+}
+
+function pastItemHtml(att, index) {
+  const fecha = dateFormat.format(new Date(att.createdAt));
+  return `
+    <li class="past-item">
+      <div class="past-item__head">
+        <div class="past-item__info">
+          <span class="past-item__kind">${attemptKind(att)}</span>
+          <span class="past-item__title">${esc(attemptTitle(att))}</span>
+          <span class="past-item__date">${fecha}</span>
+        </div>
+        <div class="past-item__score">
+          <span class="pill ${att.passed ? 'pill--ok' : 'pill--bad'}">${att.percentage}% · ${att.passed ? 'Aprobado' : 'No aprobado'}</span>
+          <span class="past-item__hits">${att.correctCount} de ${att.totalQuestions} correctas</span>
+        </div>
+      </div>
+      <details class="past-item__more" data-index="${index}">
+        <summary>Ver mis respuestas</summary>
+        <div class="past-item__detail"></div>
+      </details>
+    </li>`;
+}
+
+function showMorePast() {
+  const list = document.getElementById('past-list');
+  const next = pastAll.slice(pastShown, pastShown + PAST_PAGE);
+  list.insertAdjacentHTML('beforeend', next.map((att, i) => pastItemHtml(att, pastShown + i)).join(''));
+  pastShown += next.length;
+  document.getElementById('past-more').hidden = pastShown >= pastAll.length;
+}
+
+function renderPastResults(history) {
+  const list = document.getElementById('past-list');
+  if (!list) return;
+  // getUserAttempts ya trae solo los intentos del estudiante autenticado, del más reciente al más antiguo.
+  pastAll = history;
+  pastShown = 0;
+  list.innerHTML = '';
+  document.getElementById('past-empty').hidden = history.length > 0;
+  showMorePast();
+  if (!list.dataset.listo) {
+    list.dataset.listo = '1';
+    list.addEventListener('toggle', (event) => {
+      const det = event.target;
+      if (!det.matches || !det.matches('.past-item__more') || !det.open) return;
+      const box = det.querySelector('.past-item__detail');
+      if (!box.dataset.listo) {
+        box.innerHTML = reviewHtml(pastAll[Number(det.dataset.index)]);
+        box.dataset.listo = '1';
+      }
+    }, true);
+    document.getElementById('past-more').addEventListener('click', showMorePast);
+  }
+}
+
+// ---------- HU_25: posición del estudiante, destacada en la Ruta ----------
+function renderPositionCard(ranking) {
+  const card = document.getElementById('pos-card');
+  if (!card) return;
+  if (ranking.estado !== 'ok' || !ranking.yo || !ranking.yo.posicion) {
+    card.hidden = true;
+    return;
+  }
+  const { posicion, variacion, posicionAnterior } = ranking.yo;
+  document.getElementById('pos-card-pos').textContent = `#${posicion}`;
+  document.getElementById('pos-card-of').textContent = ` de ${ranking.participantes} ${ranking.participantes === 1 ? 'estudiante' : 'estudiantes'}`;
+  const trend = document.getElementById('pos-card-trend');
+  trend.classList.remove('is-up', 'is-down');
+  const puestos = (n) => `${n} ${n === 1 ? 'puesto' : 'puestos'}`;
+  if (posicionAnterior === null) {
+    trend.textContent = 'Entraste a la tabla esta semana.';
+  } else if (variacion > 0) {
+    trend.textContent = `Subiste ${puestos(variacion)} esta semana.`;
+    trend.classList.add('is-up');
+  } else if (variacion < 0) {
+    trend.textContent = `Bajaste ${puestos(-variacion)} esta semana. ¡Practica para recuperarlos!`;
+    trend.classList.add('is-down');
+  } else {
+    trend.textContent = 'Sigues en el mismo puesto que la semana pasada.';
+  }
+  card.hidden = false;
+  const go = document.getElementById('pos-card-go');
+  if (!go.dataset.listo) {
+    go.dataset.listo = '1';
+    go.addEventListener('click', () => {
+      showTab('perfil');
+      document.getElementById('rank-title').scrollIntoView({ block: 'start' });
+    });
+  }
+}
+
 // ---------- HU_23 / HU_24: tabla de posiciones y comparación con el grupo ----------
 const MENSAJE_RANKING = {
   'sin-conexion': 'Conéctate a internet para ver la tabla de posiciones.',
@@ -758,6 +846,7 @@ async function renderRanking() {
   const body = document.getElementById('rank-body');
   if (!status || !body) return;
   const [ranking, cmp] = await Promise.all([obtenerRanking(), obtenerComparacion()]);
+  renderPositionCard(ranking); // HU_25
   if (ranking.estado !== 'ok') {
     status.textContent = MENSAJE_RANKING[ranking.estado] || MENSAJE_RANKING.error;
     status.hidden = false;
