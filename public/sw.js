@@ -2,9 +2,6 @@
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
 const VERSION = 'v33';
-const CACHE = `shell-${VERSION}`;
-
-const SHELL = [
   '/',
   '/bienvenida.html',
   '/js/pages/bienvenida.js',
