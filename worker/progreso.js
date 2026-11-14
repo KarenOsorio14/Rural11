@@ -2,7 +2,7 @@
 // Atiende POST /api/progreso con una "accion" y el token de sesión:
 //   subir        { token, intentos: [...] }  -> { ok, guardados }   guarda o actualiza actividades terminadas
 //   bajar        { token }                   -> { ok, intentos }    todas las actividades del estudiante
-//   ranking      { token }                   -> { ok, tabla, yo, participantes }          (HU-23)
+//   ranking      { token }                   -> { ok, tabla, yo, participantes }          (HU-23 / HU-25)
 //   comparacion  { token }                   -> { ok, miPromedio, promedioGeneral, ... }  (HU-24)
 
 import { responder, mismoSitio, leerJson, servidorListo, usuarioDeSesion } from './comun.js';
@@ -57,38 +57,55 @@ async function bajar(env, usuarioId) {
   return responder(200, { ok: true, intentos });
 }
 
+const PERIODO_MS = 7 * 24 * 60 * 60 * 1000; // HU-25: la variación se mide contra hace una semana
+
+/** Ordena de mayor a menor y asigna puesto tipo competencia: empates comparten puesto (1, 2, 2, 4). */
+function conPuestos(filas, campo) {
+  const ordenadas = [...filas].sort((a, b) => numero(b[campo]) - numero(a[campo])
+    || String(a.nombres).localeCompare(String(b.nombres), 'es'));
+  let puesto = 0;
+  let anterior = null;
+  return ordenadas.map((f, i) => {
+    if (numero(f[campo]) !== anterior) { puesto = i + 1; anterior = numero(f[campo]); }
+    return { ...f, puesto };
+  });
+}
+
 async function ranking(env, usuarioId) {
+  const corte = new Date(Date.now() - PERIODO_MS).toISOString();
   const { results } = await env.DB.prepare(
-    `SELECT u.id, u.nombres, u.apellidos, u.oculto, COALESCE(SUM(i.puntos), 0) AS puntos
+    `SELECT u.id, u.nombres, u.apellidos, u.oculto,
+            COALESCE(SUM(i.puntos), 0) AS puntos,
+            COALESCE(SUM(CASE WHEN i.creado < ?1 THEN i.puntos ELSE 0 END), 0) AS puntos_antes
      FROM usuarios u LEFT JOIN intentos i ON i.usuario_id = u.id
      GROUP BY u.id`
-  ).all();
+  ).bind(corte).all();
   const filas = results || [];
   // Participan quienes ya tienen puntos y no pidieron ocultarse (HU-24). El propio estudiante
   // siempre conoce su posición, aunque esté oculto para los demás.
-  const participan = filas
-    .filter((f) => numero(f.puntos) > 0 && (!f.oculto || f.id === usuarioId))
-    .sort((a, b) => numero(b.puntos) - numero(a.puntos) || String(a.nombres).localeCompare(String(b.nombres), 'es'));
+  const cuenta = (f) => !f.oculto || f.id === usuarioId;
+  const conPuesto = conPuestos(filas.filter((f) => numero(f.puntos) > 0 && cuenta(f)), 'puntos');
+  // HU-25: posición que tenía hace una semana, con los puntos que llevaba en ese momento.
+  const antes = conPuestos(filas.filter((f) => numero(f.puntos_antes) > 0 && cuenta(f)), 'puntos_antes');
 
-  // Posición tipo competencia: empates comparten puesto (1, 2, 2, 4).
-  let puesto = 0;
-  let anterior = null;
-  const conPuesto = participan.map((f, i) => {
-    if (numero(f.puntos) !== anterior) { puesto = i + 1; anterior = numero(f.puntos); }
-    return { ...f, puesto };
-  });
-
-  const visibles = conPuesto.filter((f) => !f.oculto || f.id === usuarioId);
-  const tabla = visibles.slice(0, TAMANO_TABLA).map((f) => ({
+  const tabla = conPuesto.slice(0, TAMANO_TABLA).map((f) => ({
     posicion: f.puesto,
     nombre: nombreCorto(f.nombres, f.apellidos),
     puntos: numero(f.puntos),
     soyYo: f.id === usuarioId,
   }));
   const mio = conPuesto.find((f) => f.id === usuarioId);
+  const mioAntes = antes.find((f) => f.id === usuarioId);
   const yo = mio
-    ? { posicion: mio.puesto, puntos: numero(mio.puntos), oculto: Boolean(mio.oculto) }
-    : { posicion: null, puntos: 0, oculto: Boolean((filas.find((f) => f.id === usuarioId) || {}).oculto) };
+    ? {
+        posicion: mio.puesto,
+        puntos: numero(mio.puntos),
+        oculto: Boolean(mio.oculto),
+        posicionAnterior: mioAntes ? mioAntes.puesto : null,
+        // Positivo: subió puestos; negativo: bajó; null: hace una semana todavía no tenía puntos.
+        variacion: mioAntes ? mioAntes.puesto - mio.puesto : null,
+      }
+    : { posicion: null, puntos: 0, oculto: Boolean((filas.find((f) => f.id === usuarioId) || {}).oculto), posicionAnterior: null, variacion: null };
   if (mio && !tabla.some((f) => f.soyYo)) {
     // Si el estudiante no alcanza a salir en las primeras filas, se agrega al final para que se vea.
     tabla.push({ posicion: mio.puesto, nombre: nombreCorto(mio.nombres, mio.apellidos), puntos: numero(mio.puntos), soyYo: true });

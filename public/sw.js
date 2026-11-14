@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v30';
+const VERSION = 'v33';
 const CACHE = `shell-${VERSION}`;
 
 const SHELL = [
@@ -20,6 +20,8 @@ const SHELL = [
   '/img/grano/3d/nervioso.webp',
   '/img/grano/3d/estudia.webp',
   '/img/grano/grano-lupa.webp',
+  '/img/escena-dia.svg',
+  '/img/escena-noche.svg',
   '/img/grano/3d/estrella.webp',
   '/img/grano/alegre.webp',
   '/img/grano/cafe.webp',
