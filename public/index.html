@@ -53,6 +53,16 @@
           </div>
         </div>
 
+        <!-- HU_25: posición del estudiante en el ranking, destacada en la Ruta -->
+        <section class="pos-card" id="pos-card" aria-labelledby="pos-card-title" hidden>
+          <div class="pos-card__main">
+            <span class="pos-card__kicker" id="pos-card-title">Tu posición</span>
+            <span class="pos-card__value"><span id="pos-card-pos">—</span><span class="pos-card__of" id="pos-card-of"></span></span>
+            <span class="pos-card__trend" id="pos-card-trend"></span>
+          </div>
+          <button type="button" class="btn btn--ghost pos-card__go" id="pos-card-go">Ver tabla completa</button>
+        </section>
+
         <div class="ruta-grid">
           <div class="route-card">
             <svg class="route-card__svg" id="route-svg" viewBox="0 0 320 960" role="img"
@@ -260,22 +270,14 @@
           <div class="color-picker__list" role="radiogroup" aria-labelledby="color-picker-title" data-color-picker></div>
         </section>
 
-        <details class="q-history" id="q-history-container" hidden>
-          <summary class="summary-title">Historial de cuestionarios realizados</summary>
-          <div class="table-scroll mt-075">
-            <table class="q-history__table">
-              <thead>
-                <tr>
-                  <th>Cuestionario</th>
-                  <th>Calificación</th>
-                  <th>Aciertos</th>
-                  <th>Fecha</th>
-                </tr>
-              </thead>
-              <tbody id="q-history-tbody"></tbody>
-            </table>
-          </div>
-        </details>
+        <!-- HU_26: resultados anteriores (cuestionarios, simulacros y prácticas), con el detalle de respuestas -->
+        <section class="perf" aria-labelledby="past-title">
+          <h2 class="color-picker__title" id="past-title">Mis resultados anteriores</h2>
+          <p class="color-picker__hint">Del más reciente al más antiguo. Toca "Ver mis respuestas" para repasar un intento.</p>
+          <p class="perf__note" id="past-empty" hidden>Aún no tienes resultados. Cuando termines un cuestionario, un simulacro o una práctica, aparecerá aquí.</p>
+          <ul class="past-list" id="past-list"></ul>
+          <button type="button" class="btn btn--ghost" id="past-more" hidden>Ver más resultados</button>
+        </section>
 
         <details class="session">
           <summary class="summary-muted">Información de sesión y dispositivo</summary>
