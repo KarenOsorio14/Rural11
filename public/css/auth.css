@@ -6,6 +6,7 @@
   --w-title: #1E1B2E;
   --w-text: #FFF8EC;
   --w-ray: #FFC93C;
+  --w-scene: url('/img/escena-dia.svg');
   background: var(--w-top);
 }
 
@@ -13,6 +14,7 @@
   --w-top: #17153B;
   --w-bottom: #2D2878;
   --w-title: #FFF8EC;
+  --w-scene: url('/img/escena-noche.svg');
 }
 
 .auth { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
@@ -25,8 +27,12 @@
   align-items: center;
   gap: 0.5rem;
   padding: max(1rem, env(safe-area-inset-top)) 1.5rem 2.5rem;
-  background: var(--w-top);
+  /* Paisaje del campo detrás de Grano: cielo, montañas, camino y la escuela al fondo.
+     Son dibujos en SVG, así que se ven nítidos en cualquier pantalla y pesan muy poco. */
+  background: var(--w-top) var(--w-scene) left bottom / cover no-repeat;
 }
+
+.auth__tagline { font-weight: 700; color: var(--w-title); opacity: 0.85; text-align: center; }
 
 .auth__logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
 .auth__name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--w-title); }
@@ -74,6 +80,7 @@
   .auth { flex-direction: row; }
   .auth__brand { flex: 1 1 50%; justify-content: center; gap: 1.5rem; padding: 3rem; }
   .auth__name { font-size: clamp(2.25rem, 4vw, 3.5rem); }
+  .auth__tagline { font-size: 1.15rem; }
   .auth__grano { height: auto; width: min(30rem, 38vw); max-width: 100%; }
   .auth__panel {
     flex: 1 1 50%;
