@@ -5,6 +5,7 @@
   --w-title: #1E1B2E;
   --w-text: #FFF8EC;
   --w-ray: #FFC93C;
+  --w-scene: url('/img/escena-dia.svg');
   overflow-x: hidden;
   background: var(--w-top);
 }
@@ -13,6 +14,7 @@
   --w-top: #17153B;
   --w-bottom: #2D2878;
   --w-title: #FFF8EC;
+  --w-scene: url('/img/escena-noche.svg');
 }
 
 .welcome__main { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
@@ -26,8 +28,11 @@
   justify-content: center;
   gap: clamp(0.5rem, 3vh, 1.5rem);
   padding: clamp(3.5rem, 8vh, 5rem) 1.5rem 3rem;
-  background: var(--w-top);
+  /* El mismo paisaje del campo de las pantallas de acceso, detrás de Grano. */
+  background: var(--w-top) var(--w-scene) left bottom / cover no-repeat;
 }
+
+.welcome__tagline { font-weight: 700; color: var(--w-title); opacity: 0.85; text-align: center; }
 
 .welcome__title {
   font-size: clamp(3rem, 13vw, 5.5rem);
@@ -98,4 +103,5 @@
 @media (min-width: 900px) {
   .welcome__text { font-size: 1.35rem; max-width: 26rem; }
   .welcome__kicker { font-size: 0.95rem; }
+  .welcome__tagline { font-size: 1.15rem; }
 }
