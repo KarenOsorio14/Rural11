@@ -1,7 +1,10 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v39';
+const VERSION = 'v40';
+const CACHE = `shell-${VERSION}`;
+
+const SHELL = [
   '/',
   '/bienvenida.html',
   '/js/pages/bienvenida.js',
@@ -135,9 +138,13 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE).then((cache) => cache.put(request, copy));
           return response;
         })
-        .catch(() =>
-          caches.match(request).then((hit) => hit || caches.match(url.pathname) || caches.match('/login.html'))
-        )
+        .catch(async () => {
+          // Sin conexión: la página guardada; /index.html es la misma que /; si no hay copia, el login.
+          const hit = (await caches.match(request)) || (await caches.match(url.pathname));
+          if (hit) return hit;
+          if (url.pathname === '/index.html') return (await caches.match('/')) || Response.error();
+          return (await caches.match('/login.html')) || Response.error();
+        })
     );
     return;
   }
