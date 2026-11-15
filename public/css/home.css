@@ -276,6 +276,15 @@
   padding: max(0.75rem, env(safe-area-inset-top)) 1.25rem 0.5rem;
 }
 
+.app__insignia { flex: none; width: 2.25rem; height: 2.25rem; margin-right: -0.35rem; background: url('/img/logo/insignia-claro.webp') center / contain no-repeat; }
+:root[data-theme="dark"] .app__insignia, :root:not([data-theme]) .app__insignia { background-image: url('/img/logo/insignia-oscuro.webp'); }
+.app__wordmark { white-space: nowrap; }
+/* En celulares angostos no caben nombre y fichas: queda la insignia, que ya dice Rural 11. */
+@media (max-width: 420px) {
+  .app__insignia { width: 2.6rem; height: 2.6rem; margin-right: 0; }
+  .app__wordmark { display: none; }
+}
+
 .app__wordmark {
   font-family: var(--font-display);
   font-size: 1.4rem;
