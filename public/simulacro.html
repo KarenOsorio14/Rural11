@@ -54,7 +54,19 @@
     </div>
   </div>
 
-  <!-- Confirmación al pausar: el progreso ya quedó guardado -->
+  <!-- Pregunta antes de pausar (HU-13): nada se guarda hasta que el estudiante confirma -->
+  <div class="modal" id="sim-pause-ask-modal" role="dialog" aria-modal="true" aria-labelledby="sim-pause-ask-title" hidden>
+    <div class="modal__box">
+      <h2 class="modal__title" id="sim-pause-ask-title">¿Pausar el simulacro?</h2>
+      <p class="modal__text" id="sim-pause-ask-text"></p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="sim-pause-ask-cancel" type="button">Seguir respondiendo</button>
+        <button class="btn btn--primary" id="sim-pause-ask-confirm" type="button">Sí, pausar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aviso después de pausar: el progreso ya quedó guardado -->
   <div class="modal" id="sim-pause-modal" role="dialog" aria-modal="true" aria-labelledby="sim-pause-title" hidden>
     <div class="modal__box">
       <h2 class="modal__title" id="sim-pause-title">Simulacro en pausa</h2>
