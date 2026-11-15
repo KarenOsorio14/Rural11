@@ -193,110 +193,138 @@
           </div>
         </section>
 
-        <!-- HU_28: estadísticas de desempeño -->
-        <section class="perf" aria-labelledby="perf-title">
-          <h2 class="color-picker__title" id="perf-title">Mi desempeño</h2>
-          <p class="color-picker__hint">Se actualiza solo cada vez que terminas una actividad.</p>
-          <div class="perf__tiles">
-            <div class="perf-tile">
-              <span class="perf-tile__val" id="perf-best">0%</span>
-              <span class="perf-tile__lbl">Mejor puntaje</span>
-            </div>
-            <div class="perf-tile">
-              <span class="perf-tile__val" id="perf-sims">0</span>
-              <span class="perf-tile__lbl">Simulacros realizados</span>
-            </div>
-            <div class="perf-tile">
-              <span class="perf-tile__val" id="perf-trend">—</span>
-              <span class="perf-tile__lbl" id="perf-trend-lbl">Mejora</span>
-            </div>
-          </div>
-          <p class="perf__note" id="perf-trend-note"></p>
-          <figure class="perf-chart" id="perf-chart-box">
-            <figcaption class="perf-chart__cap">Evolución de tu puntaje <span id="perf-chart-sub"></span></figcaption>
-            <div class="perf-chart__plot" id="perf-chart"></div>
-            <p class="perf-chart__empty" id="perf-chart-empty" hidden>Cuando completes tu primera actividad, aquí verás cómo evoluciona tu puntaje.</p>
-            <p class="perf-chart__tip" id="perf-chart-tip" aria-live="polite"></p>
-          </figure>
-        </section>
+        <!-- Secciones del perfil en pestañas: cada cosa queda a un toque -->
+        <div class="ptabs" role="tablist" aria-label="Secciones del perfil">
+          <button class="ptabs__tab" type="button" role="tab" id="ptab-progreso" data-ptab="progreso" aria-controls="ptab-panel-progreso" aria-selected="true" tabindex="0">
+            <svg class="ico ptabs__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l4-4 3 3 5-6"/></svg>
+            <span>Progreso</span>
+          </button>
+          <button class="ptabs__tab" type="button" role="tab" id="ptab-logros" data-ptab="logros" aria-controls="ptab-panel-logros" aria-selected="false" tabindex="-1">
+            <svg class="ico ptabs__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="5"/><path d="M9 13.5L8 21l4-2 4 2-1-7.5"/></svg>
+            <span>Logros</span>
+          </button>
+          <button class="ptabs__tab" type="button" role="tab" id="ptab-ranking" data-ptab="ranking" aria-controls="ptab-panel-ranking" aria-selected="false" tabindex="-1">
+            <svg class="ico ptabs__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 20V11"/><path d="M12 20V5"/><path d="M18 20v-6"/></svg>
+            <span>Ranking</span>
+          </button>
+          <button class="ptabs__tab" type="button" role="tab" id="ptab-ajustes" data-ptab="ajustes" aria-controls="ptab-panel-ajustes" aria-selected="false" tabindex="-1">
+            <svg class="ico ptabs__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+            <span>Ajustes</span>
+          </button>
+        </div>
 
-        <!-- HU_27: temas con menor rendimiento -->
-        <section class="perf" aria-labelledby="weak-title">
-          <h2 class="color-picker__title" id="weak-title">Temas para reforzar</h2>
-          <p class="color-picker__hint">Tu porcentaje de aciertos en cada tema, de menor a mayor.</p>
-          <p class="perf__advice" id="weak-advice"></p>
-          <ul class="weak-list" id="weak-list"></ul>
-        </section>
-
-        <!-- HU_23 y HU_24: tabla de posiciones y comparación con el grupo (datos en línea, HU_29) -->
-        <section class="perf" aria-labelledby="rank-title">
-          <h2 class="color-picker__title" id="rank-title">Tabla de posiciones</h2>
-          <p class="color-picker__hint">Puntos de los estudiantes de Rural 11. Solo se muestra el nombre y la inicial del apellido.</p>
-          <p class="rank__status" id="rank-status" aria-live="polite">Cargando…</p>
-          <div class="rank__body" id="rank-body" hidden>
-            <div class="perf__tiles perf__tiles--2">
+        <div class="ptab-panel ptab-panel--progreso" id="ptab-panel-progreso" role="tabpanel" aria-labelledby="ptab-progreso" data-ptab-panel="progreso">
+          <!-- HU_28: estadísticas de desempeño -->
+          <section class="perf" aria-labelledby="perf-title">
+            <h2 class="color-picker__title" id="perf-title">Mi desempeño</h2>
+            <p class="color-picker__hint">Se actualiza solo cada vez que terminas una actividad.</p>
+            <div class="perf__tiles">
               <div class="perf-tile">
-                <span class="perf-tile__val" id="cmp-mine">—</span>
-                <span class="perf-tile__lbl">Tu promedio</span>
+                <span class="perf-tile__val" id="perf-best">0%</span>
+                <span class="perf-tile__lbl">Mejor puntaje</span>
               </div>
               <div class="perf-tile">
-                <span class="perf-tile__val" id="cmp-all">—</span>
-                <span class="perf-tile__lbl" id="cmp-all-lbl">Promedio general</span>
+                <span class="perf-tile__val" id="perf-sims">0</span>
+                <span class="perf-tile__lbl">Simulacros realizados</span>
+              </div>
+              <div class="perf-tile">
+                <span class="perf-tile__val" id="perf-trend">—</span>
+                <span class="perf-tile__lbl" id="perf-trend-lbl">Mejora</span>
               </div>
             </div>
-            <p class="perf__advice" id="cmp-note"></p>
-            <ol class="rank-list" id="rank-list"></ol>
-            <label class="rank__hide">
-              <input type="checkbox" id="rank-hide">
-              <span>Ocultarme de la tabla y de las comparaciones (yo sí veo mi posición)</span>
-            </label>
-          </div>
-        </section>
+            <p class="perf__note" id="perf-trend-note"></p>
+            <figure class="perf-chart" id="perf-chart-box">
+              <figcaption class="perf-chart__cap">Evolución de tu puntaje <span id="perf-chart-sub"></span></figcaption>
+              <div class="perf-chart__plot" id="perf-chart"></div>
+              <p class="perf-chart__empty" id="perf-chart-empty" hidden>Cuando completes tu primera actividad, aquí verás cómo evoluciona tu puntaje.</p>
+              <p class="perf-chart__tip" id="perf-chart-tip" aria-live="polite"></p>
+            </figure>
+          </section>
 
-        <section class="achievements" aria-labelledby="badges-title">
-          <h2 class="color-picker__title" id="badges-title">Insignias <span class="achievements__count" id="badges-count"></span></h2>
-          <p class="color-picker__hint">Se ganan solas al cumplir objetivos de práctica.</p>
-          <ul class="ach-list" id="badges-list"></ul>
-        </section>
+          <!-- HU_27: temas con menor rendimiento -->
+          <section class="perf" aria-labelledby="weak-title">
+            <h2 class="color-picker__title" id="weak-title">Temas para reforzar</h2>
+            <p class="color-picker__hint">Tu porcentaje de aciertos en cada tema, de menor a mayor.</p>
+            <p class="perf__advice" id="weak-advice"></p>
+            <ul class="weak-list" id="weak-list"></ul>
+          </section>
 
-        <section class="achievements" aria-labelledby="rewards-title">
-          <h2 class="color-picker__title" id="rewards-title">Recompensas virtuales <span class="achievements__count" id="rewards-count"></span></h2>
-          <p class="color-picker__hint">Tu colección de Granos, desbloqueada con tus puntos y logros.</p>
-          <ul class="ach-list" id="rewards-list"></ul>
-        </section>
+          <!-- HU_26: resultados anteriores (cuestionarios, simulacros y prácticas), con el detalle de respuestas -->
+          <section class="perf" aria-labelledby="past-title">
+            <h2 class="color-picker__title" id="past-title">Mis resultados anteriores</h2>
+            <p class="color-picker__hint">Del más reciente al más antiguo. Toca "Ver mis respuestas" para repasar un intento.</p>
+            <p class="perf__note" id="past-empty" hidden>Aún no tienes resultados. Cuando termines un cuestionario, un simulacro o una práctica, aparecerá aquí.</p>
+            <ul class="past-list" id="past-list"></ul>
+            <button type="button" class="btn btn--ghost" id="past-more" hidden>Ver más resultados</button>
+          </section>
+        </div>
 
-        <section class="color-picker" aria-labelledby="color-picker-title">
-          <h2 class="color-picker__title" id="color-picker-title">Colores de la app</h2>
-          <p class="color-picker__hint">Elige el color que más te guste. Funciona en modo día y en modo noche.</p>
-          <div class="color-picker__list" role="radiogroup" aria-labelledby="color-picker-title" data-color-picker></div>
-        </section>
+        <div class="ptab-panel ptab-panel--logros" id="ptab-panel-logros" role="tabpanel" aria-labelledby="ptab-logros" data-ptab-panel="logros" hidden>
+          <section class="achievements" aria-labelledby="badges-title">
+            <h2 class="color-picker__title" id="badges-title">Insignias <span class="achievements__count" id="badges-count"></span></h2>
+            <p class="color-picker__hint">Se ganan solas al cumplir objetivos de práctica.</p>
+            <ul class="ach-list" id="badges-list"></ul>
+          </section>
 
-        <!-- HU_26: resultados anteriores (cuestionarios, simulacros y prácticas), con el detalle de respuestas -->
-        <section class="perf" aria-labelledby="past-title">
-          <h2 class="color-picker__title" id="past-title">Mis resultados anteriores</h2>
-          <p class="color-picker__hint">Del más reciente al más antiguo. Toca "Ver mis respuestas" para repasar un intento.</p>
-          <p class="perf__note" id="past-empty" hidden>Aún no tienes resultados. Cuando termines un cuestionario, un simulacro o una práctica, aparecerá aquí.</p>
-          <ul class="past-list" id="past-list"></ul>
-          <button type="button" class="btn btn--ghost" id="past-more" hidden>Ver más resultados</button>
-        </section>
+          <section class="achievements" aria-labelledby="rewards-title">
+            <h2 class="color-picker__title" id="rewards-title">Recompensas virtuales <span class="achievements__count" id="rewards-count"></span></h2>
+            <p class="color-picker__hint">Tu colección de Granos, desbloqueada con tus puntos y logros.</p>
+            <ul class="ach-list" id="rewards-list"></ul>
+          </section>
+        </div>
 
-        <details class="session">
-          <summary class="summary-muted">Información de sesión y dispositivo</summary>
-          <div class="session__row">
-            <dt>Correo</dt>
-            <dd id="user-email"></dd>
-          </div>
-          <div class="session__row">
-            <dt>Tipo de sesión</dt>
-            <dd id="session-type"></dd>
-          </div>
-          <div class="session__row">
-            <dt>Vigente hasta</dt>
-            <dd id="session-expires"></dd>
-          </div>
-        </details>
+        <div class="ptab-panel ptab-panel--ranking" id="ptab-panel-ranking" role="tabpanel" aria-labelledby="ptab-ranking" data-ptab-panel="ranking" hidden>
+          <!-- HU_23 y HU_24: tabla de posiciones y comparación con el grupo (datos en línea, HU_29) -->
+          <section class="perf" aria-labelledby="rank-title">
+            <h2 class="color-picker__title" id="rank-title">Tabla de posiciones</h2>
+            <p class="color-picker__hint">Puntos de los estudiantes de Rural 11. Solo se muestra el nombre y la inicial del apellido.</p>
+            <p class="rank__status" id="rank-status" aria-live="polite">Cargando…</p>
+            <div class="rank__body" id="rank-body" hidden>
+              <div class="perf__tiles perf__tiles--2">
+                <div class="perf-tile">
+                  <span class="perf-tile__val" id="cmp-mine">—</span>
+                  <span class="perf-tile__lbl">Tu promedio</span>
+                </div>
+                <div class="perf-tile">
+                  <span class="perf-tile__val" id="cmp-all">—</span>
+                  <span class="perf-tile__lbl" id="cmp-all-lbl">Promedio general</span>
+                </div>
+              </div>
+              <p class="perf__advice" id="cmp-note"></p>
+              <ol class="rank-list" id="rank-list"></ol>
+              <label class="rank__hide">
+                <input type="checkbox" id="rank-hide">
+                <span>Ocultarme de la tabla y de las comparaciones (yo sí veo mi posición)</span>
+              </label>
+            </div>
+          </section>
+        </div>
 
-        <button class="btn btn--ghost" id="logout" type="button">Cerrar sesión</button>
+        <div class="ptab-panel ptab-panel--ajustes" id="ptab-panel-ajustes" role="tabpanel" aria-labelledby="ptab-ajustes" data-ptab-panel="ajustes" hidden>
+          <section class="color-picker" aria-labelledby="color-picker-title">
+            <h2 class="color-picker__title" id="color-picker-title">Colores de la app</h2>
+            <p class="color-picker__hint">Elige el color que más te guste. Funciona en modo día y en modo noche.</p>
+            <div class="color-picker__list" role="radiogroup" aria-labelledby="color-picker-title" data-color-picker></div>
+          </section>
+
+          <details class="session">
+            <summary class="summary-muted">Información de sesión y dispositivo</summary>
+            <div class="session__row">
+              <dt>Correo</dt>
+              <dd id="user-email"></dd>
+            </div>
+            <div class="session__row">
+              <dt>Tipo de sesión</dt>
+              <dd id="session-type"></dd>
+            </div>
+            <div class="session__row">
+              <dt>Vigente hasta</dt>
+              <dd id="session-expires"></dd>
+            </div>
+          </details>
+
+          <button class="btn btn--ghost" id="logout" type="button">Cerrar sesión</button>
+        </div>
       </section>
     </main>
 

@@ -828,7 +828,7 @@ function renderPositionCard(ranking) {
     go.dataset.listo = '1';
     go.addEventListener('click', () => {
       showTab('perfil');
-      document.getElementById('rank-title').scrollIntoView({ block: 'start' });
+      showProfileTab('ranking');
     });
   }
 }
@@ -1054,6 +1054,42 @@ function showTab(name, { updateHash = true } = {}) {
 }
 
 tabButtons.forEach((btn) => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
+
+// ---------- Perfil en pestañas: Progreso, Logros, Ranking y Ajustes ----------
+const PROFILE_TABS = ['progreso', 'logros', 'ranking', 'ajustes'];
+const PROFILE_TAB_KEY = 'rural11-perfil-pestana';
+const profileTabButtons = [...document.querySelectorAll('[data-ptab]')];
+const profilePanels = [...document.querySelectorAll('[data-ptab-panel]')];
+
+function showProfileTab(name, { focus = false } = {}) {
+  const tab = PROFILE_TABS.includes(name) ? name : PROFILE_TABS[0];
+  profileTabButtons.forEach((btn) => {
+    const active = btn.dataset.ptab === tab;
+    btn.setAttribute('aria-selected', String(active));
+    btn.tabIndex = active ? 0 : -1;
+    if (active && focus) btn.focus();
+  });
+  profilePanels.forEach((panel) => { panel.hidden = panel.dataset.ptabPanel !== tab; });
+  try { localStorage.setItem(PROFILE_TAB_KEY, tab); } catch (e) { /* sin almacenamiento: no pasa nada */ }
+}
+
+profileTabButtons.forEach((btn) => btn.addEventListener('click', () => showProfileTab(btn.dataset.ptab)));
+// Flechas, Inicio y Fin para moverse entre pestañas con el teclado.
+document.querySelector('.ptabs')?.addEventListener('keydown', (event) => {
+  const current = PROFILE_TABS.indexOf(document.activeElement?.dataset?.ptab);
+  if (current < 0) return;
+  let next = null;
+  if (event.key === 'ArrowRight') next = (current + 1) % PROFILE_TABS.length;
+  if (event.key === 'ArrowLeft') next = (current - 1 + PROFILE_TABS.length) % PROFILE_TABS.length;
+  if (event.key === 'Home') next = 0;
+  if (event.key === 'End') next = PROFILE_TABS.length - 1;
+  if (next === null) return;
+  event.preventDefault();
+  showProfileTab(PROFILE_TABS[next], { focus: true });
+});
+let savedProfileTab = null;
+try { savedProfileTab = localStorage.getItem(PROFILE_TAB_KEY); } catch (e) { savedProfileTab = null; }
+showProfileTab(savedProfileTab);
 showTab(location.hash.slice(1), { updateHash: false });
 
 const logoutModal = document.getElementById('logout-modal');
