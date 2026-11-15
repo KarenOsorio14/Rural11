@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v35';
+const VERSION = 'v36';
   '/',
   '/bienvenida.html',
   '/js/pages/bienvenida.js',
