@@ -7,6 +7,7 @@
   --w-text: #FFF8EC;
   --w-ray: #FFC93C;
   --w-scene: url('/img/escena-dia.svg');
+  --w-logo: url('/img/logo/insignia-claro.webp');
   background: var(--w-top);
 }
 
@@ -15,6 +16,7 @@
   --w-bottom: #2D2878;
   --w-title: #FFF8EC;
   --w-scene: url('/img/escena-noche.svg');
+  --w-logo: url('/img/logo/insignia-oscuro.webp');
 }
 
 .auth { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
@@ -35,6 +37,8 @@
 .auth__tagline { font-weight: 700; color: var(--w-title); opacity: 0.85; text-align: center; }
 
 .auth__logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+/* Insignia de Rural 11: Grano con birrete. Cambia sola entre la versión de día y la de noche. */
+.auth__insignia { flex: none; width: 3.25rem; height: 3.25rem; background: var(--w-logo) center / contain no-repeat; }
 .auth__name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--w-title); }
 .auth__grano { display: block; width: auto; height: clamp(7rem, 20vh, 10rem); max-width: 80%; filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.2)); }
 
@@ -80,6 +84,7 @@
   .auth { flex-direction: row; }
   .auth__brand { flex: 1 1 50%; justify-content: center; gap: 1.5rem; padding: 3rem; }
   .auth__name { font-size: clamp(2.25rem, 4vw, 3.5rem); }
+  .auth__insignia { width: clamp(4rem, 6vw, 5.5rem); height: clamp(4rem, 6vw, 5.5rem); }
   .auth__tagline { font-size: 1.15rem; }
   .auth__grano { height: auto; width: min(30rem, 38vw); max-width: 100%; }
   .auth__panel {

@@ -6,6 +6,7 @@
   --w-text: #FFF8EC;
   --w-ray: #FFC93C;
   --w-scene: url('/img/escena-dia.svg');
+  --w-logo: url('/img/logo/insignia-claro.webp');
   overflow-x: hidden;
   background: var(--w-top);
 }
@@ -15,6 +16,7 @@
   --w-bottom: #2D2878;
   --w-title: #FFF8EC;
   --w-scene: url('/img/escena-noche.svg');
+  --w-logo: url('/img/logo/insignia-oscuro.webp');
 }
 
 .welcome__main { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
@@ -33,6 +35,10 @@
 }
 
 .welcome__tagline { font-weight: 700; color: var(--w-title); opacity: 0.85; text-align: center; }
+
+/* Insignia de Rural 11 al lado del nombre, del mismo alto que las letras. */
+.welcome__brand { display: flex; align-items: center; justify-content: center; gap: 0.6rem; max-width: 100%; }
+.welcome__insignia { flex: none; width: clamp(3.25rem, 11vw, 5.5rem); height: clamp(3.25rem, 11vw, 5.5rem); background: var(--w-logo) center / contain no-repeat; }
 
 .welcome__title {
   font-size: clamp(3rem, 13vw, 5.5rem);
