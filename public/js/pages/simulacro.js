@@ -32,6 +32,10 @@ const finishConfirm = document.getElementById('sim-finish-confirm');
 const pauseModal = document.getElementById('sim-pause-modal');
 const pauseText = document.getElementById('sim-pause-text');
 const pauseResume = document.getElementById('sim-pause-resume');
+const pauseAskModal = document.getElementById('sim-pause-ask-modal');
+const pauseAskText = document.getElementById('sim-pause-ask-text');
+const pauseAskCancel = document.getElementById('sim-pause-ask-cancel');
+const pauseAskConfirm = document.getElementById('sim-pause-ask-confirm');
 
 const ICON_BACK = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
 const ICON_NEXT = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
@@ -503,8 +507,29 @@ function toggleFlag() {
   refreshPlayerState();
 }
 
+/**
+ * Pide confirmación antes de pausar (HU-13). El reloj sigue corriendo mientras
+ * el estudiante decide, igual que al entregar; solo se guarda si confirma.
+ */
+function openPauseAsk() {
+  if (!state.simulacro || state.finished || state.paused) return;
+  syncRemaining();
+  const answers = answeredCount();
+  const saved = answers > 0
+    ? `Se guardará${answers === 1 ? ' tu respuesta' : `n tus ${answers} respuestas`}, la pregunta en la que vas y el tiempo restante (${formatTimer(state.remaining)}).`
+    : `Se guardará la pregunta en la que vas y el tiempo restante (${formatTimer(state.remaining)}).`;
+  pauseAskText.textContent = `${saved} El cronómetro se detendrá hasta que vuelvas.`;
+  pauseAskModal.hidden = false;
+  pauseAskCancel.focus();
+}
+
+function closePauseAsk() {
+  pauseAskModal.hidden = true;
+}
+
 /** Guarda respuestas, pregunta actual y tiempo restante, y detiene el reloj. */
 async function pauseExam() {
+  closePauseAsk();
   if (!state.simulacro || state.finished || state.paused) return;
 
   syncRemaining();
@@ -683,6 +708,7 @@ async function finishExam({ auto = false } = {}) {
   state.paused = false;
   stopTimer();
   closeFinishModal();
+  closePauseAsk();
   removeBeforeUnload();
   await clearSimulacroProgress(state.user.id, state.simulacro.id).catch(() => {});
 
@@ -959,7 +985,7 @@ introView.addEventListener('click', async (event) => {
 
 playerView.addEventListener('click', (event) => {
   if (event.target.closest('#sim-pause')) {
-    pauseExam();
+    openPauseAsk();
     return;
   }
 
@@ -1014,8 +1040,25 @@ finishModal.addEventListener('click', (event) => {
 
 pauseResume.addEventListener('click', resumePausedSession);
 
+pauseAskCancel.addEventListener('click', () => {
+  closePauseAsk();
+  document.getElementById('sim-pause')?.focus();
+});
+
+pauseAskConfirm.addEventListener('click', () => {
+  pauseExam();
+});
+
+pauseAskModal.addEventListener('click', (event) => {
+  if (event.target === pauseAskModal) closePauseAsk();
+});
+
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return;
+  if (!pauseAskModal.hidden) {
+    closePauseAsk();
+    return;
+  }
   if (!pauseModal.hidden) {
     resumePausedSession();
     return;
