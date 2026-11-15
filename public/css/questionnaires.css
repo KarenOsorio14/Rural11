@@ -408,6 +408,23 @@
 
 /* Botón "Siguiente nivel" al aprobar un cuestionario de la ruta */
 .q-results__next { text-decoration: none; }
+
+/* HU_20: tarjeta de puntos ganados en los resultados. */
+.q-stat-card--points { border-color: var(--accent); }
+.q-stat-card--points .q-stat-card__value { color: var(--accent-shadow); }
+:root[data-theme="dark"] .q-stat-card--points .q-stat-card__value { color: var(--accent); }
+
+/* HU_19: nivel bloqueado en el catálogo del tema. */
+.q-card__lock { display: flex; align-items: flex-start; gap: 0.4rem; margin: 0; font-size: 0.85rem; color: var(--muted); }
+.q-card__lock .ico { flex: none; width: 1.1rem; height: 1.1rem; }
+.q-card__btn:disabled { cursor: not-allowed; opacity: 0.6; }
+
+/* HU_19: aviso de nivel desbloqueado. */
+.q-unlock { display: flex; align-items: flex-start; gap: 0.75rem; max-width: 42ch; margin-top: 0.75rem; padding: 0.85rem 1rem; text-align: left; border: 2px solid var(--accent); border-radius: var(--radius); background: var(--bg); }
+.q-unlock .ico { flex: none; width: 1.6rem; height: 1.6rem; color: var(--accent-shadow); }
+:root[data-theme="dark"] .q-unlock .ico { color: var(--accent); }
+.q-unlock__title { display: block; font-weight: 800; }
+.q-unlock__text { margin: 0.15rem 0 0; font-size: 0.9rem; color: var(--muted); }
 @media (max-width: 600px) {
   .q-results__footer { flex-direction: column; }
   .q-results__footer .btn { width: 100%; justify-content: center; }

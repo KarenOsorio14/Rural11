@@ -106,6 +106,25 @@ export async function getNextRouteStep(userId) {
 }
 
 /**
+ * HU_19: niveles bloqueados de la ruta. Un cuestionario está bloqueado si todavía no lo
+ * aprobó y está después del siguiente nivel pendiente (mismo orden que dibuja el inicio).
+ * Devuelve { locked: Set<id>, next: { topic, quiz } | null }.
+ */
+export async function getRouteLocks(userId) {
+  const list = await getQuestionnairesList(userId);
+  const ordered = [];
+  for (const topic of TOPICS) {
+    for (const quiz of list.filter((q) => q.category === topic.category)) ordered.push({ topic, quiz });
+  }
+  const frontier = ordered.findIndex((item) => !item.quiz.passed);
+  const locked = new Set();
+  if (frontier >= 0) {
+    ordered.forEach((item, i) => { if (i > frontier && !item.quiz.passed) locked.add(item.quiz.id); });
+  }
+  return { locked, next: frontier >= 0 ? ordered[frontier] : null };
+}
+
+/**
  * Obtiene un cuestionario por ID.
  */
 export function getQuestionnaireById(id) {

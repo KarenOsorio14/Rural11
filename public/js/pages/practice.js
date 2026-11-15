@@ -5,6 +5,7 @@ import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { checkAchievements } from '../core/achievements-notify.js';
+import { announcePoints, pointsFor } from '../core/points-notify.js';
 import { friendlyMessage } from '../core/errors.js';
 import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -13,6 +14,7 @@ import {
   getQuestionnairesList,
   getQuestionnaireById,
   getNextRouteStep,
+  getRouteLocks,
   evaluateAndSaveAttempt,
   getUserAttempts
 } from '../modules/questionnaires/questionnaires.service.js';
@@ -21,6 +23,10 @@ const practiceMain = document.getElementById('practice-main');
 const topbarTopicTitle = document.getElementById('topbar-topic-title');
 const ICON_BACK = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
 const ICON_NEXT = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+// HU_19: candado cerrado para los niveles bloqueados.
+const ICON_LOCK = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+// HU_19: candado abierto para el aviso de nivel desbloqueado.
+const ICON_UNLOCK = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
 // Flechas dibujadas con SVG (sin emojis ni símbolos de texto).
 
 const topicAvatar = document.getElementById('topic-avatar');
@@ -69,6 +75,8 @@ function showView(view) {
 async function renderTopicCatalog() {
   try {
     const list = await getQuestionnairesList(currentUser.id, currentTopic.category);
+    const { locked, next: pending } = await getRouteLocks(currentUser.id);
+    const pendingName = pending ? `«${pending.quiz.shortTitle || pending.quiz.title}» de ${pending.topic.category}` : '';
     const allHistory = await getUserAttempts(currentUser.id);
     const topicHistory = allHistory.filter((h) => h.category === currentTopic.category);
 
@@ -88,6 +96,7 @@ async function renderTopicCatalog() {
     } else {
       cardsGrid.innerHTML = list
         .map((q) => {
+          const isLocked = locked.has(q.id);
           let scoreBadge = '';
           if (q.bestScore !== null) {
             const badgeClass = q.passed ? 'q-card__badge--success' : 'q-card__badge';
@@ -109,9 +118,12 @@ async function renderTopicCatalog() {
               <span>${q.questionsCount} preguntas</span>
               <span>~${q.durationMinutes} min</span>
             </div>
-            <button class="btn btn--primary q-card__btn" data-action="start-quiz" data-id="${q.id}">
+            ${isLocked
+              ? `<p class="q-card__lock">${ICON_LOCK} Bloqueado: aprueba primero ${pendingName}.</p>
+                 <button class="btn btn--ghost q-card__btn" type="button" disabled>Nivel bloqueado</button>`
+              : `<button class="btn btn--primary q-card__btn" data-action="start-quiz" data-id="${q.id}">
               ${q.bestScore !== null ? 'Reintentar práctica' : 'Comenzar práctica'}
-            </button>
+            </button>`}
           </article>
         `;
         })
@@ -290,13 +302,29 @@ function renderQuestion() {
 // -------------------------------------------------------------
 async function finishQuiz() {
   try {
+    // HU_19: nivel que estaba por aprobar en la ruta ANTES de este intento.
+    const stepBefore = await getNextRouteStep(currentUser.id).catch(() => null);
     const result = await evaluateAndSaveAttempt(currentUser.id, currentQuiz.id, userAnswers);
     checkAchievements(currentUser.id);
+    announcePoints(currentUser.id, result.correctCount);
+    const earnedPoints = pointsFor(result.correctCount);
 
     // Si aprobó, se ofrece pasar directo al siguiente nivel de la ruta, sin volver al inicio.
     let next = null;
+    let unlock = null;
     if (result.passed) {
       const step = await getNextRouteStep(currentUser.id);
+      // HU_19: si este cuestionario era el nivel pendiente de la ruta, al aprobarlo se abre el siguiente.
+      if (stepBefore && stepBefore.quiz.id === currentQuiz.id) {
+        unlock = step
+          ? {
+              title: step.topic.id === stepBefore.topic.id ? '¡Desbloqueaste un nuevo nivel!' : '¡Desbloqueaste un nuevo tema!',
+              text: step.topic.id === stepBefore.topic.id
+                ? `Ya puedes hacer «${step.quiz.shortTitle || 'Repaso general'}» de ${step.topic.category}.`
+                : `Ya puedes empezar ${step.topic.category}.`
+            }
+          : { title: '¡Completaste toda la ruta!', text: 'Aprobaste todos los niveles de Ciencias Sociales.' };
+      }
       next = step
         ? {
             href: `/practice.html?topic=${encodeURIComponent(step.topic.id)}&quiz=${encodeURIComponent(step.quiz.id)}`,
@@ -323,6 +351,7 @@ async function finishQuiz() {
           </div>
           <h2 class="q-results__title">${statusText}</h2>
           <p class="q-results__desc">${statusDesc}</p>
+          ${unlock ? `<div class="q-unlock" role="status">${ICON_UNLOCK}<div><strong class="q-unlock__title">${unlock.title}</strong><p class="q-unlock__text">${unlock.text}</p></div></div>` : ''}
         </div>
 
         <div class="q-results__stats">
@@ -337,6 +366,10 @@ async function finishQuiz() {
           <div class="q-stat-card">
             <div class="q-stat-card__value">${result.passingPercentage}%</div>
             <div class="q-stat-card__label">Mínimo para aprobar</div>
+          </div>
+          <div class="q-stat-card q-stat-card--points">
+            <div class="q-stat-card__value">+${earnedPoints}</div>
+            <div class="q-stat-card__label">Puntos ganados</div>
           </div>
         </div>
 
@@ -399,6 +432,7 @@ async function finishQuiz() {
       title: result.passed ? '¡Felicitaciones!' : 'Cuestionario completado',
       message: `Obtuviste ${result.percentage}% de calificación.`
     });
+    if (unlock) notify({ type: 'success', title: unlock.title, message: unlock.text });
   } catch (error) {
     notify({ type: 'error', title: 'Error al calificar', message: friendlyMessage(error) });
   }
@@ -429,7 +463,21 @@ async function init() {
     const quizParam = new URLSearchParams(window.location.search).get('quiz');
     if (quizParam) {
       try {
-        if (getQuestionnaireById(quizParam).category === currentTopic.category) startQuiz(quizParam);
+        if (getQuestionnaireById(quizParam).category === currentTopic.category) {
+          // HU_19: un nivel bloqueado no se abre aunque se llegue por enlace directo.
+          const { locked, next: pending } = await getRouteLocks(currentUser.id);
+          if (locked.has(quizParam)) {
+            notify({
+              type: 'warning',
+              title: 'Nivel bloqueado',
+              message: pending
+                ? `Aprueba primero «${pending.quiz.shortTitle || pending.quiz.title}» de ${pending.topic.category} para desbloquearlo.`
+                : 'Aprueba los niveles anteriores para desbloquearlo.'
+            });
+          } else {
+            startQuiz(quizParam);
+          }
+        }
       } catch (error) {
         // Si el cuestionario no existe se deja el catálogo del tema.
       }

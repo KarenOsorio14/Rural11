@@ -8,6 +8,7 @@ import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { checkAchievements } from '../core/achievements-notify.js';
+import { announcePoints } from '../core/points-notify.js';
 import { friendlyMessage } from '../core/errors.js';
 import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -428,6 +429,7 @@ async function finalizarSesion() {
   try {
     resultado = await saveSeguidaAttempt(estado.usuario.id, resultado);
     checkAchievements(estado.usuario.id);
+    announcePoints(estado.usuario.id, resultado.correctCount);
   } catch (error) {
     notify({
       type: 'warning',
