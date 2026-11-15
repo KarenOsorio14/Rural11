@@ -455,6 +455,9 @@
     padding: 0 0.5rem 1.25rem;
   }
 
+  .tabbar__insignia { flex: none; width: 2.75rem; height: 2.75rem; background: url('/img/logo/insignia-claro.webp') center / contain no-repeat; }
+  :root[data-theme="dark"] .tabbar__insignia, :root:not([data-theme]) .tabbar__insignia { background-image: url('/img/logo/insignia-oscuro.webp'); }
+
   .tabbar__name {
     font-family: var(--font-display);
     font-size: 1.5rem;

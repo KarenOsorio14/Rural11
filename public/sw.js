@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v34';
+const VERSION = 'v35';
   '/',
   '/bienvenida.html',
   '/js/pages/bienvenida.js',
@@ -19,6 +19,8 @@ const VERSION = 'v34';
   '/img/grano/grano-lupa.webp',
   '/img/escena-dia.svg',
   '/img/escena-noche.svg',
+  '/img/logo/insignia-claro.webp',
+  '/img/logo/insignia-oscuro.webp',
   '/img/grano/3d/estrella.webp',
   '/img/grano/alegre.webp',
   '/img/grano/cafe.webp',
