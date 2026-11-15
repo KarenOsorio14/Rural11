@@ -1,7 +1,7 @@
 'use strict';
 
 // Sube la versión cada vez que cambies archivos del shell para invalidar la caché anterior.
-const VERSION = 'v37';
+const VERSION = 'v38';
   '/',
   '/bienvenida.html',
   '/js/pages/bienvenida.js',
@@ -64,6 +64,7 @@ const VERSION = 'v37';
   '/fonts/manrope-latin-wght-normal.woff2',
   '/js/core/db.js',
   '/js/core/achievements-notify.js',
+  '/js/core/points-notify.js',
   '/js/modules/points/points.service.js',
   '/js/modules/gamification/catalog.js',
   '/js/modules/gamification/stats.js',

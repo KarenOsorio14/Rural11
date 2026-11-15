@@ -7,6 +7,7 @@ import { granoResultadoHtml } from '../core/grano-resultado.js';
 import { passageHtml } from '../core/passage.js';
 import { notify, flash, showPendingFlash } from '../core/notifications.js';
 import { checkAchievements } from '../core/achievements-notify.js';
+import { announcePoints } from '../core/points-notify.js';
 import { friendlyMessage } from '../core/errors.js';
 import { showStorageRecovery } from '../core/storage-recovery.js';
 import { getSession } from '../modules/auth/auth.service.js';
@@ -727,6 +728,7 @@ async function finishExam({ auto = false } = {}) {
     try {
       await saveSimulacroAttempt(state.user.id, result);
       checkAchievements(state.user.id);
+      announcePoints(state.user.id, result.correctCount);
     } catch (error) {
       saveError = error;
     }
